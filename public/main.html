@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>ส่วนเนื้อหาหลัก</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap');
+        :root {
+            --font-family: 'Sarabun', sans-serif;
+            --border-color: #333;
+            --text-color: #333;
+            --unchecked-color: #999;
+        }
+            body {
+        font-family: var(--font-family);
+        font-size: 12px;
+        line-height: 1.8;
+        color: var(--text-color);
+        margin: 0;
+    }
+        .page-container {
+            width: 210mm;
+            padding: 20mm;
+            box-sizing: border-box;
+        }
+        h1, h2, h3 { font-weight: 700; }
+        h1 { text-align: center; font-size: 18px; margin-bottom: 25px; }
+        h2 { font-size: 16px; margin-top: 25px; border-bottom: 1px solid #dee2e6; padding-bottom: 6px; }
+        h3 { font-size: 14px; margin-top: 20px; margin-bottom: 8px; }
+        .grid-container { display: grid; grid-template-columns: 220px 1fr; gap: 6px 15px; align-items: baseline; }
+        .grid-container strong { font-weight: 700; }
+        .unchecked { color: var(--unchecked-color); }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; page-break-inside: avoid; }
+        th, td { border: 1px solid var(--border-color); padding: 4px; text-align: left; vertical-align: middle;}
+        th { background-color: #f1f3f5; font-weight: 700; text-align: center; }
+        ol { padding-left: 25px; }
+        ol li { margin-bottom: 4px; }
+        .feedback-item { margin: 0 0 2px 0; text-indent: -1.5em; padding-left: 1.5em; }
+        .evaluation-table { font-size: 10px; }
+        .evaluation-table td { text-align: center; }
+        .evaluation-table .item-name { text-align: left; }
+    </style>
+</head>
+<body>
+    <div class="page-container">
+        <h1>แบบสรุปผลการดำเนินงานโครงการ<br>ประจำปีงบประมาณ {&fiscal_year} </h1>
+        <div class="grid-container">
+            <strong>ชื่อโครงการ</strong><span>: {&project_title}</span>
+            <strong>จัดอยู่ในแผนงาน</strong><span>: {&plan_name}</span>
+            <strong>งบประมาณที่ได้รับจัดสรร</strong><span>: {&allocated_budget} บาท</span>
+            <strong>งบประมาณที่จ่ายจริง</strong><span>: {&actual_budget} บาท</span>
+            <strong>วันเดือนปีที่ดำเนินการ</strong><span>: {&date_operation} &nbsp;&nbsp;&nbsp; {&check_operation_box}</span>
+            <strong>จำนวนกลุ่มเป้าหมายที่จะเข้าร่วมโครงการ</strong><span>: {&group_count} คน ({&expected_people} คน)</span>
+            <strong>จำนวนผู้เข้าร่วมจริง</strong><span>: {&real_people} คน</span>
+            <strong>คิดเป็นร้อยละผู้เข้าร่วมโครงการ</strong><span>: {&percentage_real_people}% &nbsp;&nbsp;&nbsp; {&check_real_people_box}</span>
+        </div>
+        <h2>การประเมินความพึงพอใจ</h2>
+        <div class="grid-container">
+            <strong>จำนวนผู้ตอบแบบสอบถามทั้งหมด</strong><span>: {&total_respondents} คน</span>
+            <strong>คิดเป็นจำนวนผู้ตอบแบบสอบถาม ร้อยละ</strong><span>: {&percentage_respondents}%</span>
+            <strong>ค่าเฉลี่ยผลการประเมินความพึงพอใจ</strong><span>: {&overall_average_score} &nbsp;&nbsp;&nbsp; {&check_satisfaction_box}</span>
+        </div>
+        <h2>การบรรลุวัตถุประสงค์</h2>
+        <ol id="objectives-list"></ol>
+        <h2>ปัญหา/อุปสรรค</h2>
+        <p>{&problems}</p>
+        <h2>แนวทางแก้ไขในการดำเนินงานครั้งต่อไป</h2>
+        <p>{&solutions}</p>
+        
+        <div style="page-break-before: always;"></div>
+        
+        <h2>สรุปแบบประเมินโครงการ {&project_title}</h2>
+        <div class="grid-container" style="gap: 5px 15px;">
+            <strong>จำนวนผู้เข้าร่วมโครงการ</strong><span>: {&real_people} คน</span>
+            <strong>จำนวนผู้ตอบแบบประเมิน</strong><span>: {&total_respondents} คน</span>
+            <strong>คิดเป็นร้อยละ</strong><span>: {&percentage_respondents}% ของจำนวนผู้เข้าร่วมโครงการ</span>
+        </div>
+        <h3>ความคิดเห็นของผู้ตอบแบบสอบถาม</h3>
+        <p style="margin-top: 0; margin-bottom: 5px;">
+            การประเมินผลโดยแบ่งความพึงพอใจออกเป็น 5 ระดับ คือ มากที่สุด, มาก, ปานกลาง, น้อย, น้อยที่สุด และมีระดับคะแนนตั้งแต่ 5 – 1 สามารถคำนวณแบ่งช่วงระดับความพึงพอใจในแต่ละตัวแปร ดังนี้
+        </p>
+        <p style="margin: 0; font-style: italic;">
+            อัตรภาคชั้น = (คะแนนสูงสุด – คะแนนต่ำสุด) / จำนวนช่วงคะแนนทั้งหมด = (5 - 1) / 5 = 0.80
+        </p>
+        <p style="margin-top: 5px;">
+            ดังนั้น ช่วงคะแนนเฉลี่ยเท่ากับ 0.80 จึงกำหนดเกณฑ์พิจารณาระดับความคิดเห็นได้ดังนี้
+        </p>
+        <div class="grid-container" style="font-size: 12px; gap: 2px 15px;">
+            <strong>ระดับคะแนน 4.21 - 5.00</strong><span>แสดงว่ามีระดับ มากที่สุด</span>
+            <strong>ระดับคะแนน 3.41 - 4.20</strong><span>แสดงว่ามีระดับ มาก</span>
+            <strong>ระดับคะแนน 2.61 - 3.40</strong><span>แสดงว่ามีระดับ ปานกลาง</span>
+            <strong>ระดับคะแนน 1.81 - 2.60</strong><span>แสดงว่ามีระดับ น้อย</span>
+            <strong>ระดับคะแนน 1.00 - 1.80</strong><span>แสดงว่ามีระดับ น้อยที่สุด</span>
+        </div>
+        <table class="evaluation-table">
+             <thead>
+                <tr>
+                    <th rowspan="2">รายการประเมิน</th>
+                    <th colspan="2">มากที่สุด</th><th colspan="2">มาก</th><th colspan="2">ปานกลาง</th>
+                    <th colspan="2">น้อย</th><th colspan="2">น้อยที่สุด</th><th rowspan="2">x̄</th><th rowspan="2">S.D.</th>
+                </tr>
+                <tr>
+                    <th>จำนวน</th><th>%</th><th>จำนวน</th><th>%</th><th>จำนวน</th><th>%</th>
+                    <th>จำนวน</th><th>%</th><th>จำนวน</th><th>%</th>
+                </tr>
+            </thead>
+            <tbody id="complacence-body">
+            </tbody>
+        </table>
+        <h3>สรุปผลการประเมิน</h3>
+        <ol id="satisfaction-summary-list" style="font-size: 12px; list-style-position: inside; padding-left: 0;">
+        </ol>
+        <p>
+            <strong>สรุปค่าเฉลี่ยรวมการประเมินในประเด็นที่ {&complacence_question_start_index} – {&complacence_question_count} คิดเป็นค่าเฉลี่ย {&overall_average_score} อยู่ในระดับ {&overall_satisfaction_level}</strong>
+        </p>
+        
+        <h2>ข้อเสนอแนะ</h2>
+        <div id="suggestions-container">
+        </div>
+    </div>
+</body>
+</html>

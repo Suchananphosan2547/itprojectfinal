@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>ตารางสรุปผล</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap');
+        :root {
+            --font-family: 'Sarabun', sans-serif;
+            --border-color: #333;
+        }
+        body {
+            font-family: var(--font-family);
+            font-size: 12px;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+        }
+        .page-container {
+            width: 297mm;
+            padding: 15mm;
+            box-sizing: border-box;
+        }
+        h1 { text-align: center; font-size: 18px; margin-bottom: 20px; font-weight: 700; }
+        .final-summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 8px; /* User's current font-size */
+            text-align: center;
+            table-layout: fixed; /* Added */
+            margin: 0 auto; /* Added to center the table */
+        }
+        .final-summary-table th, .final-summary-table td {
+            font-family: 'TH Sarabun New', sans-serif; /* Explicitly set font */
+            line-height: 3.0; /* Adjusted line-height */
+            border: 1px solid var(--border-color);
+            padding: 1px; /* User's current padding */
+            vertical-align: middle;
+            white-space: normal; /* Added */
+        }
+        .final-summary-table .left-align { text-align: left; }
+        .final-summary-table .check-mark { font-family: sans-serif; font-weight: bold; color: #27ae60; }
+.vertical-header {
+    height: 140px; /* ความสูงของหัวตาราง */
+    position: relative;
+    padding: 0;
+    text-align: center; /* จัดให้อยู่กลางช่อง */
+    vertical-align: bottom; /* ให้ข้อความอยู่ด้านล่างสุดของช่อง */
+}
+
+.vertical-header div {
+    position: absolute;
+    bottom: 0px; /* ระยะห่างจากขอบล่าง */
+    left: 20%;
+    transform: translate(-50%, -100%) rotate(-90deg); /* หมุนและจัดกึ่งกลาง */
+    transform-origin: center;
+    white-space: nowrap;
+    text-align: left;
+    width: max-content; /* ให้ความกว้างพอดีกับข้อความ */
+    font-weight: 500;
+}
+
+    </style>
+</head>
+<body>
+    <div class="page-container">
+        <h1>ตารางสรุปผลการดำเนินงานโครงการ</h1>
+        <table class="final-summary-table">
+            <colgroup>
+                <col style="width: 2%;"> <!-- ลำดับ -->
+                <col style="width: 10%;"> <!-- ชื่อโครงการ -->
+                <col style="width: 8%;"> <!-- ผู้รับผิดชอบโครงการ -->
+                <col style="width: 4%;"> <!-- วันเริ่มต้น (แผน) -->
+                <col style="width: 4%;"> <!-- วันสิ้นสุด (แผน) -->
+                <col style="width: 3%;"> <!-- ปริมาณ (แผน) -->
+                <col style="width: 3%;"> <!-- คุณภาพ (แผน) -->
+                <col style="width: 4%;"> <!-- แผ่นดิน (งบแผน) -->
+                <col style="width: 4%;"> <!-- เงินรายได้ (งบแผน) -->
+                <col style="width: 4%;"> <!-- วันเริ่มต้น (ผล) -->
+                <col style="width: 4%;"> <!-- วันสิ้นสุด (ผล) -->
+                <col style="width: 3%;"> <!-- ปริมาณ (ผล) -->
+                <col style="width: 3%;"> <!-- คุณภาพ (ผล) -->
+                <col style="width: 4%;"> <!-- แผ่นดิน (งบผล) -->
+                <col style="width: 4%;"> <!-- เงินรายได้ (งบผล) -->
+                <col style="width: 4%;"> <!-- ต้นทุนต่อหน่วย -->
+                <col style="width: 2%;"> <!-- เกณฑ์ 1 -->
+                <col style="width: 2%;"> <!-- เกณฑ์ 2 -->
+                <col style="width: 2%;"> <!-- เกณฑ์ 3 -->
+                <col style="width: 2%;"> <!-- เกณฑ์ 4 -->
+                <col style="width: 2%;"> <!-- เกณฑ์ 5 -->
+                <col style="width: 2%;"> <!-- เกณฑ์ 6 -->
+                <col style="width: 2%;"> <!-- เกณฑ์ 7 -->
+                <col style="width: 8%;"> <!-- เอกสารหลักฐาน -->
+            </colgroup>
+            <thead>
+                <tr>
+                    <th rowspan="3">ลำดับ</th>
+                    <th rowspan="3">ชื่อโครงการ</th>
+                    <th rowspan="3">ผู้รับผิดชอบ<br>โครงการ</th>
+                    <th colspan="6">แผนการดำเนินงาน</th>
+                    <th colspan="6">ผลการดำเนินงาน</th>
+                    <th rowspan="3">ต้นทุน<br>ต่อหน่วย</th>
+                    <th colspan="7" style="vertical-align: middle;">เกณฑ์</th>
+                    <th rowspan="3">เอกสาร<br>หลักฐาน</th>
+                </tr>
+                <tr>
+                    <th colspan="2">ระยะเวลา<br>ดำเนินงาน</th>
+                    <th colspan="2">เป้าหมาย/ตัวบ่งชี้</th>
+                    <th colspan="2">งบประมาณ</th>
+                    <th colspan="2">ระยะเวลา<br>ดำเนินงาน</th>
+                    <th colspan="2">เป้าหมาย/ตัวบ่งชี้</th>
+                    <th colspan="2">งบประมาณ</th>
+                    <th rowspan="2" class="vertical-header"><div>1. ดำเนินงานตามแผน</div></th>
+                    <th rowspan="2" class="vertical-header"><div>2. เป็นไปตามกำหนดเวลา</div></th>
+                    <th rowspan="2" class="vertical-header"><div>3. ตรงตามวัตถุประสงค์</div></th>
+                    <th rowspan="2" class="vertical-header"><div>4. บรรลุเป้าหมาย</div></th>
+                    <th rowspan="2" class="vertical-header"><div>5. ติดตามและประเมินผล</div></th>
+                    <th rowspan="2" class="vertical-header"><div>6. มีการปรับแผน</div></th>
+                    <th rowspan="2" class="vertical-header"><div>7. ยังไม่ดำเนินงาน</div></th>
+                </tr>
+                <tr>
+                    <th>วันเริ่มต้น</th>
+                    <th>วันสิ้นสุด</th>
+                    <th>ปริมาณ</th>
+                    <th>คุณภาพ</th>
+                    <th>แผ่นดิน</th>
+                    <th>เงินรายได้</th>
+                    <th>วันเริ่มต้น</th>
+                    <th>วันสิ้นสุด</th>
+                    <th>ปริมาณ</th>
+                    <th>คุณภาพ</th>
+                    <th>แผ่นดิน</th>
+                    <th>เงินรายได้</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td class="left-align">{&project_title}</td>
+                    <td class="left-align">{&manager_name}</td>
+                    <td>{&start_date_short}</td>
+                    <td>{&end_date_short}</td>
+                    <td>{&expected_people}</td>
+                    <td>{&plan_quality}</td>
+                    <td>-</td>
+                    <td>{&allocated_budget}</td>
+                    <td>{&start_date_short}</td>
+                    <td>{&end_date_short}</td>
+                    <td>{&real_people}</td>
+                    <td>{&overall_average_score}</td>
+                    <td>-</td>
+                    <td>{&actual_budget}</td>
+                    <td>{&cost_per_unit}</td>
+                    <td>{&criteria_1_check}</td>
+                    <td>{&criteria_2_check}</td>
+                    <td>{&criteria_3_check}</td>
+                    <td>{&criteria_4_check}</td>
+                    <td>{&criteria_5_check}</td>
+                    <td>{&criteria_6_check}</td>
+                    <td>{&criteria_7_check}</td>
+                    <td>{&evidence}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

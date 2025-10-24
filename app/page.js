@@ -1,103 +1,240 @@
+'use client'
+
+import { useRouter } from 'next/navigation'
 import Image from "next/image";
+import Link from "next/link";
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
+import Swal from 'sweetalert2'
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false); // 👁️ toggle state
+  const router = useRouter();
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  const activityImages = [
+    "/images/activity1.jpg",
+    "/images/activity2.jpg",
+    "/images/activity3.jpg",
+    "/images/activity4.jpg",
+    "/images/activity5.jpg",
+  ];
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      handleNext();
+    }, 10000); // เปลี่ยนรูปทุกๆ 10 วินาที
+    return () => clearInterval(intervalId);
+  }, [activityImages.length]);
+
+  const handlePrev = () => {
+    setCurrentImageIndex((prevIndex) =>
+      (prevIndex - 1 + activityImages.length) % activityImages.length
+    );
+  };
+
+  const handleNext = () => {
+    setCurrentImageIndex((prevIndex) =>
+      (prevIndex + 1) % activityImages.length
+    );
+  };
+
+  const handleLogin = async (event) => {
+    event.preventDefault();
+
+    try {
+      const response = await axios.post('/api/login', {
+        username,
+        password,
+      });
+
+      const { user, initialPath } = response.data;
+      sessionStorage.setItem('user', JSON.stringify(user));
+
+      await Swal.fire({
+        icon: 'success',
+        title: 'เข้าสู่ระบบสำเร็จ',
+        title: 'เข้าสู่ระบบสำเร็จ',
+        showConfirmButton: false,
+        timer: 1500,
+      });
+
+      router.push(initialPath);
+    } catch (error) {
+      console.error('Login failed:', error);
+      const errorMessage = error.response?.data?.message || 'An unexpected error occurred.';
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'กรุณาเข้าสู่ระบบใหม่อีกครั้ง',
+        confirmButtonText: 'ตกลง',
+      });
+    }
+  };
+
+  return (
+    <div className="flex flex-col md:flex-row min-h-screen bg-white">
+      {/* Left side: Enhanced Carousel with Super Smooth Gradient to White */}
+      <div className="hidden md:flex md:w-6/10 items-stretch justify-center bg-gray-100 relative">
+        <div className="w-full h-full relative overflow-hidden"> 
+          {/* ✅ โครงสร้างใหม่: แต่ละรูปภาพจะ absolute ซ้อนทับกัน และควบคุมการแสดงผลด้วย opacity */}
+          {activityImages.map((src, index) => (
+            <div 
+              key={index} 
+              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                index === currentImageIndex ? 'opacity-100 z-0' : 'opacity-0 z-0' // z-0 เพื่อให้ข้อความอยู่บน
+              }`}
+            >
+              <Image
+                src={src}
+                alt={`Activity ${index + 1}`}
+                fill
+                className="object-cover"
+              />
+              
+              {/* 1. Gradient Overlay: ดำจากล่างขึ้นบน เพื่อเน้นข้อความ (คงไว้) */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+
+              {/* 2. Gradient ไล่จากซ้ายไปขาวแบบเนียนๆ */}
+              <div 
+                className="absolute inset-0" // ไม่ต้องมี z-0 ตรงนี้แล้ว เพราะภาพหลักเป็น z-0 อยู่แล้ว
+                style={{ 
+                  background: 'linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0) 70%, rgba(255, 255, 255, 1) 100%)' 
+                }}
+              ></div>
+            </div>
+          ))}
+
+          {/* ข้อความอยู่คงที่ ไม่เลื่อนไปกับรูป (z-index สูงกว่า gradient และรูปภาพ) */}
+          {/* ✅ ปรับ z-index ของข้อความให้สูงขึ้น เพื่อให้แน่ใจว่าอยู่บนทุก gradient */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-8 z-10"> 
+            <h2 className="text-5xl font-extrabold text-center drop-shadow-lg ">
+              Information Technology
+            </h2>
+            <p className="mt-4 text-xl text-center font-light drop-shadow-md max-w-md">
+              สาขาเทคโนโลยีสารสนเทศ เราเชื่อในศักยภาพของทุกคนและพร้อมที่จะสร้างสิ่งมหัศจรรย์ไปด้วยกัน
+            </p>
+          </div>
+
+          {/* ปุ่มเลื่อนซ้าย/ขวา และ Indicators ก็ควรมี z-index สูงกว่าด้วย */}
+          {/* (มีการตั้งค่า z-20 ไว้แล้ว ซึ่งใช้ได้ดี) */}
+
+          {/* ปุ่มเลื่อนซ้าย/ขวา */}
+          <button
+            onClick={handlePrev}
+            className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/40 text-white p-2 rounded-full hover:bg-black/70 z-20 transition duration-300 backdrop-blur-sm hover:bg-white/30 hover:scale-110"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            ‹
+          </button>
+          <button
+            onClick={handleNext}
+            className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/40 text-white p-2 rounded-full hover:bg-black/70 z-20 transition duration-300 backdrop-blur-sm hover:bg-white/30 hover:scale-110"
           >
-            Read our docs
-          </a>
+            ›
+          </button>
+
+          {/* Indicators */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 z-20">
+            {activityImages.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentImageIndex(index)}
+                className={`w-3 h-3 rounded-full transition duration-300 hover:scale-125 ${index === currentImageIndex ? 'bg-white' : 'bg-gray-400'
+                  }`}
+              />
+            ))}
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+      </div>
+
+
+
+      {/* Right side: Login Form */}
+      <div className="w-full md:w-4/10 flex flex-col items-center justify-center flex-grow p-0 p-4">
+        <div className="w-full max-w-sm bg-white/0 p-0 shadow-none">
           <Image
+            className='mx-auto'
             aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+            src="https://my.ku.th/myku/img/KU_Logo_PNG.png"
+            alt="KU icon"
+            width={120}
+            height={150}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          <div className="text-center my-5">
+            <p className="text-lg text-gray-700">เข้าใช้งานระบบ KU Next</p>
+          </div>
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div>
+              <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+                Username
+              </label>
+              <div className="mt-1">
+                <input
+                  id="username"
+                  name="username"
+                  type="text"
+                  autoComplete="username"
+                  required
+                  placeholder="เช่น b6521xxxxxx"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="block w-full px-3 py-2 border border-gray-300 transition duration-150 hover:border-gray-400 rounded-md shadow-sm 
+                  placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                รหัสผ่าน
+              </label>
+              <div className="mt-1 relative">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"} // toggle 👁️
+                  autoComplete="current-password"
+                  required
+                  placeholder="รหัสผ่าน"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="block w-full px-3 py-2 border border-gray-300 transition duration-150 hover:border-gray-400 rounded-md shadow-sm 
+                  placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700"
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
+            </div>
+
+            <div className="text-right text-sm">
+              <Link
+                href="/resetpassword/request-otp"
+                className="font-medium text-blue-600 transition duration-150 hover:text-blue-500 active:text-blue-800"
+              >
+                ลืมรหัสผ่าน ?
+              </Link>
+            </div>
+
+            <div>
+              <button
+                type="submit"
+                className="w-full flex justify-center py-2 px-4 border border-transparent 
+                rounded-md shadow-sm text-sm font-medium text-white bg-green-600 transition duration-300 hover:bg-green-700 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+              >
+                เข้าสู่ระบบ
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,0 +1,38 @@
+import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+
+export async function POST(request) {
+  try {
+    let accessToken = request.headers.get('authorization');
+    if (!accessToken) {
+      const cookieStore = await cookies();
+      accessToken = cookieStore.get('accessToken')?.value;
+      if (accessToken) accessToken = `Bearer ${accessToken}`;
+    }
+    if (!accessToken) {
+      return NextResponse.json({ message: 'Access token not provided.' }, { status: 401 });
+    }
+
+    const body = await request.json();
+
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/create-fiscal-year`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': accessToken,
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return NextResponse.json(data, { status: response.status });
+  } catch (error) {
+    console.error('Error creating fiscal year:', error);
+    return NextResponse.json({ message: error.message || 'Failed to create fiscal year' }, { status: 500 });
+  }
+}
