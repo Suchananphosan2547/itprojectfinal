@@ -14,18 +14,15 @@ const NewsCard = ({ news, currentUser, onEdit, onDelete }) => {
   const formattedDate = new Date(news.create_at).toLocaleString('th-TH', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   const fileUrl = news.news_file ? `${process.env.NEXT_PUBLIC_API_URL}/api/news-files/${news.news_file}` : null;
 
-  // แก้ไขเงื่อนไขการแสดงปุ่ม: อนุญาตให้ role_id 2 และ 3 แก้ไขได้ทุกคน
   const canModify = currentUser && (currentUser.role_id === 3 || currentUser.role_id === 2);
 
   return (
     <div className="bg-white rounded-xl shadow-md overflow-hidden transform hover:-translate-y-1 transition-all duration-300 relative">
       <div className="p-6">
-        {/* บรรทัดชื่อข่าว + ปุ่มต่าง ๆ */}
         <div className="flex justify-between items-start mb-3">
-<h3 className="text-2xl font-bold text-slate-800 flex-grow min-w-0 mr-4">
-    {/* ใช้ truncate และ overflow-hidden เพื่อให้ชื่อยาวๆ ถูกตัดและตามด้วย ... ถ้าจำเป็น */}
-    <span className="truncate block">{news.news_title}</span>
-  </h3>
+          <h3 className="text-2xl font-bold text-slate-800 flex-grow min-w-0 mr-4">
+            <span className="truncate block">{news.news_title}</span>
+          </h3>
           <div className="flex items-center space-x-2 flex-shrink-0">
             {isPinned && (
               <div className="bg-amber-400 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center space-x-1">
@@ -53,7 +50,6 @@ const NewsCard = ({ news, currentUser, onEdit, onDelete }) => {
           </div>
         </div>
 
-        {/* รายละเอียดข่าว */}
         <div className="flex items-center space-x-3 text-sm text-slate-500 mb-4 border-b border-slate-200 pb-4">
           <FaUserTie className="h-4 w-4 mr-1.5" /><span>โดย: {creatorName}</span>
           <FaCalendarDays className="h-4 w-4 mr-1.5" /><span>{formattedDate}</span>
@@ -68,7 +64,7 @@ const NewsCard = ({ news, currentUser, onEdit, onDelete }) => {
             rel="noopener noreferrer"
             className="bg-sky-100 text-sky-700 hover:bg-sky-200 font-semibold py-2 px-4 rounded-lg flex items-center space-x-2"
           >
-            <FaFileArrowDown className="h-5 w-5 mr-2" /><span>Download Attachment</span>
+            <FaFileArrowDown className="h-5 w-5 mr-2" /><span>ดาวน์โหลดไฟล์แนบ</span>
           </a>
         )}
       </div>
@@ -151,8 +147,6 @@ const AddNewsModal = ({ isOpen, onClose, onSave }) => {
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">เพิ่มไฟล์แนบ</label>
             <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
-
-              {/* 1. input type="file" ถูกซ่อนไว้ */}
               <input
                 type="file"
                 ref={fileInputRef}
@@ -161,17 +155,14 @@ const AddNewsModal = ({ isOpen, onClose, onSave }) => {
                 className="hidden"
                 id="new-file-upload-modern"
               />
-
-              {/* 2. ปุ่ม/ป้ายกำกับแบบกำหนดเอง - สไตล์ปุ่มหลัก */}
               <label
                 htmlFor="new-file-upload-modern"
                 className="flex items-center justify-center gap-2 bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition duration-150 ease-in-out cursor-pointer flex-shrink-0 w-full sm:w-auto"
               >
-                <FaCloudArrowUp className="h-5 w-5" /> {/* สมมติว่ามีการ import FaCloudArrowUp แล้ว */}
+                <FaCloudArrowUp className="h-5 w-5" /> 
                 เลือกไฟล์
               </label>
 
-              {/* 3. แสดงสถานะ/ชื่อไฟล์ และปุ่มล้างไฟล์ */}
               <div className="flex items-center space-x-3 w-full">
                 <span className={`text-sm ${newsFile ? 'text-gray-600 font-medium' : 'text-slate-500 italic'}`}>
                   {newsFile ? `ไฟล์ที่เลือก: ${newsFile.name}` : 'ยังไม่ได้เลือกไฟล์ / คลิกเพื่ออัพโหลด'}
@@ -284,19 +275,13 @@ const EditNewsModal = ({ isOpen, onClose, onSave, newsItem }) => {
           <div><label className="block text-sm font-medium text-slate-700">หัวข้อข่าว</label><input type="text" value={newsTitle} onChange={(e) => setNewsTitle(e.target.value)} className="mt-1 block w-full border-slate-300 rounded-md shadow-sm p-2" required /></div>
           <div><label className="block text-sm font-medium text-slate-700">รายละเอียด</label><textarea rows="4" value={newsDetail} onChange={(e) => setNewsDetail(e.target.value)} className="mt-1 block w-full border-slate-300 rounded-md shadow-sm p-2" required></textarea></div>
 
-          {/* ส่วนสำหรับจัดการไฟล์แนบปัจจุบัน - UI ทันสมัย */}
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">ไฟล์แนบปัจจุบัน</label>
             <div className="mt-1 flex items-center p-3 border border-slate-300 rounded-lg bg-slate-50 justify-between transition duration-200">
               {currentFileName ? (
                 <div className="flex items-center space-x-3 w-full">
-                  {/* ไอคอนไฟล์ */}
-                  <FaFilePdf className="h-6 w-6 text-red-500 flex-shrink-0" /> {/* สมมติว่ามีการ import FaFilePdf แล้ว */}
-
-                  {/* ชื่อไฟล์ */}
+                  <FaFilePdf className="h-6 w-6 text-red-500 flex-shrink-0" /> 
                   <span className="text-sm font-medium text-slate-700 truncate">{currentFileName}</span>
-
-                  {/* ปุ่มลบ */}
                   <button
                     type="button"
                     onClick={handleClearCurrentFile}
@@ -308,7 +293,7 @@ const EditNewsModal = ({ isOpen, onClose, onSave, newsItem }) => {
                 </div>
               ) : (
                 <span className="text-sm text-slate-500 flex items-center space-x-2">
-                  <FaFolderOpen className="h-5 w-5 text-slate-400" /> {/* สมมติว่ามีการ import FaFolderOpen แล้ว */}
+                  <FaFolderOpen className="h-5 w-5 text-slate-400" /> 
                   <span>ไม่มีไฟล์แนบ</span>
                 </span>
               )}
@@ -317,12 +302,9 @@ const EditNewsModal = ({ isOpen, onClose, onSave, newsItem }) => {
 
           <hr className="my-6 border-slate-200" />
 
-          {/* ส่วนสำหรับอัพโหลดไฟล์ใหม่ - UI ทันสมัย */}
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">เปลี่ยนไฟล์แนบ</label>
             <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
-
-              {/* 1. input type="file" ถูกซ่อนไว้ */}
               <input
                 type="file"
                 ref={fileInputRef}
@@ -331,17 +313,15 @@ const EditNewsModal = ({ isOpen, onClose, onSave, newsItem }) => {
                 className="hidden"
                 id="new-file-upload-modern"
               />
-
-              {/* 2. ปุ่ม/ป้ายกำกับแบบกำหนดเอง - สไตล์ปุ่มหลัก */}
               <label
                 htmlFor="new-file-upload-modern"
                 className="flex items-center justify-center gap-2 bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition duration-150 ease-in-out cursor-pointer flex-shrink-0 w-full sm:w-auto"
               >
-                <FaCloudArrowUp className="h-5 w-5" /> {/* สมมติว่ามีการ import FaCloudArrowUp แล้ว */}
+                <FaCloudArrowUp className="h-5 w-5" /> 
                 เลือกไฟล์
               </label>
 
-              {/* 3. แสดงสถานะ/ชื่อไฟล์ และปุ่มล้างไฟล์ */}
+
               <div className="flex items-center space-x-3 w-full">
                 <span className={`text-sm ${newsFile ? 'text-gray-600 font-medium' : 'text-slate-500 italic'}`}>
                   {newsFile ? `ไฟล์ที่เลือก: ${newsFile.name}` : 'ยังไม่ได้เลือกไฟล์ / คลิกเพื่ออัพโหลด'}
@@ -435,95 +415,95 @@ export default function NewsClientPage({ disableCrud = false }) {
     }
   };
 
-const handleEditNews = async (newsId, formData) => {
-  try {
-    const accessToken = Cookies.get('accessToken');
-    if (!accessToken) {
-      Swal.fire({
-        title: 'เกิดข้อผิดพลาด',
-        text: 'Access token not found. Please log in.',
-        icon: 'error',
-        confirmButtonText: 'ตกลง',
-      });
-      return;
-    }
-
-    await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/news/${newsId}`, formData, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-
-    Swal.fire({
-      title: 'บันทึกการแก้ไข',
-      text: 'แก้ไขข่าวสำเร็จ',
-      icon: 'success',
-      confirmButtonText: 'ตกลง',
-    }).then(() => {
-      fetchNews();
-      setIsEditModalOpen(false);
-    });
-    
-  } catch (err) {
-    Swal.fire({
-      title: 'เกิดข้อผิดพลาด',
-      text: err.response?.data?.message || 'Failed to update news.',
-      icon: 'error',
-      confirmButtonText: 'ตกลง',
-    });
-    throw err;
-  }
-};
-
-
-const handleDeleteNews = (newsId) => {
-  Swal.fire({
-    title: 'ยืนยันการลบข้อมูล',
-    text: "คุณต้องการลบข่าวนี้หรือไม่?",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#d33',
-    cancelButtonColor: '#3085d6',
-    confirmButtonText: 'ตกลง',
-    cancelButtonText: 'ยกเลิก',
-  }).then(async (result) => {
-    if (result.isConfirmed) {
-      try {
-        const accessToken = Cookies.get('accessToken');
-        if (!accessToken) {
-          Swal.fire({
-            title: 'เกิดข้อผิดพลาด',
-            text: 'Access token not found. Please log in.',
-            icon: 'error',
-            confirmButtonText: 'ตกลง',
-          });
-          return;
-        }
-
-        await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/news/${newsId}`, {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
-
-        Swal.fire({
-          title: 'ลบสำเร็จ',
-          text: 'ข่าวนี้ถูกลบเรียบร้อยแล้ว',
-          icon: 'success',
-          confirmButtonText: 'ตกลง',
-        }).then(() => {
-          fetchNews();
-        });
-
-      } catch (err) {
+  const handleEditNews = async (newsId, formData) => {
+    try {
+      const accessToken = Cookies.get('accessToken');
+      if (!accessToken) {
         Swal.fire({
           title: 'เกิดข้อผิดพลาด',
-          text: err.response?.data?.message || 'Failed to delete news.',
+          text: 'Access token not found. Please log in.',
           icon: 'error',
           confirmButtonText: 'ตกลง',
         });
+        return;
       }
+
+      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/news/${newsId}`, formData, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      Swal.fire({
+        title: 'บันทึกการแก้ไข',
+        text: 'แก้ไขข่าวสำเร็จ',
+        icon: 'success',
+        confirmButtonText: 'ตกลง',
+      }).then(() => {
+        fetchNews();
+        setIsEditModalOpen(false);
+      });
+
+    } catch (err) {
+      Swal.fire({
+        title: 'เกิดข้อผิดพลาด',
+        text: err.response?.data?.message || 'Failed to update news.',
+        icon: 'error',
+        confirmButtonText: 'ตกลง',
+      });
+      throw err;
     }
-  });
-};
+  };
+
+
+  const handleDeleteNews = (newsId) => {
+    Swal.fire({
+      title: 'ยืนยันการลบข้อมูล',
+      text: "คุณต้องการลบข่าวนี้หรือไม่?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'ตกลง',
+      cancelButtonText: 'ยกเลิก',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const accessToken = Cookies.get('accessToken');
+          if (!accessToken) {
+            Swal.fire({
+              title: 'เกิดข้อผิดพลาด',
+              text: 'Access token not found. Please log in.',
+              icon: 'error',
+              confirmButtonText: 'ตกลง',
+            });
+            return;
+          }
+
+          await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/news/${newsId}`, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          });
+
+          Swal.fire({
+            title: 'ลบสำเร็จ',
+            text: 'ข่าวนี้ถูกลบเรียบร้อยแล้ว',
+            icon: 'success',
+            confirmButtonText: 'ตกลง',
+          }).then(() => {
+            fetchNews();
+          });
+
+        } catch (err) {
+          Swal.fire({
+            title: 'เกิดข้อผิดพลาด',
+            text: err.response?.data?.message || 'Failed to delete news.',
+            icon: 'error',
+            confirmButtonText: 'ตกลง',
+          });
+        }
+      }
+    });
+  };
 
 
   return (

@@ -3,43 +3,50 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { FaPlus, FaUsers, FaSearchengin, FaPenToSquare, FaTrash, FaCheck, FaCloudArrowUp, FaMagnifyingGlass } from 'react-icons/fa6';
+import { FaPlus, FaUsers, FaSearchengin, FaPenToSquare, FaTrash, FaCheck, FaCloudArrowUp, FaMagnifyingGlass, FaCircleInfo } from 'react-icons/fa6';
 import * as XLSX from 'xlsx';
 import Cookies from 'js-cookie';
 
 // --- User Card Component (for mobile view) ---
-const UserCard = ({ user, onEdit, onActivate, onDelete }) => (
-  <div className="bg-white p-4 rounded-lg shadow-md border border-gray-200">
-    <div className="flex justify-between items-start gap-4">
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-bold text-teal-700 truncate">{user.prefix} {user.firstname} {user.lastname}</p>
-        <p className="text-xs text-gray-600 truncate">{user.std_id || user.username}</p>
-        <p className="text-xs text-gray-500 break-all">{user.email}</p>
-      </div>
-      <div className="flex items-center space-x-3 text-xl flex-shrink-0">
-        <button onClick={onEdit} className="text-indigo-600 hover:text-indigo-900"><FaPenToSquare /></button>
-        {user.user_status === 'active' ? (
-          <button onClick={onDelete} className="text-red-600 hover:text-red-900"><FaTrash /></button>
-        ) : (
-          <button onClick={onActivate} className="text-green-600 hover:text-green-900"><FaCheck /></button>
+const UserCard = ({ user, currentUser, onEdit, onActivate, onDelete }) => {
+  const canManage = (currentUser?.role_id === 3 || currentUser?.program_type === user.program_type);
+
+  return (
+    <div className="bg-white p-4 rounded-lg shadow-md border border-gray-200">
+      <div className="flex justify-between items-start gap-4">
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-bold text-teal-700 truncate">{user.prefix} {user.firstname} {user.lastname}</p>
+          <p className="text-xs text-gray-600 truncate">{user.std_id || user.username}</p>
+          <p className="text-xs text-gray-500 break-all">{user.email}</p>
+        </div>
+        {canManage && (
+          <div className="flex items-center space-x-3 text-xl flex-shrink-0">
+            <button onClick={onEdit} className="text-indigo-600 hover:text-indigo-900"><FaPenToSquare /></button>
+            {user.user_status === 'active' ? (
+              <button
+                onClick={onDelete}
+                className="text-red-600 hover:text-red-900 p-1.5 rounded-md transition duration-150"
+              >
+                <FaTrash />
+              </button>
+            ) : (
+              <button onClick={onActivate} className="text-green-600 hover:text-green-900"><FaCheck /></button> 
+            )}
+          </div>
         )}
       </div>
+      <div className="mt-3 pt-3 border-t border-gray-200 text-xs text-gray-700 space-y-1">
+        <p><span className="font-semibold">คณะ:</span> {user.faculty_name || '-'}</p>
+        <p><span className="font-semibold">สาขา:</span> {user.major_name || '-'}</p>
+        <p><span className="font-semibold">ตำแหน่ง:</span> <span className="px-2 py-1 bg-gray-200 text-gray-800 rounded-full text-xs">{user.role_name}</span></p>
+      </div>
     </div>
-    <div className="mt-3 pt-3 border-t border-gray-200 text-xs text-gray-700 space-y-1">
-      <p><span className="font-semibold">คณะ:</span> {user.faculty_name || '-'}</p>
-      <p><span className="font-semibold">สาขา:</span> {user.major_name || '-'}</p>
-      <p><span className="font-semibold">ตำแหน่ง:</span> <span className="px-2 py-1 bg-gray-200 text-gray-800 rounded-full text-xs">{user.role_name}</span></p>
-    </div>
-  </div>
-);
+  );
+};
 
 // --- User Table Row Component (for desktop view) ---
 
-// ** ไม่ต้องประกาศ canManage ตรงนี้ **
-
 const UserTableRow = ({ user, currentUser, onEdit, onActivate, onDelete }) => {
-
-  // 💡 ย้าย canManage มาไว้ข้างใน Component ตรงนี้
   const canManage = (currentUser?.role_id === 3 || currentUser?.program_type === user.program_type);
 
   return (
@@ -53,7 +60,6 @@ const UserTableRow = ({ user, currentUser, onEdit, onActivate, onDelete }) => {
 
       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
 
-        {/* 💡 ใช้ canManage ตรวจสอบตรงนี้ */}
         {canManage ? (
           <>
             <button onClick={onEdit} className="text-indigo-600 hover:text-indigo-900" title="แก้ไข">
@@ -71,7 +77,6 @@ const UserTableRow = ({ user, currentUser, onEdit, onActivate, onDelete }) => {
             )}
           </>
         ) : (
-          // ถ้าไม่มีสิทธิ์ (อยู่คนละภาค และไม่ใช่ Admin) ให้แสดงขีด (-)
           <span className="text-gray-400"></span>
         )}
 
@@ -91,11 +96,11 @@ const AddUserModal = ({ isOpen, onClose, onSave, currentUser, faculties, roles }
   const [firstname, setFirstname] = useState('');
   const [lastname, setLastname] = useState('');
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState(''); // 1. State สำหรับเบอร์โทรศัพท์
+  const [phone, setPhone] = useState(''); 
   const [programType, setProgramType] = useState('ปกติ');
   const [facultyId, setFacultyId] = useState('');
   const [majorId, setMajorId] = useState('');
-  const [roleId, setRoleId] = useState(1); // Default to Student
+  const [roleId, setRoleId] = useState(1); 
   const [modalMajors, setModalMajors] = useState([]);
   const [displayFacultyName, setDisplayFacultyName] = useState('');
   const [displayMajorName, setDisplayMajorName] = useState('');
@@ -159,50 +164,41 @@ const AddUserModal = ({ isOpen, onClose, onSave, currentUser, faculties, roles }
     e.preventDefault();
     setError('');
 
-    // 1. ตรวจสอบข้อมูลที่ต้องกรอก (Required Fields Validation)
     if (!username || !prefix || !firstname || !lastname || !email || !phone) {
       setError('กรุณากรอกข้อมูลให้ครบทุกช่อง');
       return;
     }
 
-    // 2. ตรวจสอบรูปแบบพื้นฐาน (Basic Format Validation)
-
-    // Username: อนุญาตเฉพาะตัวอักษรภาษาอังกฤษ ตัวเลข และขีดล่าง (_) อย่างน้อย 4 ตัวอักษร
     const usernameRegex = /^[a-zA-Z0-9]{4,}$/;
     if (!usernameRegex.test(username)) {
       setError('Username ไม่ถูกต้อง');
       return;
     }
 
-    // ชื่อ-นามสกุล: อนุญาตเฉพาะตัวอักษรภาษาไทย/อังกฤษ และเว้นวรรค
     const nameRegex = /^[a-zA-Zก-ฮะ-์\s]+$/;
     if (!nameRegex.test(firstname) || !nameRegex.test(lastname)) {
       setError('ชื่อจริงและนามสกุลไม่ถูกต้อง');
       return;
     }
 
-    // รหัสนิสิต (ถ้ามี): ต้องเป็นตัวเลข 8 ถึง 10 หลัก
     const stdIdRegex = /^\d{8,10}$/;
     if (stdId && !stdIdRegex.test(stdId)) {
       setError('รหัสนิสิตไม่ถูกต้อง');
       return;
     }
 
-    // อีเมล: ตรวจสอบรูปแบบมาตรฐาน
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setError('รูปแบบอีเมลไม่ถูกต้อง');
       return;
     }
 
-    // เบอร์โทรศัพท์: ต้องเป็นตัวเลข 9 หรือ 10 หลัก
     const phoneRegex = /^\d{9,10}$/;
     if (!phoneRegex.test(phone)) {
       setError('เบอร์โทรศัพท์ไม่ถูกต้อง');
       return;
     }
 
-    // 3. ตรวจสอบคณะ/สาขา ตามสิทธิ์
     let finalFacultyId = facultyId;
     let finalMajorId = majorId;
 
@@ -211,21 +207,18 @@ const AddUserModal = ({ isOpen, onClose, onSave, currentUser, faculties, roles }
       finalMajorId = currentUser.major_id;
     }
 
-    // ตรวจสอบคณะสำหรับ Admin (role_id 3)
     if (currentUser?.role_id === 3 && !facultyId) {
       setError('กรุณาเลือกคณะ');
       return;
     }
 
-    // ตรวจสอบสาขาสำหรับ Admin และ Manager (ต้องเลือกสาขา หากมีการเลือกคณะแล้ว หรืออยู่ในสิทธิ์ Manager)
     if ((currentUser?.role_id === 3 && facultyId && !majorId) || (currentUser?.role_id === 2 && !finalMajorId)) {
       setError('กรุณาเลือกสาขา');
       return;
     }
 
-
     const userData = {
-      username, std_id: stdId, prefix, firstname, lastname, email, phone, // รวม phone
+      username, std_id: stdId, prefix, firstname, lastname, email, phone,
       program_type: programType,
       faculty_id: finalFacultyId ? parseInt(finalFacultyId) : null,
       major_id: finalMajorId ? parseInt(finalMajorId) : null,
@@ -236,7 +229,6 @@ const AddUserModal = ({ isOpen, onClose, onSave, currentUser, faculties, roles }
       await onSave(userData);
       handleClose();
     } catch (err) {
-      // ดักจับ Error จาก Server
       setError(err.response?.data?.message || err.message || 'Failed to add user.');
     }
   };
@@ -262,7 +254,6 @@ const AddUserModal = ({ isOpen, onClose, onSave, currentUser, faculties, roles }
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div><label htmlFor="email" className="block text-sm font-medium text-slate-700">อีเมล</label><input type="email" id="email" name="email" className="mt-1 block w-full border-slate-300 rounded-md shadow-sm p-2" value={email} onChange={(e) => setEmail(e.target.value)} required /></div>
 
-            {/* ช่องกรอกเบอร์โทรศัพท์ */}
             <div>
               <label htmlFor="phone" className="block text-sm font-medium text-slate-700">เบอร์โทรศัพท์</label>
               <input
@@ -340,7 +331,6 @@ const EditUserModal = ({ isOpen, onClose, onSave, userItem, currentUser, roles, 
         return;
       }
       try {
-        // สมมติว่า Cookies และ axios ถูก import มาแล้ว
         const accessToken = Cookies.get('accessToken');
         const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/major/${facultyId}`, {
           headers: { Authorization: `Bearer ${accessToken}` },
@@ -363,36 +353,29 @@ const EditUserModal = ({ isOpen, onClose, onSave, userItem, currentUser, roles, 
     e.preventDefault();
     setError('');
 
-    // 1. ตรวจสอบข้อมูลที่ต้องกรอก (Required Fields Validation)
     if (!prefix || !firstname || !lastname || !email || !phone) {
       setError('กรุณากรอกข้อมูลให้ครบทุกช่อง');
       return;
     }
 
-    // 2. ตรวจสอบรูปแบบพื้นฐาน (Basic Format Validation)
-
-    // ชื่อ-นามสกุล: อนุญาตเฉพาะตัวอักษรภาษาไทย/อังกฤษ และเว้นวรรค
     const nameRegex = /^[a-zA-Zก-ฮะ-์\s]+$/;
     if (!nameRegex.test(firstname) || !nameRegex.test(lastname)) {
       setError('ชื่อจริงและนามสกุลไม่ถูกต้อง');
       return;
     }
 
-    // อีเมล: ตรวจสอบรูปแบบมาตรฐาน
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setError('รูปแบบอีเมลไม่ถูกต้อง');
       return;
     }
 
-    // เบอร์โทรศัพท์: ต้องเป็นตัวเลข 9 หรือ 10 หลัก
     const phoneRegex = /^\d{9,10}$/;
     if (!phoneRegex.test(phone)) {
       setError('เบอร์โทรศัพท์ไม่ถูกต้อง');
       return;
     }
 
-    // 3. ตรวจสอบ Role/Faculty/Major สำหรับ Admin เท่านั้น (role_id 3)
     if (currentUser?.role_id === 3) {
       if (!roleId) {
         setError('กรุณาเลือกตำแหน่ง (Role)');
@@ -460,9 +443,6 @@ const EditUserModal = ({ isOpen, onClose, onSave, userItem, currentUser, roles, 
           </div>
 
 
-
-          {/* 3. เพิ่มช่องกรอกเบอร์โทรศัพท์ให้อยู่ในแถวเดียวกับอีเมล */}
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
             <div><label htmlFor="edit_email" className="block text-sm font-medium text-slate-700">อีเมล</label><input type="email" id="edit_email" name="email" className="mt-1 block w-full border-slate-300 rounded-md shadow-sm p-2" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
@@ -470,10 +450,6 @@ const EditUserModal = ({ isOpen, onClose, onSave, userItem, currentUser, roles, 
             <div><label htmlFor="edit_phone" className="block text-sm font-medium text-slate-700">เบอร์โทรศัพท์</label><input type="text" id="edit_phone" name="phone" className="mt-1 block w-full border-slate-300 rounded-md shadow-sm p-2" value={phone} onChange={(e) => setPhone(e.target.value)} /></div>
 
           </div>
-
-          {/* สิ้นสุดการเพิ่มช่องเบอร์โทรศัพท์ */}
-
-
 
           {currentUser?.role_id === 3 ? (
 
@@ -513,7 +489,7 @@ const EditUserModal = ({ isOpen, onClose, onSave, userItem, currentUser, roles, 
 
           <button type="button" onClick={handleClose} className="bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold py-2 px-4 rounded-lg mr-3">ยกเลิก</button>
 
-          <button type="submit" form="editUserForm" className="bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg">บันทึกการแก้ไข</button>
+          <button type="submit" form="editUserForm" className="bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg">บันทึก</button>
 
         </div>
 
@@ -578,14 +554,12 @@ const BulkAddUserModal = ({ isOpen, onClose, onSave }) => {
         <form id="bulkAddUserForm" onSubmit={handleSubmit} className="space-y-4 p-6 overflow-y-auto">
           <p className="text-sm text-slate-600">อัปโหลดไฟล์ Excel (.xlsx) ที่มีคอลัมน์ตามลำดับต่อไปนี้: <br /><strong className="font-semibold">username, std_id, prefix, firstname, lastname, email, phone, program_type</strong><br />สำหรับ program_type ให้ใช้ค่า "ปกติ" หรือ "พิเศษ".</p>
 
-          {/* 🔽 ส่วนที่ถูกแก้ไขให้ใช้ UI ทันสมัย 🔽 */}
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">
               ไฟล์ Excel (.xlsx)
             </label>
 
             <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-4">
-              {/* 🔹 Input ถูกซ่อน */}
               <input
                 type="file"
                 id="user_file_modern"
@@ -594,8 +568,6 @@ const BulkAddUserModal = ({ isOpen, onClose, onSave }) => {
                 onChange={(e) => setUserFile(e.target.files[0])}
                 className="hidden"
               />
-
-              {/* 🔹 ปุ่มเลือกไฟล์ */}
               <label
                 htmlFor="user_file_modern"
                 className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 px-5 rounded-lg shadow-md hover:shadow-lg transition duration-150 ease-in-out cursor-pointer flex-shrink-0"
@@ -728,32 +700,32 @@ export default function ManageUserClientPage() {
     }
   }, [selectedFaculty]);
 
-const handleAddUser = async (userData) => {
-  try {
-    const accessToken = Cookies.get('accessToken');
-    await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/users`, [userData], {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
+  const handleAddUser = async (userData) => {
+    try {
+      const accessToken = Cookies.get('accessToken');
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/users`, [userData], {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
 
-    Swal.fire({
-      title: 'สำเร็จ',
-      text: 'เพิ่มสมาชิกใหม่สำเร็จ',
-      icon: 'success',
-      confirmButtonText: 'ตกลง',
-    }).then(() => {
-      fetchUsersAndInitialData(1, '', '', '', '');
-    });
+      Swal.fire({
+        title: 'สำเร็จ',
+        text: 'เพิ่มสมาชิกใหม่สำเร็จ',
+        icon: 'success',
+        confirmButtonText: 'ตกลง',
+      }).then(() => {
+        fetchUsersAndInitialData(1, '', '', '', '');
+      });
 
-  } catch (err) {
-    Swal.fire({
-      title: 'เกิดข้อผิดพลาด',
-      text: err.response?.data?.message || 'ไม่สามารถเพิ่มสมาชิกได้',
-      icon: 'error',
-      confirmButtonText: 'ตกลง',
-    });
-    throw err;
-  }
-};
+    } catch (err) {
+      Swal.fire({
+        title: 'เกิดข้อผิดพลาด',
+        text: err.response?.data?.message || 'ไม่สามารถเพิ่มสมาชิกได้',
+        icon: 'error',
+        confirmButtonText: 'ตกลง',
+      });
+      throw err;
+    }
+  };
 
   const handleBulkAddUser = async (file) => {
     // This function can be filled in later
@@ -762,16 +734,39 @@ const handleAddUser = async (userData) => {
   const handleEditUser = async (username, updatedData) => {
     try {
       const accessToken = Cookies.get('accessToken');
-      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${username}`, updatedData, {
-        headers: { Authorization: `Bearer ${accessToken}` },
+      await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/users/${username}`,
+        updatedData,
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      );
+
+      Swal.fire({
+        title: 'สำเร็จ',
+        text: 'แก้ไขข้อมูลสมาชิกสำเร็จ',
+        icon: 'success',
+        confirmButtonText: 'ตกลง', 
       });
-      Swal.fire('บันทึกข้อมูลสำเร็จ', 'แก้ไขข้อมูลผู้ใช้สำเร็จ', 'success');
-      fetchUsersAndInitialData(currentPage, searchTerm, selectedRole, selectedFaculty, selectedMajor);
+
+      fetchUsersAndInitialData(
+        currentPage,
+        searchTerm,
+        selectedRole,
+        selectedFaculty,
+        selectedMajor
+      );
     } catch (err) {
-      Swal.fire('Error', err.response?.data?.message || 'Failed to update user.', 'error');
+      Swal.fire({
+        title: 'ผิดพลาด',
+        text: err.response?.data?.message || 'ไม่สามารถแก้ไขข้อมูลสมาชิกได้',
+        icon: 'error',
+        confirmButtonText: 'ตกลง', 
+      });
       throw err;
     }
   };
+
 
   const handleActiveUser = async (username) => {
     // This function can be filled in later
@@ -781,218 +776,215 @@ const handleAddUser = async (userData) => {
     // This function can be filled in later
   };
 
-return (
-  <div className="bg-gray-100 min-h-screen py-4 sm:p-6 lg:p-8">
-    <div className="max-w-7xl mx-auto">
-      <header className="mb-6 px-2 sm:px-0">
-        <h1 className="text-2xl font-bold text-gray-800">จัดการสมาชิก</h1>
-        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 mt-4">
-          <button
-            onClick={() => setIsAddModalOpen(true)}
-            className="inline-flex items-center justify-center px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg shadow-sm"
-          >
-            <FaPlus className="mr-2" /> เพิ่มสมาชิกรายบุคคล
-          </button>
-          <button
-            onClick={() => setIsBulkAddModalOpen(true)}
-            className="inline-flex items-center justify-center px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg shadow-sm"
-          >
-            <FaUsers className="mr-2" /> เพิ่มสมาชิกพร้อมกัน
-          </button>
-        </div>
-      </header>
-
-  {/* กล่องสีขาวครอบทุกอย่าง */}
-<div className="bg-white rounded-lg shadow p-4 sm:p-6">
-  {/* ช่องค้นหา + ตัวกรอง */}
-  {/* 💡 เปลี่ยนเป็น flex-wrap เพื่อให้แน่ใจว่าถ้าไม่มีพื้นที่พอจะขึ้นบรรทัดใหม่ */}
-  <div className="flex flex-wrap items-center mb-4 gap-4"> 
-    
-    {/* 1. ช่องค้นหา - ให้ใช้พื้นที่เท่าที่เหลือ */}
-    <div className="relative flex-grow min-w-[200px]"> {/* min-w เพื่อไม่ให้ค้นหาหดเล็กเกินไป */}
-      <FaMagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
-      <input
-        type="text"
-        placeholder="ค้นหารายชื่อ..."
-        className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg transition duration-150 ease-in-out focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 shadow-sm"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-    </div>
-
-    {/* 2. ตัวกรอง - จัดกลุ่มให้อยู่ในแถวเดียวกันบนจอใหญ่ */}
-    {currentUser?.role_id === 3 && (
-      // 💡 ลบ w-full, mb-4 ออก แล้วใช้ flex-shrink-0 และ grid-cols-3 บนจอใหญ่
-      <div className="flex-shrink-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 w-full sm:w-auto"> 
-        <select
-          value={selectedRole}
-          onChange={(e) => setSelectedRole(e.target.value)}
-          className="px-4 py-2.5 h-full border border-gray-300 rounded-lg" // 💡 ใช้ py-2.5 เพื่อให้สูงเท่าช่องค้นหา
-        >
-          <option value="">ทั้งหมด (ตำแหน่ง)</option>
-          {roles.map((role) => (
-            <option key={role.role_id} value={role.role_id}>
-              {role.role_name}
-            </option>
-          ))}
-        </select>
-        <select
-          value={selectedFaculty}
-          onChange={(e) => {
-            setSelectedFaculty(e.target.value);
-            setSelectedMajor('');
-          }}
-          className="px-4 py-2.5 h-full border border-gray-300 rounded-lg" // 💡 ใช้ py-2.5 
-        >
-          <option value="">ทั้งหมด (คณะ)</option>
-          {faculties.map((faculty) => (
-            <option key={faculty.faculty_id} value={faculty.faculty_id}>
-              {faculty.faculty_name}
-            </option>
-          ))}
-        </select>
-        <select
-          value={selectedMajor}
-          onChange={(e) => setSelectedMajor(e.target.value)}
-          className="px-4 py-2.5 h-full border border-gray-300 rounded-lg" // 💡 ใช้ py-2.5 
-          disabled={!selectedFaculty}
-        >
-          <option value="">ทั้งหมด (สาขา)</option>
-          {majors.map((major) => (
-            <option key={major.major_id} value={major.major_id}>
-              {major.major_name}
-            </option>
-          ))}
-        </select>
-      </div>
-    )}
-  </div> 
-
-        {/* ตาราง + mobile view */}
-        {loading ? (
-          <p className="text-center p-6">กำลังโหลดข้อมูล...</p>
-        ) : error ? (
-          <p className="text-center p-6 text-red-500">Error: {error}</p>
-        ) : users.length === 0 ? (
-          <p className="text-center p-6">ไม่พบผู้ใช้งาน</p>
-        ) : (
-          <>
-            <div className="space-y-4 md:hidden">
-              {users.map((user) => (
-                <UserCard
-                  key={user.username}
-                  user={user}
-                  currentUser={currentUser}
-                  onEdit={() => {
-                    setSelectedUser(user);
-                    setIsEditModalOpen(true);
-                  }}
-                  onActivate={() => handleActiveUser(user.username)}
-                  onDelete={() => handleRemoveUser(user.username)}
-                />
-              ))}
-            </div>
-
-            <div className="hidden md:block overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-teal-600">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                      รหัสนิสิต / Username
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                      อีเมล
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                      ชื่อ - นามสกุล
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                      คณะ
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                      สาขา
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                      เบอร์โทรศัพท์
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                      เมนู
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {users.map((user) => (
-                    <UserTableRow
-                      key={user.username}
-                      user={user}
-                      currentUser={currentUser}
-                      onEdit={() => {
-                        setSelectedUser(user);
-                        setIsEditModalOpen(true);
-                      }}
-                      onActivate={() => handleActiveUser(user.username)}
-                      onDelete={() => handleRemoveUser(user.username)}
-                    />
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </>
-        )}
-
-        {/* Pagination */}
-        {!loading && !error && totalPages > 1 && (
-          <div className="flex justify-between items-center pt-4 mt-4 border-t">
-            <span className="text-sm text-gray-700">
-              หน้า {currentPage} จาก {totalPages}
-            </span>
-            <div className="inline-flex">
-              <button
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className="px-3 h-8 text-sm text-white bg-gray-800 rounded-l hover:bg-gray-900 disabled:bg-gray-400"
-              >
-                ก่อนหน้า
-              </button>
-              <button
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                className="px-3 h-8 text-sm text-white bg-gray-800 rounded-r hover:bg-gray-900 disabled:bg-gray-400 ml-1"
-              >
-                ถัดไป
-              </button>
-            </div>
+  return (
+    <div className="bg-gray-100 min-h-screen py-4 sm:p-6 lg:p-8">
+      <div className="max-w-7xl mx-auto">
+        <header className="mb-6 px-2 sm:px-0">
+          <h1 className="text-2xl font-bold text-gray-800">จัดการสมาชิก</h1>
+          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 mt-4">
+            <button
+              onClick={() => setIsAddModalOpen(true)}
+              className="inline-flex items-center justify-center px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg shadow-sm"
+            >
+              <FaPlus className="mr-2" /> เพิ่มสมาชิกรายบุคคล
+            </button>
+            <button
+              onClick={() => setIsBulkAddModalOpen(true)}
+              className="inline-flex items-center justify-center px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg shadow-sm"
+            >
+              <FaUsers className="mr-2" /> เพิ่มสมาชิกพร้อมกัน
+            </button>
           </div>
-        )}
-      </div>
+        </header>
 
-      {/* Modal Components */}
-      <AddUserModal
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        onSave={handleAddUser}
-        currentUser={currentUser}
-        faculties={faculties}
-        majors={majors}
-        roles={roles}
-      />
-      {selectedUser && (
-        <EditUserModal
-          isOpen={isEditModalOpen}
-          onClose={() => setIsEditModalOpen(false)}
-          onSave={handleEditUser}
-          userItem={selectedUser}
+        <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+          <div className="flex flex-wrap items-center mb-4 gap-4">
+            <div className="relative flex-grow min-w-[200px]">
+              <FaMagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                placeholder="ค้นหารายชื่อ..."
+                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg transition duration-150 ease-in-out focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 shadow-sm"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+
+            {currentUser?.role_id === 3 && (
+
+              <div className="flex-shrink-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 w-full sm:w-auto">
+                <select
+                  value={selectedRole}
+                  onChange={(e) => setSelectedRole(e.target.value)}
+                  className="px-4 py-2.5 h-full border border-gray-300 rounded-lg"
+                >
+                  <option value="">ทั้งหมด (ตำแหน่ง)</option>
+                  {roles.map((role) => (
+                    <option key={role.role_id} value={role.role_id}>
+                      {role.role_name}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  value={selectedFaculty}
+                  onChange={(e) => {
+                    setSelectedFaculty(e.target.value);
+                    setSelectedMajor('');
+                  }}
+                  className="px-4 py-2.5 h-full border border-gray-300 rounded-lg" 
+                >
+                  <option value="">ทั้งหมด (คณะ)</option>
+                  {faculties.map((faculty) => (
+                    <option key={faculty.faculty_id} value={faculty.faculty_id}>
+                      {faculty.faculty_name}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  value={selectedMajor}
+                  onChange={(e) => setSelectedMajor(e.target.value)}
+                  className="px-4 py-2.5 h-full border border-gray-300 rounded-lg" 
+                  disabled={!selectedFaculty}
+                >
+                  <option value="">ทั้งหมด (สาขา)</option>
+                  {majors.map((major) => (
+                    <option key={major.major_id} value={major.major_id}>
+                      {major.major_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
+
+          {/* ตาราง + mobile view */}
+          {loading ? (
+            <p className="text-center p-6">กำลังโหลดข้อมูล...</p>
+          ) : error ? (
+            <p className="text-center p-6 text-red-500">Error: {error}</p>
+          ) : users.length === 0 ? (
+            <div className="text-center p-10 text-gray-500">
+              <FaCircleInfo className="mx-auto text-4xl mb-2" />
+              <p>ไม่พบข้อมูลสมาชิก</p>
+            </div>
+          ) : (
+            <>
+              <div className="space-y-4 md:hidden">
+                {users.map((user) => (
+                  <UserCard
+                    key={user.username}
+                    user={user}
+                    currentUser={currentUser}
+                    onEdit={() => {
+                      setSelectedUser(user);
+                      setIsEditModalOpen(true);
+                    }}
+                    onActivate={() => handleActiveUser(user.username)}
+                    onDelete={() => handleRemoveUser(user.username)}
+                  />
+                ))}
+              </div>
+
+              <div className="hidden md:block overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-teal-600">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                        รหัสนิสิต / Username
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                        อีเมล
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                        ชื่อ - นามสกุล
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                        คณะ
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                        สาขา
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                        เบอร์โทรศัพท์
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                        เมนู
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {users.map((user) => (
+                      <UserTableRow
+                        key={user.username}
+                        user={user}
+                        currentUser={currentUser}
+                        onEdit={() => {
+                          setSelectedUser(user);
+                          setIsEditModalOpen(true);
+                        }}
+                        onActivate={() => handleActiveUser(user.username)}
+                        onDelete={() => handleRemoveUser(user.username)}
+                      />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
+
+          {/* Pagination */}
+          {!loading && !error && totalPages > 1 && (
+            <div className="flex justify-between items-center pt-4 mt-4 border-t">
+              <span className="text-sm text-gray-700">
+                หน้า {currentPage} จาก {totalPages}
+              </span>
+              <div className="inline-flex">
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="px-3 h-8 text-sm text-white bg-gray-800 rounded-l hover:bg-gray-900 disabled:bg-gray-400"
+                >
+                  ก่อนหน้า
+                </button>
+                <button
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="px-3 h-8 text-sm text-white bg-gray-800 rounded-r hover:bg-gray-900 disabled:bg-gray-400 ml-1"
+                >
+                  ถัดไป
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Modal Components */}
+        <AddUserModal
+          isOpen={isAddModalOpen}
+          onClose={() => setIsAddModalOpen(false)}
+          onSave={handleAddUser}
           currentUser={currentUser}
-          roles={roles}
           faculties={faculties}
+          majors={majors}
+          roles={roles}
         />
-      )}
-      <BulkAddUserModal
-        isOpen={isBulkAddModalOpen}
-        onClose={() => setIsBulkAddModalOpen(false)}
-        onSave={handleBulkAddUser}
-      />
+        {selectedUser && (
+          <EditUserModal
+            isOpen={isEditModalOpen}
+            onClose={() => setIsEditModalOpen(false)}
+            onSave={handleEditUser}
+            userItem={selectedUser}
+            currentUser={currentUser}
+            roles={roles}
+            faculties={faculties}
+          />
+        )}
+        <BulkAddUserModal
+          isOpen={isBulkAddModalOpen}
+          onClose={() => setIsBulkAddModalOpen(false)}
+          onSave={handleBulkAddUser}
+        />
+      </div>
     </div>
-  </div>
-);
+  );
 }

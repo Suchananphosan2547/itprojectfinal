@@ -3,14 +3,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { FaPlus, FaPenToSquare, FaTrash, FaSearchengin, FaSearch, FaMagnifyingGlass } from 'react-icons/fa6';
+import { FaPlus, FaPenToSquare, FaTrash, FaSearchengin, FaSearch, FaMagnifyingGlass, FaCircleInfo, FaTriangleExclamation } from 'react-icons/fa6';
 import Cookies from 'js-cookie';
 
-// 🚩 แก้ไข API_BASE_URL ให้สอดคล้องกับ URL ใหม่
 const API_BASE_URL = 'https://raw.githubusercontent.com/kongvut/thai-province-data/refs/heads/master';
 
 const validateManagerData = (data) => {
-    // 1. ตรวจสอบข้อมูลที่ต้องกรอก (Required Fields Validation)
     if (!data.manager_prefix || data.manager_prefix.trim() === '') {
         return 'กรุณาเลือกคำนำหน้า';
     }
@@ -24,21 +22,15 @@ const validateManagerData = (data) => {
         return 'กรุณากรอกบ้านเลขที่';
     }
 
-    // 2. ตรวจสอบรูปแบบพื้นฐาน (Basic Format Validation)
-
-    // ชื่อ-นามสกุล: อนุญาตเฉพาะตัวอักษรภาษาไทย/อังกฤษ และเว้นวรรค
     const nameRegex = /^[a-zA-Zก-ฮะ-์\s]+$/;
     if (!nameRegex.test(data.manager_fname) || !nameRegex.test(data.manager_lname)) {
         return 'ชื่อจริงและนามสกุลไม่ถูกต้อง';
     }
 
-    // บ้านเลขที่: อนุญาตตัวอักษร, ตัวเลข, เครื่องหมาย / และ -
-    const addressNumberRegex = /^[a-zA-Z0-9\s/-]+$/;
+    const addressNumberRegex = /^[a-zA-Zก-ฮะ-์0-9\s/-]+$/;
     if (!addressNumberRegex.test(data.house_number)) {
         return 'บ้านเลขที่ไม่ถูกต้อง';
     }
-
-    // 3. ตรวจสอบที่อยู่ (Address Validation)
 
     if (!data.province || data.province.trim() === '') {
         return 'กรุณาเลือกจังหวัด';
@@ -50,13 +42,12 @@ const validateManagerData = (data) => {
         return 'กรุณาเลือกตำบล/แขวง';
     }
 
-    // รหัสไปรษณีย์: ต้องเป็นตัวเลข 5 หลัก (ตรวจสอบเป็นขั้นตอนสุดท้าย)
     const zipCodeRegex = /^\d{5}$/;
     if (!data.zip_code || !zipCodeRegex.test(data.zip_code)) {
         return 'รหัสไปรษณีย์ไม่ถูกต้อง';
     }
 
-    return null; // ข้อมูลถูกต้อง
+    return null; 
 };
 
 // --- Manager Card Component (for mobile view) ---
@@ -90,8 +81,8 @@ const ManagerCard = ({ manager, onEdit, onDelete }) => {
 // --- Base Manager Modal Component for form fields ---
 const ManagerFormFields = ({ managerData, setManagerData, isEditMode = false }) => {
     const [provinces, setProvinces] = useState([]);
-    const [prefectures, setPrefectures] = useState([]); // อำเภอ/เขต
-    const [districts, setDistricts] = useState([]); // ตำบล/แขวง
+    const [prefectures, setPrefectures] = useState([]);
+    const [districts, setDistricts] = useState([]);
     const [allPrefectures, setAllPrefectures] = useState([]);
     const [allDistricts, setAllDistricts] = useState([]);
     const [selectedProvinceId, setSelectedProvinceId] = useState('');
@@ -101,7 +92,6 @@ const ManagerFormFields = ({ managerData, setManagerData, isEditMode = false }) 
     useEffect(() => {
         const fetchAddressData = async () => {
             try {
-                // 🚩 แก้ไขการเรียกใช้ API เป็น URL ใหม่ (ตามที่เคยแจ้งมา)
                 const [provRes, prefRes, distRes] = await Promise.all([
                     axios.get(`${API_BASE_URL}/api/latest/province.json`),
                     axios.get(`${API_BASE_URL}/api/latest/district.json`),
@@ -117,20 +107,20 @@ const ManagerFormFields = ({ managerData, setManagerData, isEditMode = false }) 
         fetchAddressData();
     }, []);
 
-    // Effect สำหรับโหลดข้อมูลที่อยู่เมื่ออยู่ในโหมดแก้ไข
+
     useEffect(() => {
         if (isEditMode && managerData.province && provinces.length && allPrefectures.length && allDistricts.length) {
             const province = provinces.find(p => p.name_th === managerData.province);
             if (province) {
                 setSelectedProvinceId(province.id);
-                
+
                 const filteredPrefectures = allPrefectures.filter(d => d.province_id === province.id);
                 setPrefectures(filteredPrefectures);
 
                 const prefecture = filteredPrefectures.find(d => d.name_th === managerData.prefecture);
                 if (prefecture) {
                     setSelectedPrefectureId(prefecture.id);
-                    
+
                     const filteredDistricts = allDistricts.filter(sd => sd.district_id === prefecture.id);
                     setDistricts(filteredDistricts);
 
@@ -143,7 +133,6 @@ const ManagerFormFields = ({ managerData, setManagerData, isEditMode = false }) 
 
     const handleProvinceChange = (provinceId) => {
         const province = provinces.find(p => p.id == provinceId);
-        // Reset prefecture, district, and zip_code
         setManagerData(prev => ({ ...prev, province: province?.name_th || '', prefecture: '', district: '', zip_code: '' }));
         setSelectedProvinceId(provinceId);
         setPrefectures(provinceId ? allPrefectures.filter(d => d.province_id == provinceId) : []);
@@ -154,7 +143,6 @@ const ManagerFormFields = ({ managerData, setManagerData, isEditMode = false }) 
 
     const handlePrefectureChange = (prefectureId) => {
         const prefecture = allPrefectures.find(d => d.id == prefectureId);
-        // Reset district and zip_code
         setManagerData(prev => ({ ...prev, prefecture: prefecture?.name_th || '', district: '', zip_code: '' }));
         setSelectedPrefectureId(prefectureId);
         setDistricts(prefectureId ? allDistricts.filter(sd => sd.district_id == prefectureId) : []);
@@ -163,11 +151,10 @@ const ManagerFormFields = ({ managerData, setManagerData, isEditMode = false }) 
 
     const handleDistrictChange = (districtId) => {
         const district = allDistricts.find(sd => sd.id == districtId);
-        // Set district name and zip_code
         setManagerData(prev => ({ ...prev, district: district?.name_th || '', zip_code: district?.zip_code || '' }));
         setSelectedDistrictId(districtId);
     };
-    
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setManagerData(prev => ({ ...prev, [name]: value }));
@@ -241,7 +228,7 @@ const AddManagerModal = ({ isOpen, onClose, onAdd, currentUser, faculties, major
     useEffect(() => {
         if (isOpen) {
             setManagerData({});
-            setError(''); // รีเซ็ต error ทุกครั้งที่เปิด modal
+            setError('');
 
             // Set faculty/major for Manager role display
             if (currentUser && currentUser.role_id === 2) {
@@ -266,11 +253,10 @@ const AddManagerModal = ({ isOpen, onClose, onAdd, currentUser, faculties, major
 
         const validationError = validateManagerData(managerData);
         if (validationError) {
-            setError(validationError); // แสดง Error ใน UI
-            return; // หยุดการทำงาน
+            setError(validationError);
+            return;
         }
-        
-        // เพิ่ม faculty_id และ major_id จาก currentUser (สำหรับ role_id=2)
+
         const finalManagerData = {
             ...managerData,
             faculty_id: currentUser?.role_id === 2 ? currentUser.faculty_id : null,
@@ -278,11 +264,9 @@ const AddManagerModal = ({ isOpen, onClose, onAdd, currentUser, faculties, major
         };
 
         try {
-            // onAdd ควรเป็น async function ที่จัดการการเรียก API
-            await onAdd(finalManagerData); 
+            await onAdd(finalManagerData);
             handleClose();
         } catch (err) {
-            // ดักจับ Error จาก Server
             setError(err.response?.data?.message || err.message || 'Failed to add manager.');
         }
     };
@@ -296,8 +280,6 @@ const AddManagerModal = ({ isOpen, onClose, onAdd, currentUser, faculties, major
                 </div>
                 <form id="addManagerForm" className="space-y-4 p-6 overflow-y-auto" onSubmit={handleSubmit}>
                     <ManagerFormFields managerData={managerData} setManagerData={setManagerData} />
-                    
-                    {/* แสดงคณะ/สาขาสำหรับ role_id = 2 (Manager) */}
                     {currentUser?.role_id === 2 && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
@@ -310,8 +292,7 @@ const AddManagerModal = ({ isOpen, onClose, onAdd, currentUser, faculties, major
                             </div>
                         </div>
                     )}
-                    
-                    {/* 🚩 แสดง Error UI */}
+
                     {error && <div className="text-red-600 text-sm p-3 bg-red-50 rounded-lg">{error}</div>}
 
                 </form>
@@ -327,31 +308,28 @@ const AddManagerModal = ({ isOpen, onClose, onAdd, currentUser, faculties, major
 // --- Edit Manager Modal Component ---
 const EditManagerModal = ({ isOpen, onClose, onUpdate, managerItem }) => {
     const [managerData, setManagerData] = useState({});
-    const [error, setError] = useState(''); // State สำหรับ Error UI
-
+    const [error, setError] = useState(''); 
     useEffect(() => {
         setManagerData(managerItem || {});
-        setError(''); // รีเซ็ต error
+        setError(''); 
     }, [managerItem]);
 
     if (!isOpen || !managerItem) return null;
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError(''); // Clear previous errors
+        setError(''); 
 
         const validationError = validateManagerData(managerData);
         if (validationError) {
-            setError(validationError); // แสดง Error ใน UI
-            return; // หยุดการทำงาน
+            setError(validationError); 
+            return;
         }
-        
+
         try {
-            // onUpdate ควรเป็น async function ที่จัดการการเรียก API
             await onUpdate(managerItem.manager_id, managerData);
             onClose();
         } catch (err) {
-            // ดักจับ Error จาก Server
             setError(err.response?.data?.message || err.message || 'Failed to update manager.');
         }
     };
@@ -365,18 +343,14 @@ const EditManagerModal = ({ isOpen, onClose, onUpdate, managerItem }) => {
                 </div>
                 <form id="editManagerForm" className="space-y-4 p-6 overflow-y-auto" onSubmit={handleSubmit}>
                     <ManagerFormFields managerData={managerData} setManagerData={setManagerData} isEditMode={true} />
-                    
-                    {/* แสดงคณะ/สาขาที่อ่านได้อย่างเดียว */}
                     <div><label className="block text-sm font-medium text-slate-700">คณะ</label><div className="mt-1 block w-full border-slate-200 rounded-md bg-slate-100 p-2">{managerItem?.faculty_name || '-'}</div></div>
                     <div><label className="block text-sm font-medium text-slate-700">สาขา</label><div className="mt-1 block w-full border-slate-200 rounded-md bg-slate-100 p-2">{managerItem?.major_name || '-'}</div></div>
-                    
-                    {/* 🚩 แสดง Error UI */}
                     {error && <div className="text-red-600 text-sm p-3 bg-red-50 rounded-lg">{error}</div>}
 
                 </form>
                 <div className="flex justify-end p-6 border-t mt-auto flex-shrink-0">
                     <button type="button" onClick={onClose} className="bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold py-2 px-4 rounded-lg mr-3">ยกเลิก</button>
-                    <button type="submit" form="editManagerForm" className="bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg">บันทึกการแก้ไข</button>
+                    <button type="submit" form="editManagerForm" className="bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg">บันทึก</button>
                 </div>
             </div>
         </div>
@@ -420,8 +394,8 @@ export default function ManagerClientPage() {
             // 3. Fetch all majors for those unique faculties using the Next.js API route
             const majorPromises = uniqueFacultyIds.map(facultyId =>
                 axios.get(`/api/major/${facultyId}`) // Call our Next.js API route
-                    .then(res => res.data.data) 
-                    .catch(() => []) 
+                    .then(res => res.data.data)
+                    .catch(() => [])
             );
             const majorsByFaculty = await Promise.all(majorPromises);
             const allMajors = majorsByFaculty.flat();
@@ -460,7 +434,6 @@ export default function ManagerClientPage() {
 
     const handleAddManager = async (managerData) => {
         try {
-            // Role ID 2 คือ Admin สาขา
             const majorId = currentUser?.role_id === 2 ? currentUser.major_id : null;
             const facultyId = currentUser?.role_id === 2 ? currentUser.faculty_id : null;
 
@@ -473,7 +446,7 @@ export default function ManagerClientPage() {
             const accessToken = Cookies.get('accessToken');
             const config = { headers: { Authorization: `Bearer ${accessToken}` } };
             const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/manager/create`, dataToSend, config);
-            Swal.fire({ icon: 'success', title: 'สำเร็จ!', text: response.data.message });
+            Swal.fire({ icon: 'success', title: 'สำเร็จ', text: response.data.message });
             setIsAddModalOpen(false);
             fetchData();
         } catch (err) {
@@ -485,9 +458,8 @@ export default function ManagerClientPage() {
         try {
             const accessToken = Cookies.get('accessToken');
             const config = { headers: { Authorization: `Bearer ${accessToken}` } };
-            // โค้ดที่นี่จะส่งเฉพาะข้อมูลที่แก้ไขเท่านั้น (ชื่อ, ที่อยู่) ไม่อัปเดต major_id/faculty_id
             const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/manager/${managerId}`, managerData, config);
-            Swal.fire({ icon: 'success', title: 'สำเร็จ!', text: response.data.message });
+            Swal.fire({ icon: 'success', title: 'สำเร็จ', text: response.data.message });
             setIsEditModalOpen(false);
             fetchData();
         } catch (err) {
@@ -497,13 +469,13 @@ export default function ManagerClientPage() {
 
     const handleDeleteManager = (managerId) => {
         Swal.fire({
-            title: 'คุณแน่ใจหรือไม่?',
-            text: "คุณจะไม่สามารถย้อนกลับการกระทำนี้ได้!",
+            title: 'ยืนยันการลบข้อมูล',
+            text: "คุณต้องการลบอาจารย์ประจำสาขานี้หรือไม่?",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
             cancelButtonColor: '#3085d6',
-            confirmButtonText: 'ใช่, ลบเลย!',
+            confirmButtonText: 'ตกลง',
             cancelButtonText: 'ยกเลิก'
         }).then(async (result) => {
             if (result.isConfirmed) {
@@ -511,7 +483,7 @@ export default function ManagerClientPage() {
                     const accessToken = Cookies.get('accessToken');
                     const config = { headers: { Authorization: `Bearer ${accessToken}` } };
                     await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/manager/${managerId}`, config);
-                    Swal.fire({ icon: 'success', title: 'ลบแล้ว!', text: 'ข้อมูลถูกลบเรียบร้อยแล้ว' });
+                    Swal.fire({ icon: 'success', title: 'ลบสำเร็จ', text: 'ข้อมูลถูกลบเรียบร้อยแล้ว' });
                     fetchData();
                 } catch (err) {
                     Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด!', text: err.response?.data?.message || err.message });
@@ -519,7 +491,7 @@ export default function ManagerClientPage() {
             }
         });
     };
-    
+
     const handleEditClick = (manager) => {
         setSelectedManager(manager);
         setIsEditModalOpen(true);
@@ -529,40 +501,46 @@ export default function ManagerClientPage() {
         <div className="bg-gray-100 min-h-screen py-4 sm:p-6 lg:p-8">
             <div className="max-w-7xl mx-auto">
                 <header className="mb-6 px-2 sm:px-0">
-                    <h1 className="text-2xl font-bold text-gray-800">จัดการอาจารย์ประจำสาขา</h1>
+                    <h1 className="text-2xl font-bold text-gray-800">อาจารย์ประจำสาขา</h1>
                     <div className="flex space-x-3 mt-4">
                         <button onClick={() => setIsAddModalOpen(true)} className="inline-flex items-center px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg shadow-sm transition-colors">
                             <FaPlus className="mr-2" />เพิ่มอาจารย์ประจำสาขา
                         </button>
                     </div>
                 </header>
-                            <div className="bg-white mt-4 rounded-xl shadow-lg p-6"> 
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    id="search"
-                                    name="search"
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    placeholder="ค้นหาอาจารย์..."
-                                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg transition duration-150 ease-in-out focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 shadow-sm "
-                                />
-                                <FaMagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
-                            </div>
+                <div className="bg-white mt-4 rounded-xl shadow-lg p-6">
+                    <div className="relative">
+                        <input
+                            type="text"
+                            id="search"
+                            name="search"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder="ค้นหาอาจารย์..."
+                            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg transition duration-150 ease-in-out focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 shadow-sm "
+                        />
+                        <FaMagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+                    </div>
 
                     <div>
                         {isLoading ? (
                             <p className="text-center py-4">กำลังโหลด...</p>
                         ) : error ? (
-                            <p className="text-center py-4 text-red-500">{error}</p>
+                            <div className="text-center p-10 text-red-500">
+                                <FaTriangleExclamation className="mx-auto text-4xl mb-2" />
+                                <p>{error}</p>
+                            </div>
                         ) : filteredManagers.length === 0 ? (
-                            <p className="text-center py-4 text-gray-500">ไม่พบข้อมูลอาจารย์</p>
+                            <div className="text-center p-10 text-gray-500">
+                                <FaCircleInfo className="mx-auto text-4xl mb-2" />
+                                <p>ไม่พบข้อมูลอาจารย์</p>
+                            </div>
                         ) : (
                             <>
                                 {/* Card View for Mobile */}
                                 <div className="space-y-4 md:hidden">
                                     {filteredManagers.map((manager) => (
-                                        <ManagerCard 
+                                        <ManagerCard
                                             key={manager.manager_id}
                                             manager={manager}
                                             onEdit={() => handleEditClick(manager)}
@@ -570,7 +548,7 @@ export default function ManagerClientPage() {
                                         />
                                     ))}
                                 </div>
-                                
+
                                 {/* Table View for Desktop */}
                                 <div className="hidden md:block overflow-x-auto">
                                     <table className="min-w-full divide-y divide-gray-200 mt-4">
@@ -590,7 +568,6 @@ export default function ManagerClientPage() {
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{manager.major_name || '-'}</td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                         <button onClick={() => handleEditClick(manager)} className="text-indigo-600 hover:text-indigo-900"><FaPenToSquare /></button>
-                                                        {/* 🚩 แก้ไขการเรียก handleDeleteManager ในตารางให้ใช้ manager.manager_id */}
                                                         <button onClick={() => handleDeleteManager(manager.manager_id)} className="text-red-600 hover:text-red-900 ml-4"><FaTrash /></button>
                                                     </td>
                                                 </tr>
@@ -604,19 +581,19 @@ export default function ManagerClientPage() {
                 </div>
             </div>
 
-            <AddManagerModal 
-                isOpen={isAddModalOpen} 
+            <AddManagerModal
+                isOpen={isAddModalOpen}
                 onClose={() => setIsAddModalOpen(false)}
                 onAdd={handleAddManager}
                 currentUser={currentUser}
                 faculties={faculties}
                 majors={majors}
             />
-            <EditManagerModal 
-                isOpen={isEditModalOpen} 
-                onClose={() => setIsEditModalOpen(false)} 
+            <EditManagerModal
+                isOpen={isEditModalOpen}
+                onClose={() => setIsEditModalOpen(false)}
                 onUpdate={handleUpdateManager}
-                managerItem={selectedManager} 
+                managerItem={selectedManager}
             />
         </div>
     );

@@ -20,9 +20,7 @@ const ProjectCard = ({ project, currentUser, onEdit, onDelete, onViewDetails, is
   return (
     <div className="bg-white rounded-xl shadow-md overflow-hidden transform hover:-translate-y-1 transition-all duration-300 relative">
       <div className="p-6">
-        {/* แถวบนสุด: ชื่อโครงการ + ภาคเรียน + ปุ่มแก้ไข */}
         <div className="flex items-center justify-between mb-4">
-          {/* ซ้าย: ชื่อโครงการ + ภาคเรียน */}
           <div className="flex items-center space-x-3">
             <h3 className="text-2xl font-bold text-slate-800">{project.project_title}</h3>
             <div
@@ -33,7 +31,6 @@ const ProjectCard = ({ project, currentUser, onEdit, onDelete, onViewDetails, is
             </div>
           </div>
 
-          {/* ขวา: ปุ่มคัดลอก / แก้ไข */}
           {canModify && (
             <div className="flex space-x-2">
               <button
@@ -54,7 +51,6 @@ const ProjectCard = ({ project, currentUser, onEdit, onDelete, onViewDetails, is
           )}
         </div>
 
-        {/* ข้อมูลผู้สร้าง + วันที่ */}
         <div className="flex items-center space-x-3 text-sm text-slate-500 mb-4 border-b border-slate-200 pb-4">
           <FaUserTie className="h-4 w-4 mr-1.5" />
           <span>By: {creatorName}</span>
@@ -62,12 +58,12 @@ const ProjectCard = ({ project, currentUser, onEdit, onDelete, onViewDetails, is
           <span>{formattedDate}</span>
         </div>
 
-        {/* คำอธิบายโครงการ */}
+
         <p className="text-slate-600 mb-2 leading-relaxed">
           {project.project_description}
         </p>
 
-        {/* ไฟล์แนบ */}
+
         <div className="flex items-center space-x-2 mt-2">
           {project.attached_file_name && (
             <a
@@ -82,15 +78,15 @@ const ProjectCard = ({ project, currentUser, onEdit, onDelete, onViewDetails, is
           )}
         </div>
 
-        {/* สถานะโครงการ + ปุ่มลงทะเบียน / ดูรายละเอียด */}
+
         <div className="flex items-center justify-between flex-wrap mt-2">
           {canModify ? (
             <div className="flex items-center space-x-2 text-sm mb-2 mt-4 md:mb-0">
               <button
                 onClick={() => onToggleProjectStatus(project.project_id, project.project_status)}
                 className={`px-3 py-1 rounded-full font-semibold ${project.project_status === 'active'
-                    ? 'bg-green-500 text-white'
-                    : 'bg-red-500 text-white'
+                  ? 'bg-green-500 text-white'
+                  : 'bg-red-500 text-white'
                   }`}
               >
                 สถานะโครงการ: {project.project_status === 'active' ? 'เปิด' : 'ปิด'}
@@ -98,8 +94,8 @@ const ProjectCard = ({ project, currentUser, onEdit, onDelete, onViewDetails, is
               <button
                 onClick={() => onToggleRegistrationStatus(project.project_id, project.registration_status)}
                 className={`px-3 py-1 rounded-full font-semibold ${project.registration_status === 'active'
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-500 text-white'
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-500 text-white'
                   }`}
               >
                 สถานะการลงทะเบียน: {project.registration_status === 'active' ? 'เปิด' : 'ปิด'}
@@ -125,7 +121,7 @@ const ProjectCard = ({ project, currentUser, onEdit, onDelete, onViewDetails, is
             </div>
           )}
 
-          {/* ปุ่มดูรายละเอียด / ลงทะเบียน */}
+
           <div className="flex space-x-2 mt-2 md:mt-0">
             {isStudent && (
               isRegistrationActive ? (
@@ -181,7 +177,7 @@ const ProjectDetailsModal = ({ isOpen, onClose, projectItem, onViewRegistrations
   const isRegistrationActive = projectItem.registration_status === 'active' && new Date(projectItem.end_project) >= new Date();
 
   return (
-    <div className="modal fixed inset-0 z-50 flex items-center justify-center backdrop-blur-xs bg-gray-50/70 backdrop-blur-md p-4">
+    <div className="modal fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-white/60 to-gray-200/5 p-4">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-4xl p-6 max-h-[90vh] overflow-y-auto project-section">
         <div className="flex justify-between items-center border-b pb-3 mb-4 ">
           <h3 className="text-2xl font-bold">รายละเอียดโครงการ</h3>
@@ -282,7 +278,7 @@ const ProjectDetailsModal = ({ isOpen, onClose, projectItem, onViewRegistrations
                 <FaUserPlus className="mr-2" />ยกเลิกการลงทะเบียน
               </button>
             ) : (
-              <button onClick={() => onOpenRegisterForm(projectItem)} className="inline-flex items-center px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white font-semibold rounded-lg shadow-md mr-3">
+              <button onClick={() => onOpenRegisterForm(projectItem)} className="inline-flex items-center px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white font-semibold rounded-lg shadow-md mr-3">
                 <FaUserPlus className="mr-2" />ลงทะเบียนเข้าร่วม
               </button>
             )
@@ -311,7 +307,7 @@ const RegistrationConfirmationModal = ({ isOpen, onClose, onConfirm, projectItem
   };
 
   return (
-    <div className="modal fixed inset-0 z-50 flex items-center justify-center">
+    <div className="modal fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-white/60 to-gray-200/5 p-4">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto project-section">
         <div className="flex justify-between items-center border-b pb-3 mb-4">
           <h3 className="text-2xl font-bold">ลงทะเบียนเข้าร่วม</h3>
@@ -378,8 +374,8 @@ const RegistrationConfirmationModal = ({ isOpen, onClose, onConfirm, projectItem
 
         <div className="flex justify-end pt-5 mt-4 border-t">
           <button onClick={onClose} className="bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold py-2 px-4 rounded-lg mr-3">ยกเลิก</button>
-          <button onClick={handleConfirm} className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg">
-            <FaFloppyDisk className="inline-block mr-2" /> ยืนยันการลงทะเบียน
+          <button onClick={handleConfirm} className="bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg">
+            ยืนยันการลงทะเบียน
           </button>
         </div>
       </div>
@@ -988,7 +984,7 @@ const EditProjectModal = ({ isOpen, onClose, onSave, projectItem, managers, fisc
                     </div>
                   ))}
                   <button type="button" onClick={handleAddObjective} className="mt-2 text-sky-600 font-semibold inline-flex items-center">
-                    <FaRegSquarePlus className="mr-2" />เพิ่มวัตถุประสงค์
+                    <FaPlus className="mr-2" />เพิ่มวัตถุประสงค์
                   </button>
                 </div>
               </div>
@@ -1028,7 +1024,7 @@ const EditProjectModal = ({ isOpen, onClose, onSave, projectItem, managers, fisc
           <div className="flex justify-end pt-5 mt-4 border-t">
             <button type="button" onClick={handleClose} className="bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold py-2 px-4 rounded-lg mr-3">ยกเลิก</button>
             <button type="submit" className="bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg">
-              บันทึกการแก้ไข
+              บันทึก
             </button>
           </div>
         </form>
@@ -1041,580 +1037,664 @@ export { AddProjectModal, EditProjectModal };
 
 // --- Main Component ---
 export default function ProjectClientPage() {
-    const [projects, setProjects] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [currentUser, setCurrentUser] = useState(null);
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
 
-    // Modal States
-    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
-    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-    const [isParticipantsModalOpen, setIsParticipantsModalOpen] = useState(false);
+  // Modal States
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [isParticipantsModalOpen, setIsParticipantsModalOpen] = useState(false);
 
-    const [selectedProject, setSelectedProject] = useState(null);
-    const [participants, setParticipants] = useState([]);
-    const [registeredProjects, setRegisteredProjects] = useState(new Set());
-    const [managers, setManagers] = useState([]);
-    const [copiedProjectData, setCopiedProjectData] = useState(null);
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [participants, setParticipants] = useState([]);
+  const [registeredProjects, setRegisteredProjects] = useState(new Set());
+  const [managers, setManagers] = useState([]);
+  const [copiedProjectData, setCopiedProjectData] = useState(null);
 
-    // Filter & Pagination States
-    const [filters, setFilters] = useState({ search: '', fiscal_id: '', plan_id: '' });
-    const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, totalRecords: 0, limit: 10 });
-    const [fiscalYears, setFiscalYears] = useState([]);
-    const [plans, setPlans] = useState([]);
+  // Filter & Pagination States
+  const [filters, setFilters] = useState({ search: '', fiscal_id: '', plan_id: '' });
+  const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, totalRecords: 0, limit: 10 });
+  const [fiscalYears, setFiscalYears] = useState([]);
+  const [plans, setPlans] = useState([]);
 
-    const API_HEADERS = useMemo(() => ({ 'Authorization': `Bearer ${Cookies.get('accessToken')}` }), []);
+  const API_HEADERS = useMemo(() => ({ 'Authorization': `Bearer ${Cookies.get('accessToken')}` }), []);
 
-    // ** 1. แก้ไข: fetchProjects รับ filters และ pagination เป็น argument และลด dependency **
-    const fetchProjects = useCallback(async (currentFilters, currentPagination) => {
-        setLoading(true);
-        setError(null);
+  const fetchProjects = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const params = new URLSearchParams({
+        page: pagination.currentPage,
+        limit: pagination.limit,
+        search: filters.search,
+        fiscal_id: filters.fiscal_id,
+        plan_id: filters.plan_id,
+      });
+
+      const response = await axios.get(`/api/project?${params.toString()}`, { headers: API_HEADERS });
+
+      setProjects(response.data?.data || []);
+      setPagination(prev => ({ ...prev, ...response.data?.pagination }));
+
+    } catch (err) {
+      console.error('Error fetching projects:', err);
+      setError(err.response?.data?.message || 'Failed to fetch projects.');
+    } finally {
+      setLoading(false);
+    }
+  }, [API_HEADERS, pagination.currentPage, pagination.limit, filters]);
+
+  const fetchInitialData = useCallback(async () => {
+    try {
+      const userStr = sessionStorage.getItem('user');
+      if (!userStr) throw new Error("ไม่พบข้อมูลผู้ใช้");
+      const user = JSON.parse(userStr);
+      setCurrentUser(user);
+
+      const [managersRes, fiscalRes, planRes] = await Promise.all([
+        axios.get('/api/manager', { headers: API_HEADERS }),
+        axios.get('/api/fiscal-year', { headers: API_HEADERS }),
+        axios.get('/api/plan', { headers: API_HEADERS })
+      ]);
+
+      setManagers(managersRes.data?.data || []);
+      setFiscalYears(fiscalRes.data?.data || []);
+      setPlans(planRes.data?.data || []);
+
+      if (user.role_id === 1) {
+        const registeredRes = await axios.get('/api/registrations/student', { headers: API_HEADERS });
+        setRegisteredProjects(new Set(registeredRes.data?.data.map(r => r.project_id) || []));
+      }
+    } catch (err) {
+      console.error('Fetch initial data error:', err);
+      setError(err.response?.data?.message || 'เกิดข้อผิดพลาดในการดึงข้อมูลเริ่มต้น');
+    }
+  }, [API_HEADERS]);
+
+
+  useEffect(() => { fetchInitialData(); }, [fetchInitialData]);
+
+  useEffect(() => {
+    fetchProjects(filters, pagination);
+  }, [fetchProjects, filters, pagination.currentPage, pagination.limit]);
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters(prev => ({ ...prev, [name]: value }));
+    setPagination(prev => ({ ...prev, currentPage: 1 }));
+  };
+
+  const handleClearFilters = () => {
+    setFilters({ search: '', fiscal_id: '', plan_id: '' });
+    setPagination(prev => ({ ...prev, currentPage: 1 }));
+  };
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= pagination.totalPages) {
+      setPagination(prev => ({ ...prev, currentPage: newPage }));
+    }
+  };
+
+  const fetchRegisteredProjects = async (stdId) => {
+    try {
+      const accessToken = Cookies.get('accessToken');
+      if (!accessToken) {
+        throw new Error('Access token not found.');
+      }
+      const response = await axios.get(`/api/registrations/student`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      const registered = response.data.data.map(reg => reg.project_id);
+      setRegisteredProjects(new Set(registered));
+    } catch (err) {
+      console.error('Error fetching registered projects:', err);
+      Swal.fire('Error', err.response?.data?.message || 'Failed to fetch registered projects.', 'error');
+    }
+  };
+
+  useEffect(() => {
+    if (currentUser?.role_id === 1) {
+      fetchRegisteredProjects(currentUser.std_id);
+    }
+  }, [currentUser]);
+
+  const handleAddProject = async (projectData) => {
+    try {
+      const accessToken = Cookies.get('accessToken');
+      if (!accessToken) {
+        Swal.fire('Error', 'Access token not found. Please log in.', 'error');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('project_title', projectData.project_title);
+      formData.append('project_description', projectData.project_description);
+      formData.append('fiscal_id', projectData.fiscal_year);
+      formData.append('plan_id', projectData.plan);
+      formData.append('manager_id', projectData.manager_id);
+      formData.append('allocated_budget', projectData.associated_budget);
+      formData.append('start_project', projectData.start_project);
+      formData.append('end_project', projectData.end_project);
+      formData.append('program_type', projectData.program_phase);
+      formData.append('group_count', projectData.group_count);
+      formData.append('about_count', projectData.expected_participant_percentage);
+      formData.append('plan_quality', projectData.plan_quality);
+      formData.append('program_location', projectData.program_location);
+      formData.append('objectives', JSON.stringify(projectData.objectives));
+      if (projectData.attached_file) {
+        formData.append('project_filedetail', projectData.attached_file);
+      }
+
+      const response = await axios.post('/api/project', formData, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      Swal.fire({
+        title: 'สำเร็จ',
+        text: 'โครงการถูกสร้างสำเร็จ',
+        icon: 'success',
+        confirmButtonText: 'ตกลง' 
+      });
+
+      fetchProjects(filters, { ...pagination, currentPage: 1 }); 
+    } catch (err) {
+      console.error('Error creating project:', err);
+
+      Swal.fire({
+        title: 'เกิดข้อผิดพลาด', 
+        text: err.response?.data?.message || 'ล้มเหลวในการสร้างโครงการ', 
+        icon: 'error',
+        confirmButtonText: 'ตกลง' 
+      });
+
+      throw err;
+    }
+  };
+
+  const handleEditProject = async (projectData) => {
+    try {
+      const accessToken = Cookies.get('accessToken');
+      if (!accessToken) {
+        Swal.fire('Error', 'Access token not found. Please log in.', 'error');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('project_title', projectData.project_title);
+      formData.append('project_description', projectData.project_description);
+      formData.append('fiscal_id', projectData.fiscal_year);
+      formData.append('plan_id', projectData.plan);
+      formData.append('manager_id', projectData.manager_id);
+      formData.append('allocated_budget', projectData.associated_budget);
+      formData.append('start_project', projectData.start_project);
+      formData.append('end_project', projectData.end_project);
+      formData.append('program_type', projectData.program_phase);
+      formData.append('group_count', projectData.group_count);
+      formData.append('about_count', projectData.expected_participant_percentage);
+      formData.append('plan_quality', projectData.plan_quality);
+      formData.append('program_location', projectData.program_location);
+      formData.append('objectives', JSON.stringify(projectData.objectives));
+      if (projectData.attached_file) {
+        formData.append('project_filedetail', projectData.attached_file);
+      } else if (projectData.delete_project_file) {
+        formData.append('delete_project_file', 'true');
+      }
+
+      const response = await axios.put(`/api/project/${projectData.project_id}`, formData, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      Swal.fire({
+        title: 'สำเร็จ',
+        text: 'โครงการถูกแก้ไขเรียบร้อยแล้ว',
+        icon: 'success',
+        confirmButtonText: 'ตกลง' 
+      });
+
+      fetchProjects(filters, pagination); 
+    } catch (err) {
+      console.error('Error updating project:', err);
+
+      Swal.fire({
+        title: 'เกิดข้อผิดพลาด', 
+        text: err.response?.data?.message || 'ล้มเหลวในการแก้ไขโครงการ', 
+        icon: 'error',
+        confirmButtonText: 'ตกลง' 
+      });
+
+      throw err;
+    }
+  };
+
+  const handleDeleteProject = (projectId) => {
+    Swal.fire({
+      title: 'ยืนยันการลบข้อมูล',
+      text: "คุณต้องการลบโครงการนี้ใช่หรือไม่?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'ยืนยัน',
+      cancelButtonText: 'ยกเลิก'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
         try {
-            const params = new URLSearchParams({
-                page: currentPagination.currentPage,
-                limit: currentPagination.limit,
-                search: currentFilters.search,
-                fiscal_id: currentFilters.fiscal_id,
-                plan_id: currentFilters.plan_id,
+          const accessToken = Cookies.get('accessToken');
+          if (!accessToken) {
+            Swal.fire({
+              title: 'เกิดข้อผิดพลาด',
+              text: 'ไม่พบ Access token กรุณาเข้าสู่ระบบใหม่', 
+              icon: 'error',
+              confirmButtonText: 'ตกลง' 
             });
+            return;
+          }
 
-            const response = await axios.get(`/api/project?${params.toString()}`, { headers: API_HEADERS });
+          await axios.delete(`/api/project/${projectId}`, {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+            },
+          });
 
-            setProjects(response.data?.data || []);
-            // อัปเดต TotalPages/TotalRecords แต่คง currentPage/limit
-            setPagination(prev => ({ 
-                ...prev, 
-                ...response.data?.pagination, 
-                currentPage: currentPagination.currentPage, 
-                limit: currentPagination.limit 
-            }));
+          Swal.fire({
+            title: 'ลบข้อมูลสำเร็จ', 
+            text: 'โครงการถูกลบเรียบร้อยแล้ว', 
+            icon: 'success',
+            confirmButtonText: 'ตกลง' 
+          });
 
+          fetchProjects(filters, { ...pagination, currentPage: 1 }); 
         } catch (err) {
-            console.error('Error fetching projects:', err);
-            setError(err.response?.data?.message || 'Failed to fetch projects.');
-        } finally {
-            setLoading(false);
+          console.error('Error deleting project:', err);
+
+          Swal.fire({
+            title: 'เกิดข้อผิดพลาด', 
+            text: err.response?.data?.message || 'ล้มเหลวในการลบโครงการ', 
+            icon: 'error',
+            confirmButtonText: 'ตกลง' 
+          });
         }
-    }, [API_HEADERS]); // Dependency เหลือแค่ API_HEADERS
+      }
+    });
+  };
 
-    // Function สำหรับดึงข้อมูลเริ่มต้น (User, Manager, Fiscal Year, Plan)
-    const fetchInitialData = useCallback(async () => {
-        try {
-            const userStr = sessionStorage.getItem('user');
-            if (!userStr) throw new Error("ไม่พบข้อมูลผู้ใช้");
-            const user = JSON.parse(userStr);
-            setCurrentUser(user);
+  const handleToggleProjectStatus = async (projectId, currentStatus) => {
+    try {
+      const accessToken = Cookies.get('accessToken');
+      const response = await axios.put(`/api/project-status/${projectId}`, null, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
 
-            const [managersRes, fiscalRes, planRes] = await Promise.all([
-                axios.get('/api/manager', { headers: API_HEADERS }),
-                axios.get('/api/fiscal-year', { headers: API_HEADERS }),
-                axios.get('/api/plan', { headers: API_HEADERS })
-            ]);
+      Swal.fire({
+        title: 'สำเร็จ',
+        text: 'สถานะโครงการถูกอัปเดตเรียบร้อยแล้ว',
+        icon: 'success',
+        confirmButtonText: 'ตกลง' 
+      });
 
-            setManagers(managersRes.data?.data || []);
-            setFiscalYears(fiscalRes.data?.data || []);
-            setPlans(planRes.data?.data || []);
+      fetchProjects(filters, pagination); 
+    } catch (err) {
+      Swal.fire({
+        title: 'เกิดข้อผิดพลาด', 
+        text: err.response?.data?.message || 'ล้มเหลวในการอัปเดตสถานะโครงการ', 
+        icon: 'error',
+        confirmButtonText: 'ตกลง' 
+      });
+    }
+  };
 
-            if (user.role_id === 1) {
-                const registeredRes = await axios.get('/api/registrations/student', { headers: API_HEADERS });
-                setRegisteredProjects(new Set(registeredRes.data?.data.map(r => r.project_id) || []));
-            }
-        } catch (err) {
-            console.error('Fetch initial data error:', err);
-            setError(err.response?.data?.message || 'เกิดข้อผิดพลาดในการดึงข้อมูลเริ่มต้น');
-        }
-    }, [API_HEADERS]);
+  const handleToggleRegistrationStatus = async (projectId, currentStatus) => {
+    try {
+      const accessToken = Cookies.get('accessToken');
+      const response = await axios.put(`/api/project-registration/${projectId}`, null, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
 
-    // Effect สำหรับดึงข้อมูลเริ่มต้น (User, Manager, Fiscal Year, Plan)
-    useEffect(() => { fetchInitialData(); }, [fetchInitialData]);
+      Swal.fire({
+        title: 'สำเร็จ',
+        text: 'สถานะการลงทะเบียนถูกอัปเดตเรียบร้อยแล้ว',
+        icon: 'success',
+        confirmButtonText: 'ตกลง' 
+      });
 
-    // ** 2. แก้ไข: useEffect เพื่อเรียก fetchProjects เมื่อ filters หรือ pagination.currentPage เปลี่ยน **
-    useEffect(() => {
-        // เรียก fetchProjects โดยส่ง State ล่าสุดเข้าไปเป็น argument
-        fetchProjects(filters, pagination);
-    }, [fetchProjects, filters, pagination.currentPage, pagination.limit]);
+      fetchProjects(filters, pagination); // Refresh projects to show updated status
+    } catch (err) {
+      Swal.fire({
+        title: 'เกิดข้อผิดพลาด', 
+        text: err.response?.data?.message || 'ล้มเหลวในการอัปเดตสถานะการลงทะเบียน', 
+        icon: 'error',
+        confirmButtonText: 'ตกลง' 
+      });
+    }
+  };
 
-    // ** 3. แก้ไข: handleFilterChange อัปเดต State และ reset Page **
-    const handleFilterChange = (e) => {
-        const { name, value } = e.target;
-        // การเปลี่ยน filters และ currentPage จะ trigger useEffect ด้านบนให้ดึงข้อมูลใหม่
-        setFilters(prev => ({ ...prev, [name]: value }));
-        setPagination(prev => ({ ...prev, currentPage: 1 })); 
-    };
+  const handleOpenRegistrationConfirmationModal = (project) => {
+    setSelectedProject(project);
+    setIsDetailsModalOpen(false);
+    setIsConfirmModalOpen(true);
+  };
 
-    const handleClearFilters = () => {
-        // การเปลี่ยน filters และ currentPage จะ trigger useEffect ด้านบนให้ดึงข้อมูลใหม่
-        setFilters({ search: '', fiscal_id: '', plan_id: '' });
-        setPagination(prev => ({ ...prev, currentPage: 1 }));
-    };
-
-    const handlePageChange = (newPage) => {
-        if (newPage >= 1 && newPage <= pagination.totalPages) {
-            // การเปลี่ยน currentPage จะ trigger useEffect ด้านบนให้ดึงข้อมูลใหม่
-            setPagination(prev => ({ ...prev, currentPage: newPage }));
-        }
-    };
-
-    const fetchRegisteredProjects = async (stdId) => {
-        try {
-            const accessToken = Cookies.get('accessToken');
-            if (!accessToken) {
-                throw new Error('Access token not found.');
-            }
-            const response = await axios.get(`/api/registrations/student`, {
-                headers: { Authorization: `Bearer ${accessToken}` },
-            });
-            const registered = response.data.data.map(reg => reg.project_id);
-            setRegisteredProjects(new Set(registered));
-        } catch (err) {
-            console.error('Error fetching registered projects:', err);
-            Swal.fire('Error', err.response?.data?.message || 'Failed to fetch registered projects.', 'error');
-        }
-    };
-
-    useEffect(() => {
-        if (currentUser?.role_id === 1) {
-            fetchRegisteredProjects(currentUser.std_id);
-        }
-    }, [currentUser]);
-
-    // Handle actions (Add, Edit, Delete, Toggle Status, Registration)
-    // *** โค้ดส่วน Handle actions ไม่ได้ถูกแก้ไข แต่ถูกคงไว้ตามเดิม ***
-
-    const handleAddProject = async (projectData) => {
-        try {
-            const accessToken = Cookies.get('accessToken');
-            if (!accessToken) {
-                Swal.fire('Error', 'Access token not found. Please log in.', 'error');
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append('project_title', projectData.project_title);
-            formData.append('project_description', projectData.project_description);
-            formData.append('fiscal_id', projectData.fiscal_year);
-            formData.append('plan_id', projectData.plan);
-            formData.append('manager_id', projectData.manager_id);
-            formData.append('allocated_budget', projectData.associated_budget);
-            formData.append('start_project', projectData.start_project);
-            formData.append('end_project', projectData.end_project);
-            formData.append('program_type', projectData.program_phase);
-            formData.append('group_count', projectData.group_count);
-            formData.append('about_count', projectData.expected_participant_percentage);
-            formData.append('plan_quality', projectData.plan_quality);
-            formData.append('program_location', projectData.program_location);
-            formData.append('objectives', JSON.stringify(projectData.objectives));
-            if (projectData.attached_file) {
-                formData.append('project_filedetail', projectData.attached_file);
-            }
-
-            const response = await axios.post('/api/project', formData, {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-
-            Swal.fire('สำเร็จ', response.data.message || 'โครงการถูกสร้างเรียบร้อยแล้ว', 'success');
-            // หลังจากเพิ่มโครงการสำเร็จ ควรดึงข้อมูลใหม่เพื่อแสดงผล
-            fetchProjects(filters, { ...pagination, currentPage: 1 }); // ดึงข้อมูลและกลับไปหน้า 1
-        } catch (err) {
-            console.error('Error creating project:', err);
-            Swal.fire('Error', err.response?.data?.message || 'Failed to create project.', 'error');
-            throw err;
-        }
-    };
-
-    const handleEditProject = async (projectData) => {
-        try {
-            const accessToken = Cookies.get('accessToken');
-            if (!accessToken) {
-                Swal.fire('Error', 'Access token not found. Please log in.', 'error');
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append('project_title', projectData.project_title);
-            formData.append('project_description', projectData.project_description);
-            formData.append('fiscal_id', projectData.fiscal_year);
-            formData.append('plan_id', projectData.plan);
-            formData.append('manager_id', projectData.manager_id);
-            formData.append('allocated_budget', projectData.associated_budget);
-            formData.append('start_project', projectData.start_project);
-            formData.append('end_project', projectData.end_project);
-            formData.append('program_type', projectData.program_phase);
-            formData.append('group_count', projectData.group_count);
-            formData.append('about_count', projectData.expected_participant_percentage);
-            formData.append('plan_quality', projectData.plan_quality);
-            formData.append('program_location', projectData.program_location);
-            formData.append('objectives', JSON.stringify(projectData.objectives));
-            if (projectData.attached_file) {
-                formData.append('project_filedetail', projectData.attached_file);
-            } else if (projectData.delete_project_file) { 
-                formData.append('delete_project_file', 'true');
-            }
-
-            const response = await axios.put(`/api/project/${projectData.project_id}`, formData, {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-
-            Swal.fire('สำเร็จ', response.data.message || 'โครงการถูกแก้ไขเรียบร้อยแล้ว', 'success');
-            fetchProjects(filters, pagination); // ดึงข้อมูลใหม่
-        } catch (err) {
-            console.error('Error updating project:', err);
-            Swal.fire('Error', err.response?.data?.message || 'Failed to update project.', 'error');
-            throw err;
-        }
-    };
-
-    const handleDeleteProject = (projectId) => {
+  const handleConfirmRegistration = async (projectId, allergies, suggestions) => {
+    try {
+      const accessToken = Cookies.get('accessToken');
+      if (!accessToken) {
         Swal.fire({
-            title: 'ยืนยันการลบข้อมูล',
-            text: "คุณต้องการลบโครงการนี้ใช่หรือไม่?",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'ใช่, ลบเลย!',
-            cancelButtonText: 'ยกเลิก'
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                try {
-                    const accessToken = Cookies.get('accessToken');
-                    if (!accessToken) {
-                        Swal.fire('Error', 'Access token not found. Please log in.', 'error');
-                        return;
-                    }
-
-                    await axios.delete(`/api/project/${projectId}`, {
-                        headers: {
-                            'Authorization': `Bearer ${accessToken}`,
-                        },
-                    });
-
-                    Swal.fire('Deleted!', 'The project has been deleted.', 'success');
-                    fetchProjects(filters, { ...pagination, currentPage: 1 }); // ดึงข้อมูลใหม่และกลับไปหน้า 1
-                } catch (err) {
-                    console.error('Error deleting project:', err);
-                    Swal.fire('Error', err.response?.data?.message || 'Failed to delete project.', 'error');
-                }
-            }
+          title: 'เกิดข้อผิดพลาด', 
+          text: 'ไม่พบ Access token กรุณาเข้าสู่ระบบใหม่', 
+          icon: 'error',
+          confirmButtonText: 'ตกลง'
         });
-    };
+        return;
+      }
 
-    const handleToggleProjectStatus = async (projectId, currentStatus) => {
+      const registrationData = {
+        project_id: projectId,
+        allergy_info: allergies,
+        suggestions: suggestions,
+      };
+
+      await axios.post('/api/registrations', registrationData, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+
+      Swal.fire({
+        title: 'ลงทะเบียนสำเร็จ',
+        text: 'ลงทะเบียนโครงการเรียบร้อยแล้ว', 
+        icon: 'success',
+        confirmButtonText: 'ตกลง' 
+      });
+
+      fetchRegisteredProjects(currentUser.std_id); // Refresh registered projects
+      setIsConfirmModalOpen(false);
+    } catch (err) {
+      console.error('Error registering for project:', err);
+
+      Swal.fire({
+        title: 'เกิดข้อผิดพลาด', 
+        text: err.response?.data?.message || 'ล้มเหลวในการลงทะเบียน', 
+        icon: 'error',
+        confirmButtonText: 'ตกลง' 
+      });
+    }
+  };
+
+  const handleUnregister = async (projectId) => {
+    Swal.fire({
+      title: 'คุณแน่ใจไหม?',
+      text: "คุณต้องการยกเลิกการลงทะเบียนในโครงการนี้ใช่หรือไม่?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'ยืนยัน',
+      cancelButtonText: 'ยกเลิก'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
         try {
-            const accessToken = Cookies.get('accessToken');
-            const response = await axios.put(`/api/project-status/${projectId}`, null, {
-                headers: { Authorization: `Bearer ${accessToken}` },
+          const accessToken = Cookies.get('accessToken');
+          if (!accessToken) {
+            Swal.fire({
+              title: 'เกิดข้อผิดพลาด', 
+              text: 'ไม่พบ Access token กรุณาเข้าสู่ระบบใหม่', 
+              icon: 'error',
+              confirmButtonText: 'ตกลง' 
             });
-            Swal.fire('สำเร็จ', response.data.message || 'สถานะโครงการถูกอัปเดตเรียบร้อยแล้ว', 'success');
-            fetchProjects(filters, pagination); // Refresh projects to show updated status
+            return;
+          }
+
+          await axios.delete(`/api/project/unregister/${projectId}`, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          });
+
+          Swal.fire({
+            title: 'ยกเลิกสำเร็จ', 
+            text: 'การลงทะเบียนถูกยกเลิกเรียบร้อยแล้ว',
+            icon: 'success',
+            confirmButtonText: 'ตกลง' 
+          });
+
+          fetchRegisteredProjects(currentUser.std_id); // Refresh registered projects
+          setIsDetailsModalOpen(false);
         } catch (err) {
-            Swal.fire('Error', err.response?.data?.message || 'Failed to update project status.', 'error');
+          console.error('Error unregistering from project:', err);
+
+          Swal.fire({
+            title: 'เกิดข้อผิดพลาด', 
+            text: err.response?.data?.message || 'ล้มเหลวในการยกเลิกการลงทะเบียน', 
+            icon: 'error',
+            confirmButtonText: 'ตกลง' 
+          });
         }
-    };
+      }
+    });
+  };
 
-    const handleToggleRegistrationStatus = async (projectId, currentStatus) => {
-        try {
-            const accessToken = Cookies.get('accessToken');
-            const response = await axios.put(`/api/project-registration/${projectId}`, null, {
-                headers: { Authorization: `Bearer ${accessToken}` },
-            });
-            Swal.fire('สำเร็จ', response.data.message || 'สถานะการลงทะเบียนถูกอัปเดตเรียบร้อยแล้ว', 'success');
-            fetchProjects(filters, pagination); // Refresh projects to show updated status
-        } catch (err) {
-            Swal.fire('Error', err.response?.data?.message || 'Failed to update registration status.', 'error');
-        }
-    };
+  const handleViewDetails = (project) => {
+    setSelectedProject(project);
+    setIsDetailsModalOpen(true);
+  };
 
-    const handleOpenRegistrationConfirmationModal = (project) => {
-        setSelectedProject(project);
-        setIsDetailsModalOpen(false);
-        setIsConfirmModalOpen(true);
-    };
+  const handleViewRegistrations = async (projectId) => {
+    try {
+      setIsDetailsModalOpen(false);
+      const accessToken = Cookies.get('accessToken');
+      if (!accessToken) {
+        throw new Error('Access token not found.');
+      }
+      const response = await axios.get(`/api/registrations/project/${projectId}`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      setParticipants(response.data.data);
+      setIsParticipantsModalOpen(true);
+    } catch (err) {
+      Swal.fire('Error', 'Failed to fetch participants.', 'error');
+    }
+  };
 
-    const handleConfirmRegistration = async (projectId, allergies, suggestions) => {
-        try {
-            const accessToken = Cookies.get('accessToken');
-            if (!accessToken) {
-                Swal.fire('Error', 'Access token not found. Please log in.', 'error');
-                return;
-            }
+  const handleOpenAddModal = () => {
+    setCopiedProjectData(null);
+    setIsAddModalOpen(true);
+  };
 
-            const registrationData = {
-                project_id: projectId,
-                allergy_info: allergies,
-                suggestions: suggestions,
-            };
+  const handleCopyProject = (project) => {
+    setCopiedProjectData(project);
+    setIsAddModalOpen(true);
+  };
 
-            await axios.post('/api/registrations', registrationData, {
-                headers: { Authorization: `Bearer ${accessToken}` },
-            });
+  // --- Render Section ---
+  return (
+    <div className="bg-gray-100 min-h-screen p-4 sm:p-6 lg:p-8">
+      <div className="max-w-7xl mx-auto">
+        <header className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold text-gray-800">โครงการ</h1>
+          {currentUser && (currentUser.role_id === 2 || currentUser.role_id === 3) && (
+            <button onClick={handleOpenAddModal} className="inline-flex items-center px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg shadow-md">
+              <FaPlus className="mr-2" />เพิ่มโครงการ
+            </button>
+          )}
+        </header>
 
-            Swal.fire('Success', 'Registration successful!', 'success');
-            fetchRegisteredProjects(currentUser.std_id); // Refresh registered projects
-            setIsConfirmModalOpen(false);
-        } catch (err) {
-            console.error('Error registering for project:', err);
-            Swal.fire('Error', err.response?.data?.message || 'Failed to register.', 'error');
-        }
-    };
+        {/* --- Filter Section --- */}
+        <div className="bg-white p-4 rounded-lg shadow-md mb-6 project-section">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+            <div className={currentUser?.role_id === 1 ? "col-span-full" : "md:col-span-2"}>
+              <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">
+                ค้นหาโครงการ
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  id="search"
+                  name="search"
+                  value={filters.search}
+                  onChange={handleFilterChange}
+                  placeholder="ค้นหาด้วยชื่อโครงการ..."
+                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg transition duration-150 ease-in-out focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 shadow-sm"
+                />
+                <FaMagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+              </div>
+            </div>
 
-    const handleUnregister = async (projectId) => {
-        Swal.fire({
-            title: 'คุณแน่ใจไหม?',
-            text: "คุณต้องการยกเลิกการลงทะเบียนในโครงการนี้ใช่หรือไม่?",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'ยืนยัน',
-            cancelButtonText: 'ยกเลิก'
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                try {
-                    const accessToken = Cookies.get('accessToken');
-                    if (!accessToken) {
-                        Swal.fire('Error', 'Access token not found. Please log in.', 'error');
-                        return;
-                    }
-
-                    await axios.delete(`/api/project/unregister/${projectId}`, {
-                        headers: { Authorization: `Bearer ${accessToken}` },
-                    });
-
-                    Swal.fire('ยกเลิกแล้ว!', 'การลงทะเบียนถูกยกเลิกเรียบร้อยแล้ว', 'success');
-                    fetchRegisteredProjects(currentUser.std_id); // Refresh registered projects
-                    setIsDetailsModalOpen(false);
-                } catch (err) {
-                    console.error('Error unregistering from project:', err);
-                    Swal.fire('Error', err.response?.data?.message || 'Failed to unregister.', 'error');
-                }
-            }
-        });
-    };
-
-    const handleViewDetails = (project) => {
-        setSelectedProject(project);
-        setIsDetailsModalOpen(true);
-    };
-
-    const handleViewRegistrations = async (projectId) => {
-        try {
-            setIsDetailsModalOpen(false);
-            const accessToken = Cookies.get('accessToken');
-            if (!accessToken) {
-                throw new Error('Access token not found.');
-            }
-            const response = await axios.get(`/api/registrations/project/${projectId}`, {
-                headers: { Authorization: `Bearer ${accessToken}` },
-            });
-            setParticipants(response.data.data);
-            setIsParticipantsModalOpen(true);
-        } catch (err) {
-            Swal.fire('Error', 'Failed to fetch participants.', 'error');
-        }
-    };
-
-    const handleOpenAddModal = () => {
-        setCopiedProjectData(null);
-        setIsAddModalOpen(true);
-    };
-
-    const handleCopyProject = (project) => {
-        setCopiedProjectData(project);
-        setIsAddModalOpen(true);
-    };
-
-    // --- Render Section ---
-    return (
-        <div className="bg-gray-100 min-h-screen p-4 sm:p-6 lg:p-8">
-            <div className="max-w-7xl mx-auto">
-                <header className="flex justify-between items-center mb-6">
-                    <h1 className="text-2xl font-bold text-gray-800">โครงการ</h1>
-                    {currentUser && (currentUser.role_id === 2 || currentUser.role_id === 3) && (
-                        <button onClick={handleOpenAddModal} className="inline-flex items-center px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg shadow-md">
-                            <FaPlus className="mr-2" />เพิ่มโครงการ
-                        </button>
-                    )}
-                </header>
-
-                {/* --- Filter Section --- */}
-                <div className="bg-white p-4 rounded-lg shadow-md mb-6 project-section">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                        <div className={currentUser?.role_id === 1 ? "col-span-full" : "md:col-span-2"}>
-                            <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">
-                                ค้นหาโครงการ
-                            </label>
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    id="search"
-                                    name="search"
-                                    value={filters.search}
-                                    onChange={handleFilterChange}
-                                    placeholder="ค้นหาด้วยชื่อโครงการ..."
-                                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg transition duration-150 ease-in-out focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 shadow-sm"
-                                />
-                                <FaMagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
-                            </div>
-                        </div>
-
-                        {currentUser?.role_id !== 1 && (
-                            <>
-                                <div>
-                                    <label htmlFor="fiscal_id" className="block text-sm font-medium text-gray-700 mb-1">
-                                        ปีงบประมาณ
-                                    </label>
-                                    <select
-                                        id="fiscal_id"
-                                        name="fiscal_id"
-                                        value={filters.fiscal_id}
-                                        onChange={handleFilterChange}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm transition duration-150 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600"
-                                    >
-                                        <option value="">ทั้งหมด</option>
-                                        {fiscalYears.map((fy) => (
-                                            <option key={fy.fiscal_id} value={fy.fiscal_id}>
-                                                {fy.fiscal_name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label htmlFor="plan_id" className="block text-sm font-medium text-gray-700 mb-1">
-                                        แผนงาน
-                                    </label>
-                                    <select
-                                        id="plan_id"
-                                        name="plan_id"
-                                        value={filters.plan_id}
-                                        onChange={handleFilterChange}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm transition duration-150 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600"
-                                    >
-                                        <option value="">ทั้งหมด</option>
-                                        {plans.map((p) => (
-                                            <option key={p.plan_id} value={p.plan_id}>
-                                                {p.plan_name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div className="md:col-span-4 flex justify-end">
-                                    <button
-                                        onClick={handleClearFilters}
-                                        className="text-sm text-slate-600 hover:text-slate-800"
-                                    >
-                                        ล้างค่าการค้นหา
-                                    </button>
-                                </div>
-                            </>
-                        )}
-                    </div>
+            {currentUser?.role_id !== 1 && (
+              <>
+                <div>
+                  <label htmlFor="fiscal_id" className="block text-sm font-medium text-gray-700 mb-1">
+                    ปีงบประมาณ
+                  </label>
+                  <select
+                    id="fiscal_id"
+                    name="fiscal_id"
+                    value={filters.fiscal_id}
+                    onChange={handleFilterChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-700"
+                  >
+                    <option value="">ทั้งหมด</option>
+                    {fiscalYears.map((fy) => (
+                      <option key={fy.fiscal_id} value={fy.fiscal_id}>
+                        {fy.fiscal_name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
-                <main className="space-y-6">
-                    {loading ? (
-                        <div className="text-center p-10"><p>กำลังโหลด...</p></div>
-                    ) : error ? (
-                        <div className="text-center p-10 text-red-500"><FaTriangleExclamation className="mx-auto text-4xl mb-2" /><p>{error}</p></div>
-                    ) : projects.length === 0 ? (
-                        <div className="text-center p-10"><FaCircleInfo className="mx-auto text-4xl mb-2" /><p>ไม่พบข้อมูลโครงการ</p></div>
-                    ) : (
-                        <div className="space-y-4">
-                            {projects.map((item) => (
-                                <ProjectCard
-                                    key={item.project_id}
-                                    project={item}
-                                    currentUser={currentUser}
-                                    onEdit={(project) => {
-                                        setSelectedProject(project);
-                                        setIsEditModalOpen(true);
-                                    }}
-                                    onCopy={handleCopyProject}
-                                    onDelete={() => handleDeleteProject(item.project_id)}
-                                    onViewDetails={handleViewDetails}
-                                    isRegistered={registeredProjects.has(item.project_id)}
-                                    onToggleProjectStatus={handleToggleProjectStatus}
-                                    onToggleRegistrationStatus={handleToggleRegistrationStatus}
-                                />
-                            ))}
-                        </div>
-                    )}
-                </main>
+                <div>
+                  <label htmlFor="plan_id" className="block text-sm font-medium text-gray-700 mb-1">
+                    แผนงาน
+                  </label>
+                  <select
+                    id="plan_id"
+                    name="plan_id"
+                    value={filters.plan_id}
+                    onChange={handleFilterChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-700"
+                  >
+                    <option value="">ทั้งหมด</option>
+                    {plans.map((p) => (
+                      <option key={p.plan_id} value={p.plan_id}>
+                        {p.plan_name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-                {/* Pagination Controls */}
-                {projects.length > 0 && pagination.totalPages > 1 && (
-                    <div className="flex justify-center items-center mt-8">
-                        <button
-                            onClick={() => handlePageChange(pagination.currentPage - 1)}
-                            disabled={pagination.currentPage === 1}
-                            className="px-4 py-2 mx-1 bg-white border border-slate-300 rounded-lg hover:bg-slate-100 disabled:bg-slate-50 disabled:text-slate-400"
-                        >
-                            ก่อนหน้า
-                        </button>
-                        <span className="px-4 py-2 mx-1 text-slate-700">
-                            หน้า {pagination.currentPage} จาก {pagination.totalPages}
-                        </span>
-                        <button
-                            onClick={() => handlePageChange(pagination.currentPage + 1)}
-                            disabled={pagination.currentPage === pagination.totalPages}
-                            className="px-4 py-2 mx-1 bg-white border border-slate-300 rounded-lg hover:bg-slate-100 disabled:bg-slate-50 disabled:text-slate-400"
-                        >
-                            ถัดไป
-                        </button>
-                    </div>
-                )}
-
-                <AddProjectModal
-                    isOpen={isAddModalOpen}
-                    onClose={() => setIsAddModalOpen(false)}
-                    onSave={handleAddProject}
-                    currentUser={currentUser}
-                    managers={managers}
-                    fiscalYears={fiscalYears}
-                    plans={plans}
-                    initialData={copiedProjectData}
-                />
-                <EditProjectModal
-                    isOpen={isEditModalOpen}
-                    onClose={() => setIsEditModalOpen(false)}
-                    onSave={handleEditProject}
-                    projectItem={selectedProject}
-                    managers={managers}
-                    fiscalYears={fiscalYears}
-                    plans={plans}
-                />
-                <ProjectDetailsModal
-                    isOpen={isDetailsModalOpen}
-                    onClose={() => setIsDetailsModalOpen(false)}
-                    projectItem={selectedProject}
-                    onViewRegistrations={handleViewRegistrations}
-                    onOpenRegisterForm={handleOpenRegistrationConfirmationModal}
-                    onUnregister={handleUnregister}
-                    isRegistered={selectedProject ? registeredProjects.has(selectedProject.project_id) : false}
-                    isStudent={currentUser?.role_id === 1}
-                    managers={managers}
-                />
-                <RegistrationConfirmationModal
-                    isOpen={isConfirmModalOpen}
-                    onClose={() => setIsConfirmModalOpen(false)}
-                    onConfirm={handleConfirmRegistration}
-                    projectItem={selectedProject}
-                />
-                <ViewParticipantsModal
-                    isOpen={isParticipantsModalOpen}
-                    onClose={() => setIsParticipantsModalOpen(false)}
-                    participants={participants}
-                />
-            </div>
+                <div className="md:col-span-4 flex justify-end">
+                  <button
+                    onClick={handleClearFilters}
+                    className="text-sm text-slate-600 hover:text-slate-800"
+                  >
+                    ล้างค่าการค้นหา
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
-    );
+
+        <main className="space-y-6">
+          {loading ? (
+            <div className="text-center p-10"><p>กำลังโหลด...</p></div>
+          ) : error ? (
+            <div className="text-center p-10 text-red-500"><FaTriangleExclamation className="mx-auto text-4xl mb-2" /><p>{error}</p></div>
+          ) : projects.length === 0 ? (
+            <div className="text-center p-10"><FaCircleInfo className="mx-auto text-4xl mb-2" /><p>ไม่พบข้อมูลโครงการ</p></div>
+          ) : (
+            <div className="space-y-4">
+              {projects.map((item) => (
+                <ProjectCard
+                  key={item.project_id}
+                  project={item}
+                  currentUser={currentUser}
+                  onEdit={(project) => {
+                    setSelectedProject(project);
+                    setIsEditModalOpen(true);
+                  }}
+                  onCopy={handleCopyProject}
+                  onDelete={() => handleDeleteProject(item.project_id)}
+                  onViewDetails={handleViewDetails}
+                  isRegistered={registeredProjects.has(item.project_id)}
+                  onToggleProjectStatus={handleToggleProjectStatus}
+                  onToggleRegistrationStatus={handleToggleRegistrationStatus}
+                />
+              ))}
+            </div>
+          )}
+        </main>
+
+        {/* Pagination Controls */}
+        {projects.length > 0 && pagination.totalPages > 1 && (
+          <div className="flex justify-center items-center mt-8">
+            <button
+              onClick={() => handlePageChange(pagination.currentPage - 1)}
+              disabled={pagination.currentPage === 1}
+              className="px-4 py-2 mx-1 bg-white border border-slate-300 rounded-lg hover:bg-slate-100 disabled:bg-slate-50 disabled:text-slate-400"
+            >
+              ก่อนหน้า
+            </button>
+            <span className="px-4 py-2 mx-1 text-slate-700">
+              หน้า {pagination.currentPage} จาก {pagination.totalPages}
+            </span>
+            <button
+              onClick={() => handlePageChange(pagination.currentPage + 1)}
+              disabled={pagination.currentPage === pagination.totalPages}
+              className="px-4 py-2 mx-1 bg-white border border-slate-300 rounded-lg hover:bg-slate-100 disabled:bg-slate-50 disabled:text-slate-400"
+            >
+              ถัดไป
+            </button>
+          </div>
+        )}
+
+        <AddProjectModal
+          isOpen={isAddModalOpen}
+          onClose={() => setIsAddModalOpen(false)}
+          onSave={handleAddProject}
+          currentUser={currentUser}
+          managers={managers}
+          fiscalYears={fiscalYears}
+          plans={plans}
+          initialData={copiedProjectData}
+        />
+        <EditProjectModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          onSave={handleEditProject}
+          projectItem={selectedProject}
+          managers={managers}
+          fiscalYears={fiscalYears}
+          plans={plans}
+        />
+        <ProjectDetailsModal
+          isOpen={isDetailsModalOpen}
+          onClose={() => setIsDetailsModalOpen(false)}
+          projectItem={selectedProject}
+          onViewRegistrations={handleViewRegistrations}
+          onOpenRegisterForm={handleOpenRegistrationConfirmationModal}
+          onUnregister={handleUnregister}
+          isRegistered={selectedProject ? registeredProjects.has(selectedProject.project_id) : false}
+          isStudent={currentUser?.role_id === 1}
+          managers={managers}
+        />
+        <RegistrationConfirmationModal
+          isOpen={isConfirmModalOpen}
+          onClose={() => setIsConfirmModalOpen(false)}
+          onConfirm={handleConfirmRegistration}
+          projectItem={selectedProject}
+        />
+        <ViewParticipantsModal
+          isOpen={isParticipantsModalOpen}
+          onClose={() => setIsParticipantsModalOpen(false)}
+          participants={participants}
+        />
+      </div>
+    </div>
+  );
 }

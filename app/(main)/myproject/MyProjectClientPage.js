@@ -16,64 +16,85 @@ const ProjectCard = ({ project, currentUser, onEdit, onDelete, onViewDetails }) 
   const isProjectOverdue = new Date(project.end_project) < new Date();
   const isRegistered = project.is_registered_by_user; // Assuming this comes from the project data
 
-  return (
-    <div className="bg-white rounded-xl shadow-md overflow-hidden transform hover:-translate-y-1 transition-all duration-300 relative">
-      <div className="flex justify-end items-center absolute top-4 right-4 space-x-2">
-        {canModify && (
-          <div className="flex space-x-2">
-            {/* onEdit and onDelete are passed but not used in MyProjectClientPage directly */}
-            {/* Keeping them for consistency with ProjectClientPage if this component is reused */}
-            <button onClick={() => onEdit(project)} className="edit-btn text-slate-500 hover:text-sky-600 p-2 rounded-md" title="Edit"><FaPenToSquare /></button>
-            <button onClick={() => onDelete(project.project_id)} className="delete-btn text-slate-500 hover:text-red-600 p-2 rounded-md" title="Delete"><FaTrash /></button>
-          </div>
-        )}
-      </div>
+return (
+        <div className="bg-white rounded-xl shadow-md overflow-hidden transform hover:-translate-y-1 transition-all duration-300 relative">
+            <div className="p-6">
+                
+                {/* 💡 แถวบนสุด: ชื่อโครงการ + ภาคเรียน | ปุ่มแก้ไข/ลบ (ใช้ justify-between) */}
+                <div className="flex items-start justify-between mb-4">
+                    
+                    {/* ซ้าย: ชื่อโครงการ + ภาคเรียน (flex-grow เพื่อให้ชื่อโครงการขยายเต็มที่) */}
+                    <div className="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-3 min-w-0 flex-grow pr-4"> 
+                        <h3 className="text-2xl font-bold text-slate-800 truncate">{project.project_title}</h3>
+                        <div
+                            className={`text-xs font-bold px-3 py-1.5 rounded-full text-white whitespace-nowrap flex-shrink-0 
+                                        ${project.program_type === 'ปกติ' ? 'bg-indigo-500' : 'bg-pink-500'
+                            }`}
+                        >
+                            <span>{project.program_type}</span>
+                        </div>
+                    </div>
+                    
+                    {/* ขวา: ปุ่มแก้ไข/ลบ (flex-shrink-0 เพื่อไม่ให้ถูกบีบ) */}
+                    {canModify && (
+                        <div className="flex space-x-2 flex-shrink-0 text-xl pt-1">
+                            {/* เพิ่ม p-2 เพื่อขยายพื้นที่คลิกและสไตล์ Hover */}
+                            <button onClick={() => onEdit(project)} className="text-slate-500 hover:text-sky-600 p-2 rounded-md transition duration-150" title="แก้ไข"><FaPenToSquare /></button>
+                            <button onClick={() => onDelete(project.project_id)} className="text-slate-500 hover:text-red-600 p-2 rounded-md transition duration-150" title="ลบ"><FaTrash /></button>
+                        </div>
+                    )}
+                </div>
+                
+                {/* ข้อมูลผู้สร้าง + วันที่ */}
+                <div className="flex items-center space-x-3 text-sm text-slate-500 mb-4 border-b border-slate-200 pb-4">
+                    <FaUserTie className="h-4 w-4 mr-1.5" />
+                    <span>By: {creatorName}</span>
+                    <FaCalendarDays className="h-4 w-4 mr-1.5" />
+                    <span>{formattedDate}</span>
+                </div>
 
-      <div className="p-6 pt-16">
-        <h3 className="text-2xl font-bold text-slate-800 mb-3 pr-24">{project.project_title}</h3>
-        <div className="flex items-center space-x-3 text-sm text-slate-500 mb-4 border-b border-slate-200 pb-4">
-          <FaUserTie className="h-4 w-4 mr-1.5" /><span>By: {creatorName}</span>
-          <FaCalendarDays className="h-4 w-4 mr-1.5" /><span>{formattedDate}</span>
-          <div className={`text-xs font-bold px-2 py-1 rounded-full text-white ${project.program_type === 'ปกติ' ? 'bg-indigo-500' : 'bg-pink-500'}`}>
-            <span>{project.program_type}</span>
-          </div>
-        </div>
-        <p className="text-slate-600 mb-6 leading-relaxed">{project.project_description}</p>
+                {/* คำอธิบายโครงการ */}
+                <p className="text-slate-600 mb-2 leading-relaxed line-clamp-3"> {/* เพิ่ม line-clamp-3 เพื่อจำกัดบรรทัด */}
+                    {project.project_description}
+                </p>
 
-        <div className="flex items-center space-x-2 mt-4">
-          {project.attached_file_name && (
-            <a href={`/api/project-files/${project.attached_file_name}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 transition-colors duration-200">
-              <FaPaperclip className="mr-1.5" />
-              <span>{project.attached_file_name}</span>
-            </a>
-          )}
-        </div>
+                {/* ไฟล์แนบ */}
+                <div className="flex items-center space-x-2 mt-4"> {/* ปรับ mt-2 เป็น mt-4 เพื่อเพิ่มช่องว่าง */}
+                    {project.attached_file_name && (
+                        <a href={`/api/project-files/${project.attached_file_name}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 transition-colors duration-200">
+                            <FaPaperclip className="mr-1.5" />
+                            <span>{project.attached_file_name}</span>
+                        </a>
+                    )}
+                </div>
 
-        <div className="flex items-center justify-between flex-wrap">
-          <div className="flex items-center space-x-2 text-sm text-slate-500 mb-2 md:mb-0">
-            {isProjectOverdue ? (
-              <div className="text-red-600 flex items-center font-semibold"><FaCalendarXmark className="mr-2" />หมดเขตลงทะเบียนแล้ว</div>
-            ) : (
-              <div className="text-green-600 flex items-center font-semibold"><FaClock className="mr-2" />เปิดให้ลงทะเบียน</div>
-            )}
-          </div>
-          <div className="flex space-x-2 mt-2 md:mt-0">
-            {isStudent && (
-              // Always show "ดูรายละเอียด" button for students on this page
-              <button onClick={() => onViewDetails(project)} className="inline-flex items-center px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-lg shadow-md">
-                <FaUsers className="mr-2" />ดูรายละเอียด
-              </button>
-            )}
-            {canModify && ( // For managers/admins, they always see "View Details"
-              <button onClick={() => onViewDetails(project)} className="inline-flex items-center px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-lg shadow-md">
-                <FaUsers className="mr-2" />ดูรายละเอียด
-              </button>
-            )}
-          </div>
+                {/* สถานะโครงการ + ปุ่มดูรายละเอียด */}
+                <div className="flex items-center justify-between flex-wrap mt-6 pt-4 border-t border-slate-200"> {/* เพิ่มเส้นแบ่งและช่องว่างด้านบน */}
+                    
+                    {/* ซ้าย: สถานะลงทะเบียน */}
+                    <div className="flex items-center space-x-2 text-sm text-slate-500 mb-2 md:mb-0">
+                        {isProjectOverdue ? (
+                            <div className="text-red-600 flex items-center font-semibold"><FaCalendarXmark className="mr-2" />หมดเขตลงทะเบียนแล้ว</div>
+                        ) : (
+                            <div className="text-green-600 flex items-center font-semibold"><FaClock className="mr-2" />เปิดให้ลงทะเบียน</div>
+                        )}
+                    </div>
+                    
+                    {/* ขวา: ปุ่มดูรายละเอียด (รวมกันเพื่อไม่ให้ซ้ำซ้อน) */}
+                    <div className="flex space-x-2 mt-2 md:mt-0">
+                        {(isStudent || canModify) && (
+                            <button 
+                                onClick={() => onViewDetails(project)} 
+                                className="inline-flex items-center px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-lg shadow-md transition duration-150"
+                            >
+                                <FaUsers className="mr-2" />ดูรายละเอียด
+                            </button>
+                        )}
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 // --- Component ใหม่: Popup แสดงรายละเอียดโครงการ (ปรับปรุงตาม Role) ---
@@ -87,7 +108,7 @@ const ProjectDetailsModal = ({ isOpen, onClose, projectItem, onViewRegistrations
   const isRegistrationActive = projectItem.registration_status === 'active' && new Date(projectItem.end_project) >= new Date();
 
   return (
-    <div className="modal fixed inset-0 z-50 flex items-center justify-center backdrop-blur-xs bg-opacity-10 font-inter">
+    <div className="modal fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-white/60 to-gray-200/50 font-inter p-4">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-4xl p-6 max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center border-b pb-3 mb-4">
           <h3 className="text-2xl font-bold">รายละเอียดโครงการ</h3>
@@ -271,37 +292,53 @@ const MyProjectClientPage = () => {
   }, [currentUser]);
 
   // Function to handle unregistering from a project (for students)
-  const handleUnregisterProject = useCallback(async (projectId) => {
+const handleUnregisterProject = useCallback(async (projectId) => {
     Swal.fire({
-      title: 'คุณแน่ใจหรือไม่?',
-      text: "คุณต้องการยกเลิกการลงทะเบียนโครงการนี้ใช่หรือไม่?",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'ใช่, ยกเลิกเลย!',
-      cancelButtonText: 'ไม่, เก็บไว้ก่อน'
+        title: 'ยืนยันการยกเลิก?',
+        text: "คุณต้องการยกเลิกการลงทะเบียนโครงการนี้ใช่หรือไม่?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'ยืนยัน',
+        cancelButtonText: 'ยกเลิก'
     }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          const accessToken = Cookies.get('accessToken');
-          if (!accessToken) {
-            Swal.fire('Error', 'Access token not found. Please log in.', 'error');
-            return;
-          }
-          // --- Simulate API call for unregistration ---
-          await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
-          console.log(`Simulating unregistration for project ID: ${projectId} by user ${currentUser?.std_id}`);
+        if (result.isConfirmed) {
+            try {
+                const accessToken = Cookies.get('accessToken');
+                if (!accessToken) {
+                    Swal.fire({
+                        title: 'เกิดข้อผิดพลาด',
+                        text: 'Access token not found. Please log in.',
+                        icon: 'error',
+                        confirmButtonText: 'ตกลง' 
+                    });
+                    return;
+                }
+                
+                const config = { headers: { Authorization: `Bearer ${accessToken}` } };
+                const response = await axios.delete(`/api/registration/${projectId}`, config); 
 
-          Swal.fire('ยกเลิกแล้ว!', 'การลงทะเบียนถูกยกเลิกเรียบร้อยแล้ว', 'success');
-          fetchMyProjects(); // Refresh the list of projects
-        } catch (err) {
-          console.error('API Error:', err);
-          Swal.fire('Error', err.response?.data?.message || 'เกิดข้อผิดพลาดในการยกเลิกการลงทะเบียน', 'error');
+                Swal.fire({
+                    title: 'ยกเลิกสำเร็จ', 
+                    text: response.data?.message || 'การลงทะเบียนถูกยกเลิกเรียบร้อยแล้ว', 
+                    icon: 'success',
+                    confirmButtonText: 'ตกลง' 
+                });
+                
+                fetchMyProjects(); // Refresh the list of projects
+            } catch (err) {
+                console.error('API Error:', err);
+                Swal.fire({
+                    title: 'เกิดข้อผิดพลาด',
+                    text: err.response?.data?.message || 'เกิดข้อผิดพลาดในการยกเลิกการลงทะเบียน',
+                    icon: 'error',
+                    confirmButtonText: 'ตกลง' 
+                });
+            }
         }
-      }
     });
-  }, [currentUser, fetchMyProjects]);
+}, [fetchMyProjects]); 
 
 
   // useEffect hook to run the fetch function when the component mounts
@@ -321,12 +358,12 @@ const MyProjectClientPage = () => {
           {loading ? (
             <div className="flex justify-center items-center h-48 text-gray-500">
               <FaSpinner className="animate-spin text-4xl mr-2" />
-              <span>กำลังโหลดข้อมูล...</span>
+              <span>กำลังโหลด...</span>
             </div>
           ) : error ? (
             <div className="text-center p-10 text-red-500"><FaTriangleExclamation className="mx-auto text-4xl mb-2" /><p>{error}</p></div>
           ) : projects.length === 0 ? (
-            <div className="text-center p-10 text-gray-500"><FaCircleInfo className="mx-auto text-4xl mb-2" /><p>คุณยังไม่ได้ลงทะเบียนโครงการใดๆ</p></div>
+            <div className="text-center p-10 text-gray-500"><FaCircleInfo className="mx-auto text-4xl mb-2" /><p>คุณยังไม่ได้ลงทะเบียนโครงการใด</p></div>
           ) : (
             // Map through the projects and render a ProjectCard for each one
             projects.map((item) => (

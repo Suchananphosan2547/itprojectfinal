@@ -4,17 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
 import { Cell } from 'recharts';
 import { FaExclamationTriangle, FaSearch, FaFileExcel, FaTimesCircle } from 'react-icons/fa';
-import {
-    Line,
-    Bar,
-    CartesianGrid,
-    XAxis,
-    YAxis,
-    Tooltip,
-    Legend,
-    ResponsiveContainer,
-    ComposedChart,
-} from 'recharts';
+import {Line,Bar,CartesianGrid,XAxis,YAxis,Tooltip,Legend,ResponsiveContainer,ComposedChart,} from 'recharts';
 import Cookies from 'js-cookie';
 import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
@@ -31,20 +21,15 @@ const DashboardClientPage = () => {
     const [fiscalYears, setFiscalYears] = useState([]);
     const [plans, setPlans] = useState([]);
     const [totalBudget, setTotalBudget] = useState(0);
-
-    // State เพื่อระบุว่า Filters เริ่มต้นถูกกำหนดแล้ว
     const [initialFiltersSet, setInitialFiltersSet] = useState(false);
 
     const API_HEADERS = useMemo(() => ({ 'Authorization': `Bearer ${Cookies.get('accessToken')}` }), []);
     const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || '';
 
-    // 🚩 แก้ไข: ตั้งค่า default ID เป็น String ว่างเปล่า ('') เพื่อให้เลือก "ทั้งหมด"
     const defaultFiscalId = '';
     const defaultPlanId = '';
 
-    // ฟังก์ชันสำหรับเรียกข้อมูลหลักของ Dashboard
     const fetchDashboardData = useCallback(async () => {
-        // ป้องกันการเรียก API ก่อนที่ Filters เริ่มต้นจะถูกตั้งค่า
         if (!initialFiltersSet) return;
 
         setDataLoading(true);
@@ -76,7 +61,6 @@ const DashboardClientPage = () => {
             console.error('Error fetching dashboard data:', err);
             if (err.response?.status === 401) {
                 setError('เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่');
-                // ควรสั่ง Redirect ไปหน้า Login ที่นี่
             } else {
                 setError(err.response?.data?.message || 'Failed to fetch dashboard data.');
             }
@@ -85,7 +69,6 @@ const DashboardClientPage = () => {
         }
     }, [API_HEADERS, pagination.currentPage, pagination.limit, filters, initialFiltersSet, apiBaseUrl]);
 
-    // ฟังก์ชันสำหรับดึงข้อมูลเริ่มต้น (ปีงบประมาณ, แผนงาน)
     const fetchInitialData = useCallback(async () => {
         try {
             const [fiscalRes, planRes] = await Promise.all([
@@ -104,7 +87,6 @@ const DashboardClientPage = () => {
         }
     }, [API_HEADERS, apiBaseUrl]);
 
-    // ฟังก์ชันสำหรับส่งออก Excel
     const handleExport = async () => {
         setIsExporting(true);
         setError(null);
@@ -112,7 +94,7 @@ const DashboardClientPage = () => {
         const COMMON_FONT = { name: 'TH Sarabun New', size: 14 };
 
         try {
-            // 1. ดึงข้อมูลทั้งหมดจาก API (โดยไม่ใช้ pagination)
+            
             const params = new URLSearchParams({
                 search: filters.search,
                 fiscal_id: filters.fiscal_id,
@@ -129,7 +111,7 @@ const DashboardClientPage = () => {
                 return;
             }
 
-            // 2-7. สร้างและบันทึกไฟล์ Excel
+            
             const workbook = new ExcelJS.Workbook();
             const worksheet = workbook.addWorksheet('รายงานงบประมาณ');
             worksheet.columns = [
@@ -137,7 +119,7 @@ const DashboardClientPage = () => {
                 { header: 'งบประมาณที่ได้รับจัดสรร', key: 'allocated', width: 20, style: { numFmt: '#,##0.00' } },
                 { header: 'งบประมาณที่ใช้จริง', key: 'actual', width: 20, style: { numFmt: '#,##0.00' } },
                 { header: 'แผนงาน', key: 'plan', width: 15 },
-                { header: 'ประเภทโปรแกรม', key: 'program', width: 15 }
+                { header: 'ภาคเรียน', key: 'program', width: 15 }
             ];
             const headerRow = worksheet.getRow(1);
             headerRow.font = { ...COMMON_FONT, bold: true };
@@ -196,7 +178,7 @@ const DashboardClientPage = () => {
         }
     };
 
-    // 1. ดึงข้อมูลเริ่มต้น (Fiscal Year/Plan)
+    
     useEffect(() => {
         const accessToken = Cookies.get('accessToken');
         if (!accessToken) {
@@ -207,13 +189,13 @@ const DashboardClientPage = () => {
         fetchInitialData();
     }, [fetchInitialData]);
 
-    // 2. กำหนดค่า Filters เริ่มต้น
+    
     useEffect(() => {
-        // เงื่อนไข: โหลดข้อมูลเริ่มต้นเสร็จแล้ว และ Filter ยังไม่เคยถูกตั้งค่ามาก่อน
+        
         if (!initialLoading && !initialFiltersSet) {
             setFilters(prev => ({
                 ...prev,
-                // ใช้ค่า default ที่เป็น '' เพื่อให้เลือก "ทั้งหมด"
+                
                 fiscal_id: defaultFiscalId,
                 plan_id: defaultPlanId
             }));
@@ -222,16 +204,16 @@ const DashboardClientPage = () => {
     }, [initialLoading, defaultFiscalId, defaultPlanId, setFilters, initialFiltersSet]);
 
 
-    // 3. เรียกข้อมูลหลัก (Dashboard) เมื่อ Filters เริ่มต้นถูกกำหนดแล้ว
+    
     useEffect(() => {
         if (initialFiltersSet) {
             fetchDashboardData();
         }
     }, [fetchDashboardData, initialFiltersSet]);
 
-    // Debounce Logic
+    
     useEffect(() => {
-        setSearchTerm(filters.search); // Sync UI -> State
+        setSearchTerm(filters.search); 
     }, [filters.search]);
 
     useEffect(() => {
@@ -243,7 +225,7 @@ const DashboardClientPage = () => {
         return () => { clearTimeout(handler); };
     }, [searchTerm]);
 
-    // Handle Change
+    
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
         if (name === 'search') {
@@ -254,12 +236,12 @@ const DashboardClientPage = () => {
         }
     };
 
-    // 🚩 แก้ไข: Handle Clear Filters ให้กลับไปที่ '' เสมอ
+    
     const handleClearFilters = () => {
         setFilters({
             search: '',
-            fiscal_id: '',     // ตั้งเป็น '' เพื่อกลับไปที่ "ทั้งหมด"
-            plan_id: '',       // ตั้งเป็น '' เพื่อกลับไปที่ "ทั้งหมด"
+            fiscal_id: '', 
+            plan_id: '', 
             program_type: ''
         });
         setSearchTerm('');
@@ -271,7 +253,7 @@ const DashboardClientPage = () => {
         return new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(value);
     };
 
-    // Chart Data
+    
     const chartData = useMemo(() => projects.map(project => ({
         name: project.project_title,
         'งบประมาณที่ได้รับจัดสรร': project.allocated_budget || 0,
@@ -291,15 +273,15 @@ const DashboardClientPage = () => {
         <div className="min-h-screen p-4 sm:p-8 bg-gray-50 font-sans">
             <div className="max-w-7xl mx-auto">
 
-                {/* Header */}
+                
                 <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center md:text-left">
                     โครงการและงบประมาณที่ใช้
                 </h1>
 
-                {/* Filter Section */}
+                
                 <div className="bg-white rounded-lg shadow-md p-6 mb-6">
 
-{/* 1. Search Bar */}
+                    
                     <div className="mb-4 md:mb-5">
                         <label className="block text-sm font-medium text-gray-700 mb-1">ค้นหาโครงการ</label>
                         <div className="relative">
@@ -309,34 +291,34 @@ const DashboardClientPage = () => {
                                 placeholder="พิมพ์ชื่อโครงการ..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                // ปรับปรุง: rounded-lg, focus:ring-indigo-600, focus:border-indigo-600, transition
+                                
                                 className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg transition duration-150 ease-in-out focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 shadow-sm"
                             />
-                            {/* ปุ่มล้างค้นหา */}
+                            
                             {searchTerm && (
                                 <button
                                     onClick={() => setSearchTerm('')}
                                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition duration-150"
                                 >
-                                    {/* ต้อง import FaTimesCircle */}
-                                    {/* <FaTimesCircle className="w-4 h-4" /> */} 
-                                    &#x2715; 
+                                    
+                                    
+                                    &#x2715;
                                 </button>
                             )}
                         </div>
                     </div>
 
-                    {/* 2. Dropdowns Section */}
+                    
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-4">
 
-                        {/* Dropdown 1: ปีงบประมาณ */}
+                        
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">ปีงบประมาณ</label>
                             <select
                                 name="fiscal_id"
                                 value={filters.fiscal_id}
                                 onChange={handleFilterChange}
-                                // ปรับปรุง: rounded-lg, focus:ring-indigo-600, shadow-sm, transition
+                                
                                 className="w-full px-3 py-2.5 border border-gray-300 rounded-lg shadow-sm transition duration-150 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600"
                             >
                                 <option value="">ทั้งหมด</option>
@@ -348,14 +330,14 @@ const DashboardClientPage = () => {
                             </select>
                         </div>
 
-                        {/* Dropdown 2: แผนงาน */}
+                        
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">แผนงาน</label>
                             <select
                                 name="plan_id"
                                 value={filters.plan_id}
                                 onChange={handleFilterChange}
-                                // ปรับปรุง: rounded-lg, focus:ring-indigo-600, shadow-sm, transition
+                                
                                 className="w-full px-3 py-2.5 border border-gray-300 rounded-lg shadow-sm transition duration-150 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600"
                             >
                                 <option value="">ทั้งหมด</option>
@@ -365,14 +347,14 @@ const DashboardClientPage = () => {
                             </select>
                         </div>
 
-                        {/* Dropdown 3: ภาค */}
+                        
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">ภาค</label>
                             <select
                                 name="program_type"
                                 value={filters.program_type}
                                 onChange={handleFilterChange}
-                                // ปรับปรุง: rounded-lg, focus:ring-indigo-600, shadow-sm, transition
+                                
                                 className="w-full px-3 py-2.5 border border-gray-300 rounded-lg shadow-sm transition duration-150 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600"
                             >
                                 <option value="">ทั้งหมด</option>
@@ -382,7 +364,7 @@ const DashboardClientPage = () => {
                         </div>
                     </div>
 
-                    {/* 3. Buttons Section */}
+                    
                     <div className="flex flex-col-reverse sm:flex-row justify-end items-stretch sm:items-center mt-5 gap-3 pt-4 border-t border-gray-100">
                         <button
                             onClick={handleClearFilters}
@@ -403,7 +385,7 @@ const DashboardClientPage = () => {
                     </div>
                 </div>
 
-                {/* Summary Cards */}
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div className="bg-white rounded-lg shadow-md p-6 text-center">
                         <p className="text-sm font-medium text-gray-500">จำนวนโครงการทั้งหมด</p>
@@ -415,7 +397,7 @@ const DashboardClientPage = () => {
                     </div>
                 </div>
 
-                {/* Chart Section */}
+                
                 <div className="bg-white rounded-lg shadow-md p-6">
                     <h2 className="text-lg md:text-xl font-semibold text-gray-800 mb-4 text-center md:text-left">
                         กราฟแสดงงบประมาณโครงการ
@@ -433,12 +415,20 @@ const DashboardClientPage = () => {
 
                                     <XAxis
                                         dataKey="name"
-                                        angle={window.innerWidth < 640 ? -15 : -30}
+                                        
+                                        angle={-30}
                                         textAnchor="end"
                                         interval={0}
-                                        height={window.innerWidth < 640 ? 40 : 80}
-                                        tick={{ fontSize: 10 }}
+                                        
+                                        height={window.innerWidth < 640 ? 50 : 80}
+                                        
+                                        tick={{
+                                            fontSize: window.innerWidth < 640 ? 8 : 10,
+                                            
+                                            fill: '#555'
+                                        }}
                                     />
+
                                     <YAxis
                                         tickFormatter={(v) => new Intl.NumberFormat('th-TH').format(v)}
                                         tick={{ fontSize: 11 }}
@@ -446,6 +436,7 @@ const DashboardClientPage = () => {
                                             value: 'งบประมาณ (บาท)',
                                             angle: -90,
                                             position: 'insideLeft',
+                                            
                                             dx: window.innerWidth < 640 ? -10 : -35,
                                             style: { fill: '#555', fontSize: 10, textAnchor: 'middle' },
                                         }}

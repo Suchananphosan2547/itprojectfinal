@@ -1,6 +1,6 @@
 'use client';
 
-import { FaPlus, FaSearchengin, FaPenToSquare, FaTrash, FaChevronLeft, FaChevronRight, FaCheck,FaMagnifyingGlass } from 'react-icons/fa6';
+import { FaPlus, FaSearchengin, FaPenToSquare, FaTrash, FaChevronLeft, FaChevronRight, FaCheck, FaMagnifyingGlass, FaCircleInfo } from 'react-icons/fa6';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
@@ -51,11 +51,25 @@ export default function FiscalYearClientPage() {
             const config = { headers: { Authorization: `Bearer ${accessToken}` } };
             const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
             const response = await axios.post(`${apiBaseUrl}/api/fiscal-year/create`, { fiscal_name: fiscalName }, config);
-            Swal.fire('สำเร็จ', response.data.message, 'success');
+
+            Swal.fire({
+                title: 'สำเร็จ',
+                text: 'เพิ่มปีงบประมาณสำเร็จ', 
+                icon: 'success',
+                confirmButtonText: 'ตกลง'
+            });
+
             fetchFiscalYears();
         } catch (err) {
             console.error('Error adding fiscal year:', err);
-            Swal.fire('Error', err.response?.data?.message || 'Failed to add fiscal year.', 'error');
+
+            Swal.fire({
+                title: 'เกิดข้อผิดพลาด', 
+                text: err.response?.data?.message || 'ล้มเหลวในการเพิ่มปีงบประมาณ', 
+                icon: 'error',
+                confirmButtonText: 'ตกลง' 
+            });
+
             throw err;
         }
     };
@@ -66,11 +80,25 @@ export default function FiscalYearClientPage() {
             const config = { headers: { Authorization: `Bearer ${accessToken}` } };
             const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
             const response = await axios.put(`${apiBaseUrl}/api/fiscal-year/${fiscalId}`, { fiscal_name: newFiscalName }, config);
-            Swal.fire('สำเร็จ', response.data.message, 'success');
+
+            Swal.fire({
+                title: 'สำเร็จ',
+                text: 'แก้ไขปีงบประมาณสำเร็จ',
+                icon: 'success',
+                confirmButtonText: 'ตกลง'
+            });
+
             fetchFiscalYears();
         } catch (err) {
             console.error('Error editing fiscal year:', err);
-            Swal.fire('Error', err.response?.data?.message || 'Failed to edit fiscal year.', 'error');
+
+            Swal.fire({
+                title: 'เกิดข้อผิดพลาด',
+                text: err.response?.data?.message || 'ล้มเหลวในการแก้ไขปีงบประมาณ',
+                icon: 'error',
+                confirmButtonText: 'ตกลง'
+            });
+
             throw err;
         }
     };
@@ -81,11 +109,24 @@ export default function FiscalYearClientPage() {
             const config = { headers: { Authorization: `Bearer ${accessToken}` } };
             const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
             const response = await axios.put(`${apiBaseUrl}/api/active-fiscal-year/${fiscalId}`, {}, config);
-            Swal.fire('สำเร็จ', response.data.message, 'success');
+
+            Swal.fire({
+                title: 'สำเร็จ',
+                text: 'เปิดใช้งานปีงบประมาณสำเร็จ',
+                icon: 'success',
+                confirmButtonText: 'ตกลง'
+            });
+
             fetchFiscalYears();
         } catch (err) {
             console.error('Error activating fiscal year:', err);
-            Swal.fire('Error', err.response?.data?.message || 'Failed to activate fiscal year.', 'error');
+
+            Swal.fire({
+                title: 'เกิดข้อผิดพลาด',
+                text: err.response?.data?.message || 'ล้มเหลวในการเปิดใช้งานปีงบประมาณ',
+                icon: 'error',
+                confirmButtonText: 'ตกลง'
+            });
         }
     };
 
@@ -95,9 +136,9 @@ export default function FiscalYearClientPage() {
             text: "คุณต้องการลบปีงบประมาณนี้หรือไม่?",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'ยืนยัน', 
+            confirmButtonColor: '#d33', 
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'ยืนยัน',
             cancelButtonText: 'ยกเลิก'
         }).then(async (result) => {
             if (result.isConfirmed) {
@@ -106,11 +147,24 @@ export default function FiscalYearClientPage() {
                     const config = { headers: { Authorization: `Bearer ${accessToken}` } };
                     const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
                     const response = await axios.delete(`${apiBaseUrl}/api/fiscal-year/${fiscalId}`, config);
-                    Swal.fire('ลบข้อมูลสำเร็จ', response.data.message, 'success');
+
+                    Swal.fire({
+                        title: 'ลบข้อมูลสำเร็จ',
+                        text: 'ปีงบประมาณปิดใช้งานแล้ว',
+                        icon: 'success',
+                        confirmButtonText: 'ตกลง'
+                    });
+
                     fetchFiscalYears();
                 } catch (err) {
                     console.error('Error deleting fiscal year:', err);
-                    Swal.fire('Error', err.response?.data?.message || 'Failed to delete fiscal year.', 'error');
+
+                    Swal.fire({
+                        title: 'เกิดข้อผิดพลาด',
+                        text: err.response?.data?.message || 'ล้มเหลวในการลบปีงบประมาณ',
+                        icon: 'error',
+                        confirmButtonText: 'ตกลง'
+                    });
                 }
             }
         });
@@ -142,13 +196,10 @@ export default function FiscalYearClientPage() {
         return (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-white/60 to-gray-200/50 p-4">
                 <div className="bg-white rounded-xl shadow-xl w-full max-w-md flex flex-col max-h-[90vh]">
-                    {/* Header */}
                     <div className="flex justify-between items-center p-6 border-b flex-shrink-0 ">
                         <h3 className="text-xl font-semibold">เพิ่มปีงบประมาณ</h3>
                         <button onClick={onClose} className="text-slate-400 hover:text-slate-700 text-2xl">&times;</button>
                     </div>
-
-                    {/* Scrollable Content */}
                     <form id="addFiscalYearForm" onSubmit={handleSubmit} className="space-y-4 p-6 overflow-y-auto">
                         <div>
                             <label htmlFor="fiscal_name" className="block text-sm font-medium text-slate-700">ปีงบประมาณ</label>
@@ -156,8 +207,6 @@ export default function FiscalYearClientPage() {
                         </div>
                         {modalError && <div className="text-red-600 text-sm p-3 bg-red-50 rounded-lg">{modalError}</div>}
                     </form>
-
-                    {/* Footer */}
                     <div className="flex justify-end p-6 border-t mt-auto flex-shrink-0">
                         <button type="button" onClick={onClose} className="bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold py-2 px-4 rounded-lg mr-3">ยกเลิก</button>
                         <button type="submit" form="addFiscalYearForm" className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg">เพิ่มปีงบประมาณ</button>
@@ -192,15 +241,12 @@ export default function FiscalYearClientPage() {
         if (!isOpen) return null;
 
         return (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-50 p-2">
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-white/60 to-gray-200/50 p-4">
                 <div className="bg-white rounded-xl shadow-xl w-full max-w-md flex flex-col max-h-[90vh]">
-                     {/* Header */}
                     <div className="flex justify-between items-center p-6 border-b flex-shrink-0">
                         <h3 className="text-xl font-semibold">แก้ไขปีงบประมาณ</h3>
                         <button onClick={onClose} className="text-slate-400 hover:text-slate-700 text-2xl">&times;</button>
                     </div>
-
-                    {/* Scrollable Content */}
                     <form id="editFiscalYearForm" onSubmit={handleSubmit} className="space-y-4 p-6 overflow-y-auto">
                         <div>
                             <label htmlFor="edit_fiscal_name" className="block text-sm font-medium text-slate-700">ปีงบประมาณ</label>
@@ -208,11 +254,9 @@ export default function FiscalYearClientPage() {
                         </div>
                         {modalError && <div className="text-red-600 text-sm p-3 bg-red-50 rounded-lg">{modalError}</div>}
                     </form>
-
-                     {/* Footer */}
                     <div className="flex justify-end p-6 border-t mt-auto flex-shrink-0">
                         <button type="button" onClick={onClose} className="bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold py-2 px-4 rounded-lg mr-3">ยกเลิก</button>
-                        <button type="submit" form="editFiscalYearForm" className="bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg">บันทึกการแก้ไข</button>
+                        <button type="submit" form="editFiscalYearForm" className="bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg">บันทึก</button>
                     </div>
                 </div>
             </div>
@@ -236,22 +280,25 @@ export default function FiscalYearClientPage() {
                 </header>
 
                 <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 sm:p-6">
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center mb-4 gap-2 w-full">
-          <div className="relative flex-grow">
-            <FaMagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
-            <input
-              type="text"
-              placeholder="ค้นหา..."
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg transition duration-150 ease-in-out focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 shadow-sm"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-        </div>
-                    
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center mb-4 gap-2 w-full">
+                        <div className="relative flex-grow">
+                            <FaMagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+                            <input
+                                type="text"
+                                placeholder="ค้นหา..."
+                                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg transition duration-150 ease-in-out focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 shadow-sm"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                        </div>
+                    </div>
+
                     {loading && <p className="text-center p-6">กำลังโหลด...</p>}
                     {error && <p className="text-center p-6 text-red-500">Error: {error}</p>}
-                    {!loading && !error && filteredFiscalYears.length === 0 && <p className="text-center p-6">ไม่พบปีงบประมาณ</p>}
+                    {!loading && !error && filteredFiscalYears.length === 0 && <div className="text-center p-10 text-gray-500">
+                        <FaCircleInfo className="mx-auto text-4xl mb-2" />
+                        <p>ไม่พบแผนงาน</p>
+                    </div>}
 
                     {!loading && !error && filteredFiscalYears.length > 0 && (
                         <>
@@ -301,93 +348,84 @@ export default function FiscalYearClientPage() {
                                 ))}
                             </div>
 
-{/* Table View for Desktop */}
-<div className="hidden md:block overflow-x-auto">
-  <table className="min-w-full bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-    <thead className="bg-gray-100">
-      <tr>
-        {/* 1. ปีงบประมาณ: w-1/3 และจัดหัวข้ออยู่ตรงกลาง */}
-        <th className="w-1/3 px-6 py-3 text-center text-sm font-semibold text-gray-700 uppercase tracking-wider">
-          ปีงบประมาณ
-        </th>
-        {/* 2. สถานะของปี: w-1/3 และจัดหัวข้ออยู่ตรงกลาง */}
-        <th className="w-1/3 px-6 py-3 text-center text-sm font-semibold text-gray-700 uppercase tracking-wider">
-          สถานะของปี
-        </th>
-        {/* 3. เมนู: w-1/3 และจัดหัวข้ออยู่ตรงกลาง */}
-        <th className="w-1/3 px-6 py-3 text-center text-sm font-semibold text-gray-700 uppercase tracking-wider">
-          เมนู
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      {filteredFiscalYears.map((item, index) => (
-        <tr
-          key={item.fiscal_id}
-          className={`border-t border-gray-100 hover:bg-gray-50 transition duration-150 ${
-            index % 2 === 0 ? "bg-white" : "bg-gray-50/30"
-          }`}
-        >
-          {/* 1. ปีงบประมาณ: w-1/3 และ text-center (ปีงบประมาณเป็นข้อความธรรมดา ใช้ text-center) */}
-          <td className="w-1/3 px-6 py-4 text-gray-800 font-medium text-center">
-            {item.fiscal_name}
-          </td>
-          {/* 2. สถานะของปี: w-1/3 (Badge เป็นองค์ประกอบแบบ Inline-flex ต้องห่อด้วย flex justify-center) */}
-          <td className="w-1/3 px-6 py-4 text-gray-700">
-            <div className="flex justify-center">
-              <span
-                className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${
-                  item.fiscal_status === "active"
-                    ? "bg-green-100 text-green-700"
-                    : "bg-gray-100 text-gray-600"
-                }`}
-              >
-                {item.fiscal_status === "active" ? "เปิดใช้งาน" : "ปิดใช้งาน"}
-              </span>
-            </div>
-          </td>
-          {/* 3. เมนู: w-1/3 (ปุ่มต้องห่อด้วย flex justify-center) */}
-          <td className="w-1/3 px-6 py-4 text-sm">
-            <div className="flex justify-center space-x-3"> 
-              <button
-                onClick={() => {
-                  setSelectedFiscalYear(item);
-                  setIsEditModalOpen(true);
-                }}
-                className="p-2 text-indigo-500 hover:text-indigo-700 hover:bg-indigo-50 rounded-full transition"
-                aria-label="Edit item"
-              >
-                <FaPenToSquare className="h-4 w-4" />
-              </button>
-              {item.fiscal_status === "active" ? (
-                <button
-                  onClick={() => handleDeleteFiscalYear(item.fiscal_id)}
-                  className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full transition"
-                  aria-label="Delete item"
-                >
-                  <FaTrash className="h-4 w-4" />
-                </button>
-              ) : (
-                <button
-                  onClick={() => handleActiveFiscalYear(item.fiscal_id)}
-                  className="p-2 text-green-500 hover:text-green-700 hover:bg-green-50 rounded-full transition"
-                  aria-label="Activate item"
-                >
-                  <FaCheck className="h-5 w-5" />
-                </button>
-              )}
-            </div>
-          </td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-</div>
-
+                            {/* Table View for Desktop */}
+                            <div className="hidden md:block overflow-x-auto">
+                                <table className="min-w-full bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                                    <thead className="bg-gray-100">
+                                        <tr>
+                                            <th className="w-1/3 px-6 py-3 text-center text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                                                ปีงบประมาณ
+                                            </th>
+                                            <th className="w-1/3 px-6 py-3 text-center text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                                                สถานะของปี
+                                            </th>
+                                            <th className="w-1/3 px-6 py-3 text-center text-sm font-semibold text-gray-700 uppercase tracking-wider">
+                                                เมนู
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {filteredFiscalYears.map((item, index) => (
+                                            <tr
+                                                key={item.fiscal_id}
+                                                className={`border-t border-gray-100 hover:bg-gray-50 transition duration-150 ${index % 2 === 0 ? "bg-white" : "bg-gray-50/30"
+                                                    }`}
+                                            >
+                                                <td className="w-1/3 px-6 py-4 text-gray-800 font-medium text-center">
+                                                    {item.fiscal_name}
+                                                </td>
+                                                <td className="w-1/3 px-6 py-4 text-gray-700">
+                                                    <div className="flex justify-center">
+                                                        <span
+                                                            className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${item.fiscal_status === "active"
+                                                                ? "bg-green-100 text-green-700"
+                                                                : "bg-gray-100 text-gray-600"
+                                                                }`}
+                                                        >
+                                                            {item.fiscal_status === "active" ? "เปิดใช้งาน" : "ปิดใช้งาน"}
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                                <td className="w-1/3 px-6 py-4 text-sm">
+                                                    <div className="flex justify-center space-x-3">
+                                                        <button
+                                                            onClick={() => {
+                                                                setSelectedFiscalYear(item);
+                                                                setIsEditModalOpen(true);
+                                                            }}
+                                                            className="p-2 text-indigo-500 hover:text-indigo-700 hover:bg-indigo-50 rounded-full transition"
+                                                            aria-label="Edit item"
+                                                        >
+                                                            <FaPenToSquare className="h-4 w-4" />
+                                                        </button>
+                                                        {item.fiscal_status === "active" ? (
+                                                            <button
+                                                                onClick={() => handleDeleteFiscalYear(item.fiscal_id)}
+                                                                className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full transition"
+                                                                aria-label="Delete item"
+                                                            >
+                                                                <FaTrash className="h-4 w-4" />
+                                                            </button>
+                                                        ) : (
+                                                            <button
+                                                                onClick={() => handleActiveFiscalYear(item.fiscal_id)}
+                                                                className="p-2 text-green-500 hover:text-green-700 hover:bg-green-50 rounded-full transition"
+                                                                aria-label="Activate item"
+                                                            >
+                                                                <FaCheck className="h-5 w-5" />
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         </>
                     )}
 
-                    {/* START: Pagination updated */}
+
                     {!loading && !error && totalPages > 1 && (
                         <div className="flex justify-between items-center pt-4 mt-4 border-t border-gray-200">
                             <span className="text-sm text-gray-700">Page {currentPage} of {totalPages}</span>
@@ -409,7 +447,6 @@ export default function FiscalYearClientPage() {
                             </div>
                         </div>
                     )}
-                    {/* END: Pagination updated */}
                 </div>
             </div>
 

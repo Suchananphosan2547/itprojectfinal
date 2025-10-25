@@ -4,12 +4,10 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { FaPlus, FaPenSquare, FaTrash, FaCheckCircle, FaXmark, FaCheck, FaExclamationCircle, FaFileAlt, FaEdit, FaSearch } from 'react-icons/fa';
+import { FaPenToSquare } from 'react-icons/fa6';
 import Cookies from 'js-cookie';
 import * as XLSX from 'xlsx';
 
-// =============================================================================
-// ==== COMPONENT: STUDENT ROLE ================================================
-// =============================================================================
 const StudentSurveyForm = ({ survey, onBack, onSubmit }) => {
     const [answers, setAnswers] = useState({});
 
@@ -17,7 +15,7 @@ const StudentSurveyForm = ({ survey, onBack, onSubmit }) => {
         if (survey) {
             const initialAnswers = {};
             survey.questions.forEach(q => {
-                initialAnswers[q.questions_id] = q.question_type === 'complacence' ? '5' : '';
+                initialAnswers[q.questions_id] = '';
             });
             setAnswers(initialAnswers);
         }
@@ -107,9 +105,6 @@ const StudentSurveyForm = ({ survey, onBack, onSubmit }) => {
     );
 };
 
-// =============================================================================
-// ==== COMPONENT: ADMIN ROLE ==================================================
-// =============================================================================
 const AddSurveyModal = ({ isOpen, onClose, onSave, projects }) => {
     const [selectedProject, setSelectedProject] = useState('');
 
@@ -132,7 +127,7 @@ const AddSurveyModal = ({ isOpen, onClose, onSave, projects }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-xs bg-gray-50/70 backdrop-blur-md p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-white/60 to-gray-200/50 p-4">
             <div className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6">
                 <h3 className="text-xl font-semibold mb-4">สร้างแบบประเมินใหม่</h3>
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -164,7 +159,7 @@ const AddSurveyModal = ({ isOpen, onClose, onSave, projects }) => {
                             type="submit"
                             className="bg-green-600 hover:bg-green-700 text-white font-semibold text-sm py-2 px-4 rounded-lg w-full sm:w-auto"
                         >
-                            สร้าง
+                            สร้างแบบประเมิน
                         </button>
                     </div>
                 </form>
@@ -194,16 +189,15 @@ const QuestionModal = ({ isOpen, onClose, onSave, question, assessmentId }) => {
             questions_name: questionName,
             question_type: questionType,
             assessment_id: assessmentId,
-            isPersisted: question?.isPersisted // Pass isPersisted flag
+            isPersisted: question?.isPersisted
         });
-        // onSave() จะจัดการการปิด Modal และ SweetAlert เอง
     };
 
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-xs bg-gray-50/70 backdrop-blur-md p-4">
-            <div className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-white/60 to-gray-200/50 p-4">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-lg p-6">
                 <h3 className="text-xl font-semibold mb-4">{question ? 'แก้ไขหัวข้อประเมิน' : 'เพิ่มหัวข้อประเมิน'}</h3>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
@@ -253,7 +247,7 @@ const QuestionModal = ({ isOpen, onClose, onSave, question, assessmentId }) => {
                             type="submit"
                             className="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm py-2 px-4 rounded-lg w-full sm:w-auto"
                         >
-                            {question ? 'บันทึก' : 'โพสต์'}
+                            {question ? 'บันทึก' : 'เพิ่ม'}
                         </button>
                     </div>
                 </form>
@@ -271,7 +265,12 @@ const AdminManageSurvey = ({ assessment, onBack, onQuestionSaved }) => {
         try {
             const accessToken = Cookies.get('accessToken');
             if (!accessToken) {
-                Swal.fire('Error', 'ไม่พบโทเค็นการเข้าถึง กรุณาเข้าสู่ระบบ', 'error');
+                Swal.fire({
+                    title: 'Error',
+                    text: 'ไม่พบโทเค็นการเข้าถึง กรุณาเข้าสู่ระบบ',
+                    icon: 'error',
+                    confirmButtonText: 'ตกลง'
+                });
                 return;
             }
 
@@ -280,21 +279,30 @@ const AdminManageSurvey = ({ assessment, onBack, onQuestionSaved }) => {
             });
 
             if (response.status === 200 && response.data && response.data.data) {
-                // Ensure each question has a unique questions_id for React keys
                 const fetchedQuestions = response.data.data.map(q => ({
                     ...q,
                     questions_id: q.questions_id || null,
-                    isPersisted: true // Mark as fetched from API
+                    isPersisted: true
                 }));
                 setQuestions(fetchedQuestions);
             } else {
-                Swal.fire('Error', response.data.message || 'Failed to fetch questions.', 'error');
-                setQuestions([]); // Clear questions on error
+                Swal.fire({
+                    title: 'Error',
+                    text: response.data.message || 'Failed to fetch questions.',
+                    icon: 'error',
+                    confirmButtonText: 'ตกลง'
+                });
+                setQuestions([]);
             }
         } catch (error) {
             console.error("Error fetching questions:", error);
-            Swal.fire('Error', error.response?.data?.message || 'Failed to fetch questions.', 'error');
-            setQuestions([]); // Clear questions on error
+            Swal.fire({
+                title: 'Error',
+                text: error.response?.data?.message || 'Failed to fetch questions.',
+                icon: 'error',
+                confirmButtonText: 'ตกลง'
+            });
+            setQuestions([]);
         }
     };
 
@@ -302,20 +310,27 @@ const AdminManageSurvey = ({ assessment, onBack, onQuestionSaved }) => {
         fetchQuestions();
     }, [assessment]);
 
-    // **แก้ไข: ฟังก์ชันนี้จะจัดการ SweetAlert และเรียก onQuestionSaved ที่ส่งมาจาก parent**
     const handleSaveQuestion = async (data) => {
-        if (data.isPersisted) { // This is an existing question (fetched from API)
-            // Update existing question via API
+        if (data.isPersisted) {
             try {
                 const accessToken = Cookies.get('accessToken');
                 if (!accessToken) {
-                    Swal.fire('Error', 'ไม่พบโทเค็นการเข้าถึง กรุณาเข้าสู่ระบบ', 'error');
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'ไม่พบโทเค็นการเข้าถึง กรุณาเข้าสู่ระบบ',
+                        icon: 'error',
+                        confirmButtonText: 'ตกลง'
+                    });
                     return;
                 }
 
-                // Ensure questions_id is not null for API call
                 if (!data.questions_id) {
-                    Swal.fire('Error', 'ไม่สามารถแก้ไขคำถามที่ไม่มี ID ได้', 'error');
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'ไม่สามารถแก้ไขคำถามที่ไม่มี ID ได้',
+                        icon: 'error',
+                        confirmButtonText: 'ตกลง'
+                    });
                     return;
                 }
 
@@ -331,27 +346,46 @@ const AdminManageSurvey = ({ assessment, onBack, onQuestionSaved }) => {
                         q.questions_id === data.questions_id ? { ...q, questions_name: data.questions_name, question_type: data.question_type } : q
                     );
                     setQuestions(updatedQuestions);
-                    Swal.fire('สำเร็จ', 'แก้ไขหัวข้อประเมินสำเร็จ', 'success');
+                    Swal.fire({
+                        title: 'สำเร็จ',
+                        text: 'แก้ไขหัวข้อประเมินสำเร็จ',
+                        icon: 'success',
+                        confirmButtonText: 'ตกลง'
+                    });
                     setIsQuestionModalOpen(false);
                 } else {
-                    Swal.fire('Error', response.data.message || 'Failed to update question.', 'error');
+                    Swal.fire({
+                        title: 'Error',
+                        text: response.data.message || 'Failed to update question.',
+                        icon: 'error',
+                        confirmButtonText: 'ตกลง'
+                    });
                 }
             } catch (error) {
                 console.error("Error updating question:", error);
-                Swal.fire('Error', error.response?.data?.message || 'Failed to update question.', 'error');
+                Swal.fire({
+                    title: 'Error',
+                    text: error.response?.data?.message || 'Failed to update question.',
+                    icon: 'error',
+                    confirmButtonText: 'ตกลง'
+                });
             }
-        } else { // This is a new question (not yet persisted)
-            // Create new question via API
+        } else {
             try {
                 const accessToken = Cookies.get('accessToken');
                 if (!accessToken) {
-                    Swal.fire('Error', 'ไม่พบโทเค็นการเข้าถึง กรุณาเข้าสู่ระบบ', 'error');
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'ไม่พบโทเค็นการเข้าถึง กรุณาเข้าสู่ระบบ',
+                        icon: 'error',
+                        confirmButtonText: 'ตกลง'
+                    });
                     return;
                 }
 
                 const payload = {
                     assessment_id: data.assessment_id,
-                    questions: [{ // Wrap the single question in an array for the batch API
+                    questions: [{
                         questions_name: data.questions_name,
                         question_type: data.question_type
                     }]
@@ -362,15 +396,30 @@ const AdminManageSurvey = ({ assessment, onBack, onQuestionSaved }) => {
                 });
 
                 if (response.status === 200 && response.data) {
-                    Swal.fire('สำเร็จ', 'เพิ่มหัวข้อประเมินสำเร็จ', 'success');
+                    Swal.fire({
+                        title: 'สำเร็จ',
+                        text: 'เพิ่มหัวข้อประเมินสำเร็จ',
+                        icon: 'success',
+                        confirmButtonText: 'ตกลง'
+                    });
                     setIsQuestionModalOpen(false);
-                    fetchQuestions(); // Re-fetch questions to get the newly created question with its actual ID
+                    fetchQuestions();
                 } else {
-                    Swal.fire('Error', response.data.message || 'Failed to create question.', 'error');
+                    Swal.fire({
+                        title: 'Error',
+                        text: response.data.message || 'Failed to create question.',
+                        icon: 'error',
+                        confirmButtonText: 'ตกลง'
+                    });
                 }
             } catch (error) {
                 console.error("Error creating question:", error);
-                Swal.fire('Error', error.response?.data?.message || 'Failed to create question.', 'error');
+                Swal.fire({
+                    title: 'Error',
+                    text: error.response?.data?.message || 'Failed to create question.',
+                    icon: 'error',
+                    confirmButtonText: 'ตกลง'
+                });
             }
         }
     };
@@ -383,9 +432,9 @@ const AdminManageSurvey = ({ assessment, onBack, onQuestionSaved }) => {
             showCancelButton: true,
             confirmButtonColor: '#d33',
             cancelButtonColor: '#3085d6',
-            confirmButtonText: 'ลบ',
+            confirmButtonText: 'ตกลง',
             cancelButtonText: 'ยกเลิก'
-        }).then(async (result) => { // Added async here
+        }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
                     const accessToken = Cookies.get('accessToken');
@@ -418,7 +467,6 @@ const AdminManageSurvey = ({ assessment, onBack, onQuestionSaved }) => {
         setIsQuestionModalOpen(true);
     };
 
-    
 
     return (
         <div>
@@ -442,7 +490,7 @@ const AdminManageSurvey = ({ assessment, onBack, onQuestionSaved }) => {
                                 className="text-slate-500 hover:text-sky-600 p-2 rounded-md"
                                 title="แก้ไข"
                             >
-                                <FaPenSquare />
+                                <FaPenToSquare />
                             </button>
                             <button
                                 onClick={() => handleDeleteQuestion(q.questions_id)}
@@ -459,9 +507,8 @@ const AdminManageSurvey = ({ assessment, onBack, onQuestionSaved }) => {
                             ประเภท: {q.question_type === 'complacence' ? 'ประเมินความพึงพอใจ (คะแนน)' : 'ข้อเสนอแนะ (ข้อความ)'}
                         </p>
 
-                        {/* Preview Section */}
-                        {q.question_type === 'complacence' ? (
-                            <div className="space-y-2">
+                        <div className="space-y-2">
+                            {q.question_type === 'complacence' ? (
                                 <div className="flex flex-wrap gap-4 items-center text-slate-600">
                                     <label className="flex items-center space-x-2 cursor-not-allowed">
                                         <input type="radio" name={`preview-${q.questions_id}`} disabled className="form-radio h-5 w-5 text-slate-400" />
@@ -484,15 +531,15 @@ const AdminManageSurvey = ({ assessment, onBack, onQuestionSaved }) => {
                                         <span>น้อยที่สุด</span>
                                     </label>
                                 </div>
-                            </div>
-                        ) : (
-                            <textarea
-                                rows="3"
-                                className="w-full p-3 border border-slate-300 rounded-md bg-slate-50 cursor-not-allowed"
-                                placeholder="ช่องสำหรับกรอกข้อเสนอแนะ"
-                                disabled
-                            />
-                        )}
+                            ) : (
+                                <textarea
+                                    rows="3"
+                                    className="w-full p-3 border border-slate-300 rounded-md bg-slate-50 cursor-not-allowed"
+                                    placeholder="คำตอบของคุณ"
+                                    disabled
+                                />
+                            )}
+                        </div>
                     </div>
                 ))}
             </div>
@@ -556,18 +603,19 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
 };
 
 const AdminSurveyList = ({ assessments, onManage, onToggleStatus, onAdd, onViewData, searchTerm, onSearchChange, pagination, onPageChange }) => {
-return (
-        // 🚨 Note: div นี้ไม่มี style กรอบสีขาวเพราะถูกครอบโดย Parent Component แล้ว 
-        <div className="space-y-6 complacence-section"> 
+    return (
+        <div className="space-y-6 complacence-section">
             <div className="space-y-4">
                 {assessments.length === 0 ? (
-                    <div className="text-center p-10"><p>ไม่พบข้อมูลแบบประเมิน</p></div>
+                    <div className="text-center p-10">
+                        <FaCircleInfo className="mx-auto text-4xl mb-2" />
+                        <p>ไม่พบข้อมูลแบบประเมิน</p>
+                    </div>
                 ) : (
                     assessments.map(a => (
-                        <div 
-                            key={a.assessment_id} 
-                            // รายการแต่ละรายการยังมีกรอบสีขาวและเงาของตัวเอง (Card style)
-                            className="bg-white rounded-xl shadow-md p-4 md:p-6 mt-4 flex flex-col lg:flex-row justify-between gap-4 border border-gray-100" // เพิ่ม border บางๆ
+                        <div
+                            key={a.assessment_id}
+                            className="bg-white rounded-xl shadow-md p-4 md:p-6 mt-4 flex flex-col lg:flex-row justify-between gap-4 border border-gray-100"
                         >
                             <div className="flex-grow self-center">
                                 <h4 className="text-lg font-semibold text-slate-700">
@@ -575,9 +623,10 @@ return (
                                 </h4>
                             </div>
                             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full lg:w-auto">
-                                {/* ส่วนสถานะ */}
                                 <div className="flex items-center justify-between p-2 rounded-lg bg-slate-50 w-full lg:w-auto">
-                                    <span className="text-sm text-slate-500 mr-4 whitespace-nowrap">สถานะ: {a.evaluation_status === 'active' ? 'เปิด' : 'ปิด'}</span>
+                                    <span className="text-sm text-slate-500 mr-4 whitespace-nowrap">
+                                        สถานะ: {a.evaluation_status === 'active' ? 'เปิด' : 'ปิด'}
+                                    </span>
                                     <label className="flex items-center cursor-pointer">
                                         <div className="relative">
                                             <input
@@ -586,12 +635,19 @@ return (
                                                 checked={a.evaluation_status === 'active'}
                                                 onChange={() => onToggleStatus(a.assessment_id, a.evaluation_status)}
                                             />
-                                            <div className={`block bg-gray-200 w-14 h-8 rounded-full transition-all duration-300 ${a.evaluation_status === 'active' ? 'bg-green-500' : ''}`}></div>
-                                            <div className={`dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-all duration-300 ${a.evaluation_status === 'active' ? 'translate-x-full' : ''}`}></div>
+                                            <div
+                                                className={`block bg-gray-200 w-14 h-8 rounded-full transition-all duration-300 ${
+                                                    a.evaluation_status === 'active' ? 'bg-green-500' : ''
+                                                }`}
+                                            ></div>
+                                            <div
+                                                className={`dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-all duration-300 ${
+                                                    a.evaluation_status === 'active' ? 'translate-x-full' : ''
+                                                }`}
+                                            ></div>
                                         </div>
                                     </label>
                                 </div>
-                                {/* ส่วนปุ่ม */}
                                 <div className="flex flex-col sm:flex-row gap-2">
                                     <button
                                         onClick={() => onViewData(a)}
@@ -651,23 +707,20 @@ const ViewDataModal = ({ isOpen, onClose, assessment, responseData, isLoading })
             return;
         }
 
-        // Prepare header
         const headers = [
             'รหัสนิสิต',
             'ชื่อ-สกุล',
-            ...responseData.question.map(q => q.question) // Add question text as headers
+            ...responseData.question.map(q => q.question)
         ];
 
-        // Prepare data rows
         const rows = dataToExport.map(respondent => {
             const row = {
                 'รหัสนิสิต': respondent.std_id,
                 'ชื่อ-สกุล': `${respondent.prefix}${respondent.firstname} ${respondent.lastname}`,
             };
-            // Map answers to their corresponding questions
             responseData.question.forEach(q => {
                 const answerObj = respondent.answers.find(a => a.questions_id === q.questions_id);
-                row[q.question] = answerObj ? answerObj.answer : ''; // Use question text as key
+                row[q.question] = answerObj ? answerObj.answer : '';
             });
             return row;
         });
@@ -675,15 +728,12 @@ const ViewDataModal = ({ isOpen, onClose, assessment, responseData, isLoading })
         const worksheet = XLSX.utils.json_to_sheet(rows, { header: headers });
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, "Survey Data");
-
-        // Generate a filename
         const fileName = `assessment_data_${assessment.assessment_id}.xlsx`;
         XLSX.writeFile(workbook, fileName);
     };
 
-
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-xs bg-gray-50/70 backdrop-blur-md p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-white/60 to-gray-200/50 p-4">
             <div className="bg-white rounded-xl shadow-xl w-11/12 max-w-4xl p-6 flex flex-col complacence-section">
                 <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-4">
                     <h3 className="text-lg md:text-xl font-semibold">
@@ -751,11 +801,6 @@ const ViewDataModal = ({ isOpen, onClose, assessment, responseData, isLoading })
     );
 };
 
-
-// =============================================================================
-// ==== MAIN PAGE COMPONENT ====================================================
-// =============================================================================
-
 export default function ComplacenceClientPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -782,7 +827,7 @@ export default function ComplacenceClientPage() {
     const [selectedSurvey, setSelectedSurvey] = useState(null);
 
     const resetStudentState = () => {
-        setStudentProjects([]); 
+        setStudentProjects([]);
         setCurrentStudentView('list');
         setSelectedSurvey(null);
     };
@@ -908,7 +953,7 @@ export default function ComplacenceClientPage() {
             }
 
             const formattedAnswers = Object.keys(answers).map(questionId => ({
-                questions_id: parseInt(questionId, 10), 
+                questions_id: parseInt(questionId, 10),
                 answer: answers[questionId]
             }));
 
@@ -930,7 +975,7 @@ export default function ComplacenceClientPage() {
 
             if (response.status === 200) {
                 await Swal.fire({
-                    title: 'สำเร็จ!',
+                    title: 'สำเร็จ',
                     text: 'ส่งแบบประเมินเรียบร้อยแล้ว',
                     icon: 'success',
                     timer: 2000,
@@ -992,7 +1037,7 @@ export default function ComplacenceClientPage() {
 
             if (response.status === 200) {
                 Swal.fire('สำเร็จ', 'เปลี่ยนสถานะแบบประเมินสำเร็จ', 'success');
-                fetchData(currentPage); 
+                fetchData(currentPage);
             } else {
                 Swal.fire('Error', response.data.message || 'Failed to change assessment status.', 'error');
             }
@@ -1012,14 +1057,14 @@ export default function ComplacenceClientPage() {
             }
 
             const response = await axios.post('/api/create-complacence', {
-                project_id: parseInt(projectId, 10) 
+                project_id: parseInt(projectId, 10)
             }, {
                 headers: { Authorization: `Bearer ${accessToken}` }
             });
 
             if (response.status === 200) {
                 Swal.fire('สำเร็จ', 'สร้างแบบประเมินสำเร็จ', 'success');
-                fetchData(1); 
+                fetchData(1);
             } else {
                 Swal.fire('Error', response.data.message || 'Failed to create assessment.', 'error');
             }
@@ -1050,7 +1095,7 @@ export default function ComplacenceClientPage() {
                             <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6">แบบประเมินโครงการ</h1>
                             <div className="space-y-6">
                                 {studentProjects.length === 0 ? (
-                                    <div className="text-center p-10"><p>ไม่พบแบบประเมินที่ต้องทำ</p></div>
+                                    <div className="text-center p-10"><FaCircleInfo className="mx-auto text-4xl mb-2" /><p>ไม่พบแบบประเมินที่ต้องทำ</p></div>
                                 ) : (
                                     studentProjects.map(p => (
                                         <div key={p.assessment_id} className="bg-white rounded-xl shadow-md p-4 md:p-6 flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -1089,13 +1134,12 @@ export default function ComplacenceClientPage() {
                 </div>
             </div>
         );
-    } else if (userRole === 2 || userRole === 3) { // Admin/Staff View
+    } else if (userRole === 2 || userRole === 3) 
         return (
             <div className="bg-gray-100 min-h-screen p-4 sm:p-6 lg:p-8">
                 <div className="max-w-7xl mx-auto">
                     {currentAdminView === 'list' && (
                         <>
-                            {/* 1. ส่วนหัวข้อและปุ่มเพิ่ม (อยู่นอกกรอบสีขาว) */}
                             <div className="flex justify-between items-center mb-6">
                                 <h1 className="text-2xl md:text-3xl font-bold text-gray-800">แบบประเมิน</h1>
                                 <button
@@ -1106,21 +1150,19 @@ export default function ComplacenceClientPage() {
                                 </button>
                             </div>
 
-                            <div className="bg-white rounded-xl shadow-lg p-6"> 
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    id="search"
-                                    name="search"
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    placeholder="ค้นหาแบบประเมิน..."
-                                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg transition duration-150 ease-in-out focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 shadow-sm"
-                                />
-                                <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
-                            </div>
-                                
-                                {/* รายการแบบประเมิน */}
+                            <div className="bg-white rounded-xl shadow-lg p-6">
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        id="search"
+                                        name="search"
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        placeholder="ค้นหาแบบประเมิน..."
+                                        className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg transition duration-150 ease-in-out focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 shadow-sm"
+                                    />
+                                    <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+                                </div>
                                 <AdminSurveyList
                                     assessments={filteredAssessments}
                                     onManage={(assessment) => { setSelectedAssessment(assessment); setCurrentAdminView('manage'); }}
@@ -1128,8 +1170,6 @@ export default function ComplacenceClientPage() {
                                     onViewData={handleViewData}
                                     pagination={pagination}
                                     onPageChange={fetchData}
-                                    // 🚨 ไม่จำเป็นต้องส่ง searchTerm, onSearchChange, onAdd เข้าไปใน AdminSurveyList แล้ว
-                                    // เนื่องจาก Search และ Add ถูกจัดการที่ Parent Component นี้
                                 />
                             </div>
                         </>
@@ -1163,4 +1203,3 @@ export default function ComplacenceClientPage() {
     }
 
     return null;
-}

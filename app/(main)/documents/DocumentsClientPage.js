@@ -24,7 +24,6 @@ const populateHtmlTemplates = (mainTemplate, summaryTemplate, apiData) => {
     const formatNumber = (num) => num != null ? num.toLocaleString() : '-';
     const checkMark = (value) => value ? '<td class="check-mark">✓</td>' : '<td></td>';
 
-    // --- สร้างส่วนที่เป็น HTML แบบไดนามิก ---
     const objectivesList = project.objectives.map(obj => `<li>${obj}</li>`).join('');
 
     let complacenceRows = assessment.complacence_questions.map((q, index) => `
@@ -68,7 +67,6 @@ const populateHtmlTemplates = (mainTemplate, summaryTemplate, apiData) => {
             <td>${project.evidence || '-'}</td>
         </tr>`;
 
-    // --- เตรียมข้อมูลทั้งหมดสำหรับแทนที่ ---
     const replacements = {
         project_title: project.project_title,
         fiscal_year: project.fiscal_name,
@@ -103,7 +101,6 @@ const populateHtmlTemplates = (mainTemplate, summaryTemplate, apiData) => {
         complacence_question_start_index: assessment.complacence_questions.length > 1 ? 1 : 0,
     };
 
-    // --- ทำการแทนที่ ---
     let finalMainHtml = mainTemplate;
     let finalSummaryHtml = summaryTemplate;
     for (const key in replacements) {
@@ -112,7 +109,6 @@ const populateHtmlTemplates = (mainTemplate, summaryTemplate, apiData) => {
         finalSummaryHtml = finalSummaryHtml.replace(regex, replacements[key]);
     }
 
-    // เติมข้อมูลที่เป็น HTML ลงไป
     finalMainHtml = finalMainHtml.replace(/<ol id="objectives-list">[\s\S]*?<\/ol>/, `<ol id="objectives-list">${objectivesList}</ol>`);
     finalMainHtml = finalMainHtml.replace(/<tbody id="complacence-body">[\s\S]*?<\/tbody>/, `<tbody id="complacence-body">${complacenceRows}</tbody>`);
     finalMainHtml = finalMainHtml.replace(/<ol id="satisfaction-summary-list"[\s\S]*?>[\s\S]*?<\/ol>/, `<ol id="satisfaction-summary-list" style="font-size: 12px; list-style-position: inside; padding-left: 0;">${satisfactionSummaryList}</ol>`);
@@ -123,7 +119,6 @@ const populateHtmlTemplates = (mainTemplate, summaryTemplate, apiData) => {
     return { finalMainHtml, finalSummaryHtml };
 };
 
-// --- Modal for entering project report data ---
 const ProjectReportDataModal = ({ isOpen, onClose, onSave, project, onGenerateAndDownloadPdf }) => {
     const [formData, setFormData] = useState({
         actual_budget: '',
@@ -203,7 +198,7 @@ const ProjectReportDataModal = ({ isOpen, onClose, onSave, project, onGenerateAn
     ];
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-xs bg-opacity-50 p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-white/60 to-gray-200/50 p-4">
             <div className="bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
                 <form onSubmit={handleSubmit} className="p-6 space-y-6 documentation-section">
                     <div className="flex justify-between items-center border-b pb-3">
@@ -338,11 +333,11 @@ const ProjectReportDataModal = ({ isOpen, onClose, onSave, project, onGenerateAn
 
                     <div className="flex flex-wrap justify-end pt-5 mt-4 border-t">
                         <button type="button" onClick={onClose} className="bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold py-2 px-4 rounded-lg mb-2 md:mb-0 md:mr-3 w-full md:w-auto">ยกเลิก</button>
-                        <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg inline-flex items-center mb-2 md:mb-0 w-full md:w-auto">
-                            <FaSave className="mr-2" /> บันทึกข้อมูล
+                        <button type="submit" className="bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg mb-2 md:mb-0 md:mr-3 w-full md:w-auto">
+                            บันทึก
                         </button>
-                        <button type="button" onClick={() => onGenerateAndDownloadPdf(project)} className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg md:ml-3 inline-flex items-center w-full md:w-auto">
-                            <FaFilePdf className="mr-2" /> สร้างและดาวน์โหลด
+                        <button type="button" onClick={() => onGenerateAndDownloadPdf(project)} className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg mb-2 md:mb-0 md:mr-3 w-full md:w-auto">
+                            สร้างและดาวน์โหลด
                         </button>
                     </div>
                 </form>
@@ -532,14 +527,26 @@ const DocumentsClientPage = () => {
                 },
             });
 
-            Swal.fire('สำเร็จ', 'ข้อมูลรายงานโครงการถูกบันทึกแล้ว', 'success');
+            Swal.fire({
+                title: 'สำเร็จ',
+                text: 'เอกสารโครงการถูกบันทึกแล้ว',
+                icon: 'success',
+                confirmButtonText: 'ตกลง', 
+            });
+
             setIsReportModalOpen(false);
             fetchProjects();
         } catch (err) {
             console.error('Error saving report data:', err);
-            Swal.fire('ผิดพลาด', err.response?.data?.message || 'ไม่สามารถบันทึกข้อมูลได้', 'error');
+            Swal.fire({
+                title: 'ผิดพลาด',
+                text: err.response?.data?.message || 'ไม่สามารถบันทึกข้อมูลได้',
+                icon: 'error',
+                confirmButtonText: 'ตกลง', 
+            });
         }
     };
+
 
     const generateAndDownloadPdf = async (projectToGenerate) => {
         try {
@@ -566,11 +573,10 @@ const DocumentsClientPage = () => {
 
             const { finalMainHtml, finalSummaryHtml } = populateHtmlTemplates(mainTpl, summaryTpl, apiData);
 
-            // --- Generate PDF ---
+
             const { PDFDocument } = await import('pdf-lib');
             const html2pdf = (await import('html2pdf.js')).default;
 
-            // 1. Create PDF for main content (portrait)
             const mainElement = document.createElement('div');
             mainElement.innerHTML = finalMainHtml;
             const mainOpt = {
@@ -581,7 +587,6 @@ const DocumentsClientPage = () => {
             };
             const mainPdfAsArrayBuffer = await html2pdf().from(mainElement).set(mainOpt).output('arraybuffer');
 
-            // 2. Create PDF for summary table (landscape)
             const summaryElement = document.createElement('div');
             summaryElement.innerHTML = finalSummaryHtml;
             const summaryOpt = {
@@ -592,7 +597,6 @@ const DocumentsClientPage = () => {
             };
             const summaryPdfAsArrayBuffer = await html2pdf().from(summaryElement).set(summaryOpt).output('arraybuffer');
 
-            // 3. Merge PDFs
             const mergedPdf = await PDFDocument.create();
 
             const mainPdfDoc = await PDFDocument.load(mainPdfAsArrayBuffer);
@@ -604,10 +608,8 @@ const DocumentsClientPage = () => {
             const summaryPages = await mergedPdf.copyPages(summaryPdfDoc, summaryPdfDoc.getPageIndices());
             summaryPages.forEach(page => mergedPdf.addPage(page));
 
-            // 4. Save the merged PDF
             const mergedPdfBytes = await mergedPdf.save();
 
-            // Trigger download
             const blob = new Blob([mergedPdfBytes], { type: 'application/pdf' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
@@ -635,80 +637,76 @@ const DocumentsClientPage = () => {
                     <h1 className="text-2xl font-bold text-gray-800">เอกสารโครงการ</h1>
                 </header>
 
-<div className="bg-white p-6 rounded-xl shadow-md mb-6">
-  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-    {/* ช่องค้นหาโครงการ */}
-    <div className="md:col-span-2">
-      <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">
-        ค้นหาโครงการ
-      </label>
-      <div className="relative">
-        <input
-          type="text"
-          id="search"
-          name="search"
-          value={filters.search}
-          onChange={handleFilterChange}
-          placeholder="ค้นหาด้วยชื่อโครงการ..."
-          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-700 placeholder-gray-400"
-        />
-        <FaMagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
-      </div>
-    </div>
+                <div className="bg-white p-6 rounded-xl shadow-md mb-6">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                        <div className="md:col-span-2">
+                            <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">
+                                ค้นหาโครงการ
+                            </label>
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    id="search"
+                                    name="search"
+                                    value={filters.search}
+                                    onChange={handleFilterChange}
+                                    placeholder="ค้นหาด้วยชื่อโครงการ..."
+                                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-700 placeholder-gray-400"
+                                />
+                                <FaMagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+                            </div>
+                        </div>
 
-    {/* ปีงบประมาณ */}
-    <div>
-      <label htmlFor="fiscal_id" className="block text-sm font-medium text-gray-700 mb-1">
-        ปีงบประมาณ
-      </label>
-      <select
-        id="fiscal_id"
-        name="fiscal_id"
-        value={filters.fiscal_id}
-        onChange={handleFilterChange}
-        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-700"
-      >
-        <option value="">ทั้งหมด</option>
-        {fiscalYears.map((fy) => (
-          <option key={fy.fiscal_id} value={fy.fiscal_id}>
-            {fy.fiscal_name}
-          </option>
-        ))}
-      </select>
-    </div>
+                        <div>
+                            <label htmlFor="fiscal_id" className="block text-sm font-medium text-gray-700 mb-1">
+                                ปีงบประมาณ
+                            </label>
+                            <select
+                                id="fiscal_id"
+                                name="fiscal_id"
+                                value={filters.fiscal_id}
+                                onChange={handleFilterChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-700"
+                            >
+                                <option value="">ทั้งหมด</option>
+                                {fiscalYears.map((fy) => (
+                                    <option key={fy.fiscal_id} value={fy.fiscal_id}>
+                                        {fy.fiscal_name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
 
-    {/* แผนงาน */}
-    <div>
-      <label htmlFor="plan_id" className="block text-sm font-medium text-gray-700 mb-1">
-        แผนงาน
-      </label>
-      <select
-        id="plan_id"
-        name="plan_id"
-        value={filters.plan_id}
-        onChange={handleFilterChange}
-        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-700"
-      >
-        <option value="">ทั้งหมด</option>
-        {plans.map((p) => (
-          <option key={p.plan_id} value={p.plan_id}>
-            {p.plan_name}
-          </option>
-        ))}
-      </select>
-    </div>
+                        <div>
+                            <label htmlFor="plan_id" className="block text-sm font-medium text-gray-700 mb-1">
+                                แผนงาน
+                            </label>
+                            <select
+                                id="plan_id"
+                                name="plan_id"
+                                value={filters.plan_id}
+                                onChange={handleFilterChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-700"
+                            >
+                                <option value="">ทั้งหมด</option>
+                                {plans.map((p) => (
+                                    <option key={p.plan_id} value={p.plan_id}>
+                                        {p.plan_name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
 
-    {/* ปุ่มล้างค่าการค้นหา */}
-    <div className="md:col-span-4 flex justify-end">
-      <button
-        onClick={handleClearFilters}
-        className="text-sm text-slate-600 hover:text-slate-800"
-      >
-        ล้างค่าการค้นหา
-      </button>
-    </div>
-  </div>
-</div>
+                        <div className="md:col-span-4 flex justify-end">
+                            <button
+                                onClick={handleClearFilters}
+                                className="text-sm text-slate-600 hover:text-slate-800"
+                            >
+                                ล้างค่าการค้นหา
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
 
                 <div className="bg-white rounded-lg shadow-md overflow-x-auto">
@@ -763,20 +761,19 @@ const DocumentsClientPage = () => {
                                 </tbody>
                             </table>
                             {/* Cards for Mobile */}
-            <div className="md:hidden p-4">
-                <div className="flex flex-col space-y-4"> {/* ใช้ flex-col และ space-y-4 แทนการใช้ block */}
-                    {projects.map((project) => (
-                        <ProjectDocumentCard
-                            key={project.project_id}
-                            project={project}
-                            onGenerateReport={handleGenerateReport}
-                            // className จะถูกลดเหลือแค่ styling พื้นฐาน
-                            className="border border-gray-300 rounded-lg shadow-sm"
-                        />
-                    ))}
-                </div>
-            </div>
-        </div>
+                            <div className="md:hidden p-4">
+                                <div className="flex flex-col space-y-4"> {/* ใช้ flex-col และ space-y-4 แทนการใช้ block */}
+                                    {projects.map((project) => (
+                                        <ProjectDocumentCard
+                                            key={project.project_id}
+                                            project={project}
+                                            onGenerateReport={handleGenerateReport}
+                                            className="border border-gray-300 rounded-lg shadow-sm"
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
                     )}
                 </div>
 
