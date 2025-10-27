@@ -1,6 +1,6 @@
 'use client';
 
-import { FaPlus, FaSearchengin, FaPenToSquare, FaTrash, FaChevronLeft, FaChevronRight, FaCheck, FaMagnifyingGlass, FaCircleInfo } from 'react-icons/fa6';
+import { FaPlus, FaSearchengin, FaPenToSquare, FaTrash, FaChevronLeft, FaChevronRight, FaCheck, FaMagnifyingGlass, FaCircleInfo, FaToggleOff, FaCircleCheck, FaTimesCircle,FaToggleOn,FaCircleXmark,FaXmark } from 'react-icons/fa6';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
@@ -132,8 +132,8 @@ export default function FiscalYearClientPage() {
 
     const handleDeleteFiscalYear = async (fiscalId) => {
         Swal.fire({
-            title: 'ยืนยันการลบข้อมูล',
-            text: "คุณต้องการลบปีงบประมาณนี้หรือไม่?",
+            title: 'ยืนยันการปิดใช้งาน',
+            text: "คุณต้องการปิดใช้งานปีงบประมาณนี้หรือไม่?",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33', 
@@ -149,7 +149,7 @@ export default function FiscalYearClientPage() {
                     const response = await axios.delete(`${apiBaseUrl}/api/fiscal-year/${fiscalId}`, config);
 
                     Swal.fire({
-                        title: 'ลบข้อมูลสำเร็จ',
+                        title: 'สำเร็จ',
                         text: 'ปีงบประมาณปิดใช้งานแล้ว',
                         icon: 'success',
                         confirmButtonText: 'ตกลง'
@@ -331,7 +331,7 @@ export default function FiscalYearClientPage() {
                                                         className="p-2 text-red-600 hover:bg-red-100 rounded-full"
                                                         aria-label="Delete item"
                                                     >
-                                                        <FaTrash className="h-5 w-5" />
+                                                        <FaCheck className="h-5 w-5" />
                                                     </button>
                                                 ) : (
                                                     <button
@@ -339,7 +339,7 @@ export default function FiscalYearClientPage() {
                                                         className="p-2 text-green-600 hover:bg-green-100 rounded-full"
                                                         aria-label="Activate item"
                                                     >
-                                                        <FaCheck className="h-5 w-5" />
+                                                        <FaXmark className="h-5 w-5" />
                                                     </button>
                                                 )}
                                             </div>
@@ -401,18 +401,18 @@ export default function FiscalYearClientPage() {
                                                         {item.fiscal_status === "active" ? (
                                                             <button
                                                                 onClick={() => handleDeleteFiscalYear(item.fiscal_id)}
-                                                                className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full transition"
+                                                                className="p-2 text-green-500 hover:text-green-700 hover:bg-green-50 rounded-full transition"
                                                                 aria-label="Delete item"
                                                             >
-                                                                <FaTrash className="h-4 w-4" />
+                                                                <FaCheck className="h-4 w-4" />
                                                             </button>
                                                         ) : (
                                                             <button
                                                                 onClick={() => handleActiveFiscalYear(item.fiscal_id)}
-                                                                className="p-2 text-green-500 hover:text-green-700 hover:bg-green-50 rounded-full transition"
+                                                                className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full transition"
                                                                 aria-label="Activate item"
                                                             >
-                                                                <FaCheck className="h-5 w-5" />
+                                                                <FaXmark className="h-5 w-5" />
                                                             </button>
                                                         )}
                                                     </div>

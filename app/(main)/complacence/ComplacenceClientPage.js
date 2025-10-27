@@ -132,14 +132,14 @@ const AddSurveyModal = ({ isOpen, onClose, onSave, projects }) => {
                 <h3 className="text-xl font-semibold mb-4">สร้างแบบประเมินใหม่</h3>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-slate-700">เลือกโครงการ</label>
+                        <label className="block text-sm font-medium text-slate-700">กรุณาเลือกโครงการ</label>
                         <select
                             value={selectedProject}
                             onChange={(e) => setSelectedProject(e.target.value)}
                             className="mt-1 block w-full border-slate-300 rounded-md shadow-sm p-2"
                             required
                         >
-                            <option value="">-- เลือกโครงการ --</option>
+                            <option value=""> เลือกโครงการ </option>
                             {projects.map(p => (
                                 <option key={p.project_id} value={p.project_id}>
                                     {p.project_title}
@@ -424,43 +424,50 @@ const AdminManageSurvey = ({ assessment, onBack, onQuestionSaved }) => {
         }
     };
 
-    const handleDeleteQuestion = (questionId) => {
-        Swal.fire({
-            title: 'ยืนยันการลบข้อมูล',
-            text: 'คุณต้องการลบหัวข้อประเมินนี้ใช่หรือไม่?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'ตกลง',
-            cancelButtonText: 'ยกเลิก'
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                try {
-                    const accessToken = Cookies.get('accessToken');
-                    if (!accessToken) {
-                        Swal.fire('Error', 'ไม่พบโทเค็นการเข้าถึง กรุณาเข้าสู่ระบบ', 'error');
-                        return;
-                    }
+ const handleDeleteQuestion = (questionId) => {
+    // 💡 ข้อควรระวัง: ตรวจสอบว่า questionId ไม่เป็นค่าว่างก่อนเริ่มกระบวนการลบ
+    if (!questionId) {
+        Swal.fire('Error', 'Question ID is missing (Frontend Error)', 'error');
+        return;
+    }
 
-                    const response = await axios.delete(`/api/question-complacence/delete-question/${questionId}`, {
-                        headers: { Authorization: `Bearer ${accessToken}` }
-                    });
-
-                    if (response.status === 200) {
-                        const updatedQuestions = questions.filter(q => q.questions_id !== questionId);
-                        setQuestions(updatedQuestions);
-                        Swal.fire('สำเร็จ', 'ลบหัวข้อประเมินสำเร็จ', 'success');
-                    } else {
-                        Swal.fire('Error', response.data.message || 'Failed to delete question.', 'error');
-                    }
-                } catch (error) {
-                    console.error("Error deleting question:", error);
-                    Swal.fire('Error', error.response?.data?.message || 'Failed to delete question.', 'error');
+    Swal.fire({
+        title: 'ยืนยันการลบข้อมูล',
+        text: 'คุณต้องการลบหัวข้อประเมินนี้ใช่หรือไม่?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'ตกลง',
+        cancelButtonText: 'ยกเลิก'
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            try {
+                const accessToken = Cookies.get('accessToken');
+                if (!accessToken) {
+                    Swal.fire('Error', 'ไม่พบโทเค็นการเข้าถึง กรุณาเข้าสู่ระบบ', 'error');
+                    return;
                 }
+
+                // การเรียก API ที่ใช้ questionId ที่ได้รับมา
+                const response = await axios.delete(`/api/question-complacence/delete-question/${questionId}`, {
+                    headers: { Authorization: `Bearer ${accessToken}` }
+                });
+
+                if (response.status === 200) {
+                    const updatedQuestions = questions.filter(q => q.questions_id !== questionId);
+                    setQuestions(updatedQuestions);
+                    Swal.fire('สำเร็จ', 'ลบหัวข้อประเมินสำเร็จ', 'success');
+                } else {
+                    Swal.fire('Error', response.data.message || 'Failed to delete question.', 'error');
+                }
+            } catch (error) {
+                console.error("Error deleting question:", error);
+                Swal.fire('Error', error.response?.data?.message || 'Failed to delete question.', 'error');
             }
-        });
-    };
+        }
+    });
+};
 
     const openEditModal = (question) => {
         setSelectedQuestion(question);
@@ -636,14 +643,12 @@ const AdminSurveyList = ({ assessments, onManage, onToggleStatus, onAdd, onViewD
                                                 onChange={() => onToggleStatus(a.assessment_id, a.evaluation_status)}
                                             />
                                             <div
-                                                className={`block bg-gray-200 w-14 h-8 rounded-full transition-all duration-300 ${
-                                                    a.evaluation_status === 'active' ? 'bg-green-500' : ''
-                                                }`}
+                                                className={`block bg-gray-200 w-14 h-8 rounded-full transition-all duration-300 ${a.evaluation_status === 'active' ? 'bg-green-500' : ''
+                                                    }`}
                                             ></div>
                                             <div
-                                                className={`dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-all duration-300 ${
-                                                    a.evaluation_status === 'active' ? 'translate-x-full' : ''
-                                                }`}
+                                                className={`dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-all duration-300 ${a.evaluation_status === 'active' ? 'translate-x-full' : ''
+                                                    }`}
                                             ></div>
                                         </div>
                                     </label>
@@ -1134,7 +1139,7 @@ export default function ComplacenceClientPage() {
                 </div>
             </div>
         );
-    } else if (userRole === 2 || userRole === 3) 
+    } else if (userRole === 2 || userRole === 3)
         return (
             <div className="bg-gray-100 min-h-screen p-4 sm:p-6 lg:p-8">
                 <div className="max-w-7xl mx-auto">
@@ -1200,6 +1205,5 @@ export default function ComplacenceClientPage() {
                 />
             </div>
         );
-    }
+}
 
-    return null;

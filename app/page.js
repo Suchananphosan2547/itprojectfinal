@@ -52,11 +52,10 @@ export default function Home() {
       });
 
       const { user, initialPath } = response.data;
-      sessionStorage.setItem('user', JSON.stringify(user));
+      //sessionStorage.setItem('user', JSON.stringify(user));
 
       await Swal.fire({
         icon: 'success',
-        title: 'เข้าสู่ระบบสำเร็จ',
         title: 'เข้าสู่ระบบสำเร็จ',
         showConfirmButton: false,
         timer: 1500,
@@ -69,7 +68,7 @@ export default function Home() {
       await Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'กรุณาเข้าสู่ระบบใหม่อีกครั้ง',
+        text: errorMessage,
         confirmButtonText: 'ตกลง',
       });
     }
@@ -95,10 +94,7 @@ export default function Home() {
                 className="object-cover"
               />
               
-              {/* 1. Gradient Overlay: ดำจากล่างขึ้นบน เพื่อเน้นข้อความ (คงไว้) */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-
-              {/* 2. Gradient ไล่จากซ้ายไปขาวแบบเนียนๆ */}
               <div 
                 className="absolute inset-0" // ไม่ต้องมี z-0 ตรงนี้แล้ว เพราะภาพหลักเป็น z-0 อยู่แล้ว
                 style={{ 
@@ -108,8 +104,6 @@ export default function Home() {
             </div>
           ))}
 
-          {/* ข้อความอยู่คงที่ ไม่เลื่อนไปกับรูป (z-index สูงกว่า gradient และรูปภาพ) */}
-          {/* ✅ ปรับ z-index ของข้อความให้สูงขึ้น เพื่อให้แน่ใจว่าอยู่บนทุก gradient */}
           <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-8 z-10"> 
             <h2 className="text-5xl font-extrabold text-center drop-shadow-lg ">
               Information Technology
@@ -119,10 +113,6 @@ export default function Home() {
             </p>
           </div>
 
-          {/* ปุ่มเลื่อนซ้าย/ขวา และ Indicators ก็ควรมี z-index สูงกว่าด้วย */}
-          {/* (มีการตั้งค่า z-20 ไว้แล้ว ซึ่งใช้ได้ดี) */}
-
-          {/* ปุ่มเลื่อนซ้าย/ขวา */}
           <button
             onClick={handlePrev}
             className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/40 text-white p-2 rounded-full hover:bg-black/70 z-20 transition duration-300 backdrop-blur-sm hover:bg-white/30 hover:scale-110"

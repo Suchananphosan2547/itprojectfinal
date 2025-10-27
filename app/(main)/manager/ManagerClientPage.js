@@ -79,7 +79,7 @@ const ManagerCard = ({ manager, onEdit, onDelete }) => {
 };
 
 // --- Base Manager Modal Component for form fields ---
-const ManagerFormFields = ({ managerData, setManagerData, isEditMode = false }) => {
+const ManagerFormFields = ({ managerData, setManagerData, isEditMode = false, managerRanks = [] }) => {
     const [provinces, setProvinces] = useState([]);
     const [prefectures, setPrefectures] = useState([]);
     const [districts, setDistricts] = useState([]);
@@ -155,13 +155,30 @@ const ManagerFormFields = ({ managerData, setManagerData, isEditMode = false }) 
         setSelectedDistrictId(districtId);
     };
 
-    const handleChange = (e) => {
+const handleChange = (e) => {
         const { name, value } = e.target;
         setManagerData(prev => ({ ...prev, [name]: value }));
     };
 
     return (
         <div className="space-y-4">
+            <div>
+                <label className="block text-sm font-medium text-slate-700">ตำแหน่ง (ยศ) <span className="text-red-500">*</span></label>
+                <select 
+                    name="manager_rank_id" 
+                    value={managerData.manager_rank_id || ''} 
+                    onChange={handleChange} 
+                    className="mt-1 block w-full border-slate-300 rounded-md shadow-sm p-2" 
+                    required
+                >
+                    <option value="">เลือกตำแหน่ง</option>
+                    {managerRanks.map(rank => (
+                        <option key={rank.manager_rank_id} value={rank.manager_rank_id}>
+                            {rank.manager_rank_name}
+                        </option>
+                    ))}
+                </select>
+            </div>
             <div>
                 <label className="block text-sm font-medium text-slate-700">คำนำหน้า <span className="text-red-500">*</span></label>
                 <select name="manager_prefix" value={managerData.manager_prefix || ''} onChange={handleChange} className="mt-1 block w-full border-slate-300 rounded-md shadow-sm p-2" required>
@@ -219,7 +236,7 @@ const ManagerFormFields = ({ managerData, setManagerData, isEditMode = false }) 
 };
 
 // --- Add Manager Modal Component ---
-const AddManagerModal = ({ isOpen, onClose, onAdd, currentUser, faculties, majors }) => {
+const AddManagerModal = ({ isOpen, onClose, onAdd, currentUser, faculties, majors, managerRanks }) => {
     const [managerData, setManagerData] = useState({});
     const [displayFacultyName, setDisplayFacultyName] = useState('');
     const [displayMajorName, setDisplayMajorName] = useState('');
@@ -279,7 +296,7 @@ const AddManagerModal = ({ isOpen, onClose, onAdd, currentUser, faculties, major
                     <button onClick={handleClose} className="text-slate-400 hover:text-slate-700 text-2xl">&times;</button>
                 </div>
                 <form id="addManagerForm" className="space-y-4 p-6 overflow-y-auto" onSubmit={handleSubmit}>
-                    <ManagerFormFields managerData={managerData} setManagerData={setManagerData} />
+                    <ManagerFormFields managerData={managerData} setManagerData={setManagerData} managerRanks={managerRanks} />
                     {currentUser?.role_id === 2 && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
@@ -306,7 +323,7 @@ const AddManagerModal = ({ isOpen, onClose, onAdd, currentUser, faculties, major
 };
 
 // --- Edit Manager Modal Component ---
-const EditManagerModal = ({ isOpen, onClose, onUpdate, managerItem }) => {
+const EditManagerModal = ({ isOpen, onClose, onUpdate, managerItem, managerRanks }) => {
     const [managerData, setManagerData] = useState({});
     const [error, setError] = useState(''); 
     useEffect(() => {
@@ -342,7 +359,7 @@ const EditManagerModal = ({ isOpen, onClose, onUpdate, managerItem }) => {
                     <button onClick={onClose} className="text-slate-400 hover:text-slate-700 text-2xl">&times;</button>
                 </div>
                 <form id="editManagerForm" className="space-y-4 p-6 overflow-y-auto" onSubmit={handleSubmit}>
-                    <ManagerFormFields managerData={managerData} setManagerData={setManagerData} isEditMode={true} />
+                    <ManagerFormFields managerData={managerData} setManagerData={setManagerData} isEditMode={true} managerRanks={managerRanks}/>
                     <div><label className="block text-sm font-medium text-slate-700">คณะ</label><div className="mt-1 block w-full border-slate-200 rounded-md bg-slate-100 p-2">{managerItem?.faculty_name || '-'}</div></div>
                     <div><label className="block text-sm font-medium text-slate-700">สาขา</label><div className="mt-1 block w-full border-slate-200 rounded-md bg-slate-100 p-2">{managerItem?.major_name || '-'}</div></div>
                     {error && <div className="text-red-600 text-sm p-3 bg-red-50 rounded-lg">{error}</div>}
@@ -369,6 +386,7 @@ export default function ManagerClientPage() {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [selectedManager, setSelectedManager] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [managerRanks, setManagerRanks] = useState([]);
 
     const fetchData = useCallback(async () => {
         setIsLoading(true);
@@ -377,16 +395,24 @@ export default function ManagerClientPage() {
             const accessToken = Cookies.get('accessToken');
             if (!accessToken) throw new Error('Access token not found.');
             const config = { headers: { Authorization: `Bearer ${accessToken}` } };
-            const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
+            //const apiBaseUrl = process.env.API_BASE_URL;
 
-            // 1. Fetch managers and faculties
-            const [managersRes, facultiesRes] = await Promise.all([
-                axios.get(`${apiBaseUrl}/api/manager`, config),
-                axios.get(`${apiBaseUrl}/api/faculty`, config)
+            
+
+// 1. Fetch managers, faculties, AND manager ranks
+            const [managersRes, facultiesRes, ranksRes] = await Promise.all([ // 💡 เพิ่ม ranksRes
+                axios.get(`/api/manager`, config),
+                axios.get(`/api/faculty`, config),
+                axios.get(`/api/manager-rank`, config)
             ]);
+            
             const fetchedManagers = managersRes.data.data || [];
             const fetchedFaculties = facultiesRes.data.data || [];
+            // 💡 ตั้งค่า Manager Ranks
+            const fetchedRanks = ranksRes.data.data || []; 
+            
             setFaculties(fetchedFaculties);
+            setManagerRanks(fetchedRanks); // 💡 ตั้งค่า State
 
             // 2. Get all unique faculty IDs from the managers
             const uniqueFacultyIds = [...new Set(fetchedManagers.map(m => m.faculty_id).filter(id => id))];
@@ -445,7 +471,7 @@ export default function ManagerClientPage() {
 
             const accessToken = Cookies.get('accessToken');
             const config = { headers: { Authorization: `Bearer ${accessToken}` } };
-            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/manager/create`, dataToSend, config);
+            const response = await axios.post(`/api/manager/create`, dataToSend, config);
             Swal.fire({ icon: 'success', title: 'สำเร็จ', text: response.data.message });
             setIsAddModalOpen(false);
             fetchData();
@@ -458,7 +484,7 @@ export default function ManagerClientPage() {
         try {
             const accessToken = Cookies.get('accessToken');
             const config = { headers: { Authorization: `Bearer ${accessToken}` } };
-            const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/manager/${managerId}`, managerData, config);
+            const response = await axios.put(`/api/manager/${managerId}`, managerData, config);
             Swal.fire({ icon: 'success', title: 'สำเร็จ', text: response.data.message });
             setIsEditModalOpen(false);
             fetchData();
@@ -482,7 +508,7 @@ export default function ManagerClientPage() {
                 try {
                     const accessToken = Cookies.get('accessToken');
                     const config = { headers: { Authorization: `Bearer ${accessToken}` } };
-                    await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/manager/${managerId}`, config);
+                    await axios.delete(`/api/manager/${managerId}`, config);
                     Swal.fire({ icon: 'success', title: 'ลบสำเร็จ', text: 'ข้อมูลถูกลบเรียบร้อยแล้ว' });
                     fetchData();
                 } catch (err) {
@@ -588,12 +614,14 @@ export default function ManagerClientPage() {
                 currentUser={currentUser}
                 faculties={faculties}
                 majors={majors}
+                managerRanks={managerRanks}
             />
             <EditManagerModal
                 isOpen={isEditModalOpen}
                 onClose={() => setIsEditModalOpen(false)}
                 onUpdate={handleUpdateManager}
                 managerItem={selectedManager}
+                managerRanks={managerRanks}
             />
         </div>
     );

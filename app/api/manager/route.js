@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 
 // Define the base URL for your external Express API.
 // You can use an environment variable for flexibility.
-const EXTERNAL_API_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+const EXTERNAL_API_URL = process.env.API_BASE_URL;
 
 export async function GET(request) {
     let accessToken = request.headers.get('authorization');

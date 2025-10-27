@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { FaPlus, FaUsers, FaSearchengin, FaPenToSquare, FaTrash, FaCheck, FaCloudArrowUp, FaMagnifyingGlass, FaCircleInfo } from 'react-icons/fa6';
+import { FaPlus, FaUsers, FaSearchengin, FaPenToSquare, FaTrash, FaCheck, FaCloudArrowUp, FaMagnifyingGlass, FaCircleInfo, FaXmark } from 'react-icons/fa6';
 import * as XLSX from 'xlsx';
 import Cookies from 'js-cookie';
 
@@ -30,7 +30,7 @@ const UserCard = ({ user, currentUser, onEdit, onActivate, onDelete }) => {
                 <FaTrash />
               </button>
             ) : (
-              <button onClick={onActivate} className="text-green-600 hover:text-green-900"><FaCheck /></button> 
+              <button onClick={onActivate} className="text-green-600 hover:text-green-900"><FaCheck /></button>
             )}
           </div>
         )}
@@ -96,11 +96,11 @@ const AddUserModal = ({ isOpen, onClose, onSave, currentUser, faculties, roles }
   const [firstname, setFirstname] = useState('');
   const [lastname, setLastname] = useState('');
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState(''); 
+  const [phone, setPhone] = useState('');
   const [programType, setProgramType] = useState('ปกติ');
   const [facultyId, setFacultyId] = useState('');
   const [majorId, setMajorId] = useState('');
-  const [roleId, setRoleId] = useState(1); 
+  const [roleId, setRoleId] = useState(1);
   const [modalMajors, setModalMajors] = useState([]);
   const [displayFacultyName, setDisplayFacultyName] = useState('');
   const [displayMajorName, setDisplayMajorName] = useState('');
@@ -635,12 +635,12 @@ export default function ManageUserClientPage() {
       if (!accessToken) throw new Error('Access token not found.');
 
       const config = { headers: { Authorization: `Bearer ${accessToken}` } };
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
+      //const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
 
       const [usersRes, rolesRes, facultiesRes] = await Promise.all([
-        axios.get(`${apiBaseUrl}/api/users`, { params: { page, search, role, faculty_id: facultyId, major_id: majorId }, ...config }),
-        axios.get(`${apiBaseUrl}/api/roles`, config),
-        axios.get(`${apiBaseUrl}/api/faculty`, config),
+        axios.get(`/api/users`, { params: { page, search, role, faculty_id: facultyId, major_id: majorId }, ...config }),
+        axios.get(`/api/roles`, config),
+        axios.get(`/api/faculty`, config),
       ]);
 
       setUsers(usersRes.data.data || []);
@@ -746,7 +746,7 @@ export default function ManageUserClientPage() {
         title: 'สำเร็จ',
         text: 'แก้ไขข้อมูลสมาชิกสำเร็จ',
         icon: 'success',
-        confirmButtonText: 'ตกลง', 
+        confirmButtonText: 'ตกลง',
       });
 
       fetchUsersAndInitialData(
@@ -761,7 +761,7 @@ export default function ManageUserClientPage() {
         title: 'ผิดพลาด',
         text: err.response?.data?.message || 'ไม่สามารถแก้ไขข้อมูลสมาชิกได้',
         icon: 'error',
-        confirmButtonText: 'ตกลง', 
+        confirmButtonText: 'ตกลง',
       });
       throw err;
     }
@@ -769,11 +769,83 @@ export default function ManageUserClientPage() {
 
 
   const handleActiveUser = async (username) => {
-    // This function can be filled in later
+    try {
+      const accessToken = Cookies.get('accessToken');
+      if (!accessToken) throw new Error('Access token not found.');
+      const response = await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/active-account/${username}`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      );
+
+      const newStatus = response.data.data?.is_active ? 'เปิดใช้งาน' : 'ระงับการใช้งาน';
+
+      Swal.fire({
+        title: 'สำเร็จ',
+        text: 'เปลี่ยนสถานะการใช้งานเรียบร้อยแล้ว',
+        icon: 'success',
+        confirmButtonText: 'ตกลง',
+      });
+
+      fetchUsersAndInitialData(
+        currentPage,
+        searchTerm,
+        selectedRole,
+        selectedFaculty,
+        selectedMajor
+      );
+    } catch (err) {
+      Swal.fire({
+        title: 'ผิดพลาด',
+        text: err.response?.data?.message || 'ไม่สามารถเปลี่ยนสถานะบัญชีได้',
+        icon: 'error',
+        confirmButtonText: 'ตกลง',
+      });
+    }
   };
 
   const handleRemoveUser = (username) => {
-    // This function can be filled in later
+    Swal.fire({
+      title: 'ยืนยันการลบ',
+      text: 'คุณต้องการลบสมาชิกนี้หรือไม่?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'ตกลง',
+      cancelButtonText: 'ยกเลิก',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const accessToken = Cookies.get('accessToken');
+          if (!accessToken) throw new Error('Access token not found.');
+
+          await axios.delete(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/users/${username}`,
+            {
+              headers: { Authorization: `Bearer ${accessToken}` },
+            }
+          );
+
+          await Swal.fire({
+            title: 'ลบสำเร็จ',
+            text: 'สมาชิกถูกลบเรียบร้อยแล้ว',
+            icon: 'success',
+            confirmButtonText: 'ตกลง'
+          });
+          fetchUsersAndInitialData(1, searchTerm, selectedRole, selectedFaculty, selectedMajor);
+
+        } catch (err) {
+          Swal.fire(
+            'ผิดพลาด!',
+            err.response?.data?.message || 'ไม่สามารถลบสมาชิกได้',
+            'error'
+          );
+        }
+      }
+    });
   };
 
   return (
@@ -831,7 +903,7 @@ export default function ManageUserClientPage() {
                     setSelectedFaculty(e.target.value);
                     setSelectedMajor('');
                   }}
-                  className="px-4 py-2.5 h-full border border-gray-300 rounded-lg" 
+                  className="px-4 py-2.5 h-full border border-gray-300 rounded-lg"
                 >
                   <option value="">ทั้งหมด (คณะ)</option>
                   {faculties.map((faculty) => (
@@ -843,7 +915,7 @@ export default function ManageUserClientPage() {
                 <select
                   value={selectedMajor}
                   onChange={(e) => setSelectedMajor(e.target.value)}
-                  className="px-4 py-2.5 h-full border border-gray-300 rounded-lg" 
+                  className="px-4 py-2.5 h-full border border-gray-300 rounded-lg"
                   disabled={!selectedFaculty}
                 >
                   <option value="">ทั้งหมด (สาขา)</option>

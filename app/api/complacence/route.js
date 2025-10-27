@@ -1,75 +1,38 @@
 import { NextResponse } from 'next/server';
-import axios from 'axios';
 import { cookies } from 'next/headers';
+import axios from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+const EXTERNAL_API_URL = process.env.API_BASE_URL;
 
-// ฟังก์ชันช่วยดึง Access Token
-async function getAccessToken(req) {
-  let accessToken = req.headers.get('authorization');
-  if (!accessToken) {
-    const cookieStore = cookies();
-    accessToken = cookieStore.get('accessToken')?.value;
-    if (accessToken) accessToken = `Bearer ${accessToken}`;
-  }
-  return accessToken;
-}
+export async function GET(request) {
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get('accessToken')?.value;
 
-// GET /api/complacence
-export async function GET(req) {
-  try {
-    const accessToken = await getAccessToken(req);
-    if (!accessToken) return NextResponse.json({ message: 'Authorization token not provided.' }, { status: 401 });
+    if (!accessToken) {
+        return NextResponse.json({ message: "Authorization token not provided" }, { status: 401 });
+    }
 
-    const { searchParams } = new URL(req.url);
-    const queryString = searchParams.toString();
+    try {
+        // --- ⚠️ 1. ดึง Query Parameters ทั้งหมดจาก URL ---
+        const { searchParams } = new URL(request.url);
+        
+        const backendUrl = `${EXTERNAL_API_URL}/complacence`;
+        
+        // --- ⚠️ 2. เพิ่ม `params` เข้าไปใน config ของ axios ---
+        const response = await axios.get(backendUrl, {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+            },
+            params: searchParams // axios จะแปลงเป็น query string (เช่น ?page=1&limit=10) ให้เอง
+        });
 
-    const response = await axios.get(`${API_BASE_URL}/complacence?${queryString}`, {
-      headers: { Authorization: accessToken },
-    });
+        return NextResponse.json(response.data, { status: response.status });
 
-    return NextResponse.json(response.data);
-  } catch (error) {
-    if (error.response) return NextResponse.json(error.response.data, { status: error.response.status });
-    return NextResponse.json({ message: 'An internal server error occurred.' }, { status: 500 });
-  }
-}
-
-// PUT /api/complacence
-export async function PUT(req) {
-  try {
-    const accessToken = await getAccessToken(req);
-    if (!accessToken) return NextResponse.json({ message: 'Authorization token not provided.' }, { status: 401 });
-
-    const body = await req.json();
-    const response = await axios.put(`${API_BASE_URL}/complacence`, body, {
-      headers: { Authorization: accessToken, 'Content-Type': 'application/json' },
-    });
-
-    return NextResponse.json(response.data);
-  } catch (error) {
-    if (error.response) return NextResponse.json(error.response.data, { status: error.response.status });
-    return NextResponse.json({ message: 'An internal server error occurred.' }, { status: 500 });
-  }
-}
-
-// DELETE /api/complacence?id=123
-export async function DELETE(req) {
-  try {
-    const accessToken = await getAccessToken(req);
-    if (!accessToken) return NextResponse.json({ message: 'Authorization token not provided.' }, { status: 401 });
-
-    const { searchParams } = new URL(req.url);
-    const id = searchParams.get('id');
-    if (!id) return NextResponse.json({ message: 'ID is required for deletion.' }, { status: 400 });
-
-    const response = await axios.delete(`${API_BASE_URL}/complacence/${id}`, {
-      headers: { Authorization: accessToken },
-    });
-
-    return NextResponse.json(response.data);
-  } catch (error) {
-    if (error.response) return NextResponse.json(error.response.data, { status: error.response.status });
-    return NextResponse.json({ message: 'An internal server error occurred.' }, { status: 500 });
-  }
+    } catch (error) {
+        console.error("Proxy GET /complacence Error:", error);
+        if (error.response) {
+            return NextResponse.json(error.response.data, { status: error.response.status });
+        }
+        return NextResponse.json({ message: 'Failed to connect to the external API service.' }, { status: 503 });
+    }
 }

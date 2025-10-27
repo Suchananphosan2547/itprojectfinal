@@ -20,7 +20,7 @@ export async function GET(request) {
 
     const queryParams = new URLSearchParams({ page, limit, search }).toString();
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/plan?${queryParams}`, {
+    const response = await fetch(`${process.env.API_BASE_URL}/plan?${queryParams}`, {
       headers: {
         'Authorization': accessToken,
       },

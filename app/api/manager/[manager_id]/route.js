@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
-const EXTERNAL_API_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+const EXTERNAL_API_URL = process.env.API_BASE_URL;
 
 async function proxyRequest(request, managerId, method) {
     let accessToken = request.headers.get('authorization');
@@ -27,8 +27,7 @@ async function proxyRequest(request, managerId, method) {
         fetchOptions.body = JSON.stringify(body);
     }
 
-    const endpoint = method === 'DELETE' ? 'delete-manager' : 'update-manager';
-    const targetUrl = `${EXTERNAL_API_URL}/${endpoint}/${managerId}`;
+    const targetUrl = `${EXTERNAL_API_URL}/manager/${managerId}`;
 
     console.log(`[PROXY] Attempting to ${method} to: ${targetUrl}`);
 
@@ -42,7 +41,11 @@ async function proxyRequest(request, managerId, method) {
         }
 
         if (method === 'DELETE' && response.ok) {
-            return NextResponse.json({ message: "Manager marked as deleted." }, { status: 200 });
+            if (response.status === 204) {
+                return new Response(null, { status: 204 });
+            }
+            const data = await response.json();
+            return NextResponse.json(data, { status: response.status });
         }
 
         const data = await response.json();

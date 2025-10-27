@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import axios from 'axios';
 import { cookies } from 'next/headers';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+const API_BASE_URL = process.env.API_BASE_URL;
 
 export async function PUT(req, { params }) {
   try {
@@ -43,7 +43,7 @@ export async function DELETE(req, { params }) {
       return NextResponse.json({ message: 'Authorization token not provided.' }, { status: 401 });
     }
 
-    const response = await axios.delete(`${API_BASE_URL}/delete-account/${username}`, {
+    const response = await axios.delete(`${API_BASE_URL}/users/${username}`, {
       headers: {
         'Authorization': `Bearer ${accessToken}`,
       },

@@ -20,7 +20,7 @@ export async function GET(request) {
     }
 
     // Construct the URL with pagination parameters
-    const url = new URL(`${process.env.NEXT_PUBLIC_API_BASE_URL}/fiscal-year`);
+    const url = new URL(`${process.env.API_BASE_URL}/fiscal-year`);
     url.searchParams.append('page', page);
     url.searchParams.append('limit', limit);
     if (search) {

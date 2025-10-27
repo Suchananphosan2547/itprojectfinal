@@ -1,34 +1,41 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import axios from 'axios';
+
+const EXTERNAL_API_URL = process.env.API_BASE_URL;
 
 export async function GET(request, { params }) {
-  try {
-          const awaitedParams = await params;
-      const { projectId } = awaitedParams; 
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get('accessToken')?.value;
 
-    let accessToken = request.headers.get('authorization');
     if (!accessToken) {
-      const cookieStore = cookies();
-      accessToken = cookieStore.get('accessToken')?.value;
-      if (accessToken) accessToken = `Bearer ${accessToken}`;
-    }
-    if (!accessToken) {
-      return NextResponse.json({ message: 'Access token not provided.' }, { status: 401 });
+        return NextResponse.json({ message: "Authorization token not provided" }, { status: 401 });
     }
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/project-report-details/${projectId}`, {
-      headers: { 'Authorization': accessToken },
-    });
+    // 1. ดึง projectId จาก URL
+    const { projectId } = await params; 
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    if (!projectId) {
+        return NextResponse.json({ message: "Project ID is required" }, { status: 400 });
     }
 
-    const data = await response.json();
-    return NextResponse.json(data, { status: response.status });
-  } catch (error) {
-    console.error('Error fetching project report details:', error);
-    return NextResponse.json({ message: error.message || 'Failed to fetch project report details' }, { status: 500 });
-  }
+    try {
+        // 2. สร้าง URL สำหรับเรียก Backend API ให้ถูกต้อง
+        const backendUrl = `${EXTERNAL_API_URL}/project-report-details/${projectId}`;
+        
+        const response = await axios.get(backendUrl, {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+            },
+        });
+
+        return NextResponse.json(response.data, { status: response.status });
+
+    } catch (error) {
+        console.error(`Proxy GET /project-report-details/${projectId} Error:`, error);
+        if (error.response) {
+            return NextResponse.json(error.response.data, { status: error.response.status });
+        }
+        return NextResponse.json({ message: 'Failed to connect to the external API service.' }, { status: 503 });
+    }
 }

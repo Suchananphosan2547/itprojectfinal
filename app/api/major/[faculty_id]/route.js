@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
 export async function GET(request, { params }) {
-  const { faculty_id } = params;
+  const { faculty_id } = await params;
 
   try {
     let accessToken = request.headers.get('authorization');
@@ -16,7 +16,7 @@ export async function GET(request, { params }) {
       return NextResponse.json({ message: 'Authorization token not provided.' }, { status: 401 });
     }
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/major/${faculty_id}`, {
+    const response = await fetch(`${process.env.API_BASE_URL}/major/${faculty_id}`, {
       headers: {
         'Authorization': accessToken,
       },

@@ -16,85 +16,153 @@ const ProjectCard = ({ project, currentUser, onEdit, onDelete, onViewDetails }) 
   const isProjectOverdue = new Date(project.end_project) < new Date();
   const isRegistered = project.is_registered_by_user; // Assuming this comes from the project data
 
-return (
-        <div className="bg-white rounded-xl shadow-md overflow-hidden transform hover:-translate-y-1 transition-all duration-300 relative">
-            <div className="p-6">
-                
-                {/* 💡 แถวบนสุด: ชื่อโครงการ + ภาคเรียน | ปุ่มแก้ไข/ลบ (ใช้ justify-between) */}
-                <div className="flex items-start justify-between mb-4">
-                    
-                    {/* ซ้าย: ชื่อโครงการ + ภาคเรียน (flex-grow เพื่อให้ชื่อโครงการขยายเต็มที่) */}
-                    <div className="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-3 min-w-0 flex-grow pr-4"> 
-                        <h3 className="text-2xl font-bold text-slate-800 truncate">{project.project_title}</h3>
-                        <div
-                            className={`text-xs font-bold px-3 py-1.5 rounded-full text-white whitespace-nowrap flex-shrink-0 
-                                        ${project.program_type === 'ปกติ' ? 'bg-indigo-500' : 'bg-pink-500'
-                            }`}
-                        >
-                            <span>{project.program_type}</span>
-                        </div>
-                    </div>
-                    
-                    {/* ขวา: ปุ่มแก้ไข/ลบ (flex-shrink-0 เพื่อไม่ให้ถูกบีบ) */}
-                    {canModify && (
-                        <div className="flex space-x-2 flex-shrink-0 text-xl pt-1">
-                            {/* เพิ่ม p-2 เพื่อขยายพื้นที่คลิกและสไตล์ Hover */}
-                            <button onClick={() => onEdit(project)} className="text-slate-500 hover:text-sky-600 p-2 rounded-md transition duration-150" title="แก้ไข"><FaPenToSquare /></button>
-                            <button onClick={() => onDelete(project.project_id)} className="text-slate-500 hover:text-red-600 p-2 rounded-md transition duration-150" title="ลบ"><FaTrash /></button>
-                        </div>
-                    )}
-                </div>
-                
-                {/* ข้อมูลผู้สร้าง + วันที่ */}
-                <div className="flex items-center space-x-3 text-sm text-slate-500 mb-4 border-b border-slate-200 pb-4">
-                    <FaUserTie className="h-4 w-4 mr-1.5" />
-                    <span>By: {creatorName}</span>
-                    <FaCalendarDays className="h-4 w-4 mr-1.5" />
-                    <span>{formattedDate}</span>
-                </div>
-
-                {/* คำอธิบายโครงการ */}
-                <p className="text-slate-600 mb-2 leading-relaxed line-clamp-3"> {/* เพิ่ม line-clamp-3 เพื่อจำกัดบรรทัด */}
-                    {project.project_description}
-                </p>
-
-                {/* ไฟล์แนบ */}
-                <div className="flex items-center space-x-2 mt-4"> {/* ปรับ mt-2 เป็น mt-4 เพื่อเพิ่มช่องว่าง */}
-                    {project.attached_file_name && (
-                        <a href={`/api/project-files/${project.attached_file_name}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 transition-colors duration-200">
-                            <FaPaperclip className="mr-1.5" />
-                            <span>{project.attached_file_name}</span>
-                        </a>
-                    )}
-                </div>
-
-                {/* สถานะโครงการ + ปุ่มดูรายละเอียด */}
-                <div className="flex items-center justify-between flex-wrap mt-6 pt-4 border-t border-slate-200"> {/* เพิ่มเส้นแบ่งและช่องว่างด้านบน */}
-                    
-                    {/* ซ้าย: สถานะลงทะเบียน */}
-                    <div className="flex items-center space-x-2 text-sm text-slate-500 mb-2 md:mb-0">
-                        {isProjectOverdue ? (
-                            <div className="text-red-600 flex items-center font-semibold"><FaCalendarXmark className="mr-2" />หมดเขตลงทะเบียนแล้ว</div>
-                        ) : (
-                            <div className="text-green-600 flex items-center font-semibold"><FaClock className="mr-2" />เปิดให้ลงทะเบียน</div>
-                        )}
-                    </div>
-                    
-                    {/* ขวา: ปุ่มดูรายละเอียด (รวมกันเพื่อไม่ให้ซ้ำซ้อน) */}
-                    <div className="flex space-x-2 mt-2 md:mt-0">
-                        {(isStudent || canModify) && (
-                            <button 
-                                onClick={() => onViewDetails(project)} 
-                                className="inline-flex items-center px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-lg shadow-md transition duration-150"
-                            >
-                                <FaUsers className="mr-2" />ดูรายละเอียด
-                            </button>
-                        )}
-                    </div>
-                </div>
+  return (
+    <div className="bg-white rounded-xl shadow-md overflow-hidden transform hover:-translate-y-1 transition-all duration-300 relative">
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-3">
+            <h3 className="text-2xl font-bold text-slate-800">{project.project_title}</h3>
+            <div
+              className={`text-xs font-bold px-3 py-1.5 rounded-full text-white whitespace-nowrap ${project.program_type === 'ปกติ' ? 'bg-indigo-500' : 'bg-pink-500'
+                }`}
+            >
+              <span>{project.program_type}</span>
             </div>
+          </div>
+
+          {canModify && (
+            <div className="flex space-x-2">
+              <button
+                onClick={() => onCopy(project)}
+                className="copy-btn text-slate-500 hover:text-blue-600 p-2 rounded-md"
+                title="คัดลอกโครงการ"
+              >
+                <FaCopy />
+              </button>
+              <button
+                onClick={() => onEdit(project)}
+                className="edit-btn text-slate-500 hover:text-sky-600 p-2 rounded-md"
+                title="แก้ไขโครงการ"
+              >
+                <FaPenToSquare />
+              </button>
+            </div>
+          )}
         </div>
-    );
+
+        <div className="flex items-center space-x-3 text-sm text-slate-500 mb-4 border-b border-slate-200 pb-4">
+          <FaUserTie className="h-4 w-4 mr-1.5" />
+          <span>By: {creatorName}</span>
+          <FaCalendarDays className="h-4 w-4 mr-1.5" />
+          <span>{formattedDate}</span>
+        </div>
+
+
+        <p className="text-slate-600 mb-2 leading-relaxed">
+          {project.project_description}
+        </p>
+
+
+        <div className="flex items-center space-x-2 mt-2">
+          {project.attached_file_name && (
+            <a
+              href={`/api/project-files/${project.attached_file_name}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-sky-100 text-sky-700 hover:bg-sky-200 font-semibold py-1.5 px-3 text-sm rounded-lg flex items-center space-x-2"
+            >
+              <FaPaperclip className="mr-1.5" />
+              <span>{project.attached_file_name}</span>
+            </a>
+          )}
+        </div>
+
+
+        <div className="flex items-center justify-between flex-wrap mt-2">
+          {canModify ? (
+            <div className="flex items-center space-x-2 text-sm mb-2 mt-4 md:mb-0">
+              <button
+                onClick={() => onToggleProjectStatus(project.project_id, project.project_status)}
+                className={`px-3 py-1 rounded-full font-semibold ${project.project_status === 'active'
+                  ? 'bg-green-500 text-white'
+                  : 'bg-red-500 text-white'
+                  }`}
+              >
+                สถานะโครงการ: {project.project_status === 'active' ? 'เปิด' : 'ปิด'}
+              </button>
+              <button
+                onClick={() => onToggleRegistrationStatus(project.project_id, project.registration_status)}
+                className={`px-3 py-1 rounded-full font-semibold ${project.registration_status === 'active'
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-500 text-white'
+                  }`}
+              >
+                สถานะการลงทะเบียน: {project.registration_status === 'active' ? 'เปิด' : 'ปิด'}
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center space-x-2 text-sm text-slate-500 mb-2 md:mb-0">
+              {project.registration_status === 'active' ? (
+                isProjectOverdue ? (
+                  <div className="text-red-600 flex items-center font-semibold">
+                    <FaCalendarXmark className="mr-2" /> หมดเขตลงทะเบียนแล้ว
+                  </div>
+                ) : (
+                  <div className="text-green-600 flex items-center font-semibold">
+                    <FaClock className="mr-2" /> เปิดให้ลงทะเบียน
+                  </div>
+                )
+              ) : (
+                <div className="text-red-600 flex items-center font-semibold">
+                  <FaCalendarXmark className="mr-2" /> ปิดรับลงทะเบียน
+                </div>
+              )}
+            </div>
+          )}
+
+
+          <div className="flex space-x-2 mt-2 md:mt-0">
+            {isStudent && (
+              isRegistrationActive ? (
+                isRegistered ? (
+                  <span className="inline-flex items-center px-4 py-2 bg-green-100 text-green-700 font-semibold rounded-lg">
+                    <FaCircleCheck className="mr-2" /> ลงทะเบียนแล้ว
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => onViewDetails(project)}
+                    className="inline-flex items-center px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-lg shadow-md"
+                  >
+                    <FaUsers className="mr-2" /> ดูรายละเอียด
+                  </button>
+                )
+              ) : (
+                <button
+                  onClick={() => onViewDetails(project)}
+                  className="inline-flex items-center px-4 py-2 bg-slate-200 text-slate-500 font-semibold rounded-lg shadow-md"
+                  disabled
+                >
+                  <FaUsers className="mr-2" />
+                  {project.registration_status !== 'active'
+                    ? 'ปิดรับลงทะเบียน'
+                    : 'หมดเขตลงทะเบียนแล้ว'}
+                </button>
+              )
+            )}
+
+            {canModify && (
+              <button
+                onClick={() => onViewDetails(project)}
+                className="inline-flex items-center px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-lg shadow-md"
+              >
+                <FaUsers className="mr-2" /> ดูรายละเอียด
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 // --- Component ใหม่: Popup แสดงรายละเอียดโครงการ (ปรับปรุงตาม Role) ---

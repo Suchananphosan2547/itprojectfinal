@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FaPlus, FaSearchengin, FaPenToSquare, FaTrash, FaChevronLeft, FaChevronRight, FaCheck, FaMagnifyingGlass, FaCircleInfo } from 'react-icons/fa6';
+import { FaPlus, FaSearchengin, FaPenToSquare, FaTrash, FaChevronLeft, FaChevronRight, FaCheck, FaMagnifyingGlass, FaCircleInfo, FaXmark } from 'react-icons/fa6';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import Cookies from 'js-cookie';
@@ -131,8 +131,8 @@ export default function PlanClientPage() {
 
   const handleDeletePlan = async (planId) => {
     Swal.fire({
-      title: 'ยืนยันการลบข้อมูล',
-      text: "คุณต้องการลบแผนงานนี้หรือไม่?",
+      title: 'ยืนยันการปิดใช้งาน',
+      text: "คุณต้องการปิดใช้งานแผนงานนี้หรือไม่?",
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#d33', 
@@ -146,7 +146,7 @@ export default function PlanClientPage() {
           const config = { headers: { Authorization: `Bearer ${accessToken}` } };
           const response = await axios.delete(`/api/plan/${planId}`, config);
           Swal.fire({
-            title: 'ลบข้อมูลสำเร็จ',
+            title: 'สำเร็จ',
             text: 'แผนงานถูกปิดใช้งานแล้ว',
             icon: 'success',
             confirmButtonText: 'ตกลง' 
@@ -336,7 +336,7 @@ export default function PlanClientPage() {
                             className="p-2 text-red-600 hover:bg-red-100 rounded-full"
                             aria-label="ลบแผนงาน"
                           >
-                            <FaTrash className="h-5 w-5" />
+                            <FaCheck className="h-5 w-5" />
                           </button>
                         ) : (
                           <button
@@ -344,7 +344,7 @@ export default function PlanClientPage() {
                             className="p-2 text-green-600 hover:bg-green-100 rounded-full"
                             aria-label="เปิดใช้งานแผนงาน"
                           >
-                            <FaCheck className="h-5 w-5" />
+                            <FaXmark className="h-5 w-5" />
                           </button>
                         )}
                       </div>
@@ -414,14 +414,14 @@ export default function PlanClientPage() {
                                 onClick={() => handleDeletePlan(item.plan_id)}
                                 className="p-2 text-red-500 hover:text-red-700 hover:scale-110 hover:bg-red-50 rounded-full transition-all duration-200"
                               >
-                                <FaTrash className="h-4 w-4" />
+                                <FaCheck className="h-4 w-4" />
                               </button>
                             ) : (
                               <button
                                 onClick={() => handleActivePlan(item.plan_id)}
                                 className="p-2 text-green-500 hover:text-green-700 hover:scale-110 hover:bg-green-50 rounded-full transition-all duration-200"
                               >
-                                <FaCheck className="h-5 w-5" />
+                                <FaXmark className="h-5 w-5" />
                               </button>
                             )}
                           </div>

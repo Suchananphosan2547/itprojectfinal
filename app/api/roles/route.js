@@ -14,7 +14,7 @@ export async function GET(request) {
       return NextResponse.json({ message: 'Authorization token not provided.' }, { status: 401 });
     }
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/roles`, {
+    const response = await fetch(`${process.env.API_BASE_URL}/roles`, {
       headers: {
         'Authorization': accessToken,
       },

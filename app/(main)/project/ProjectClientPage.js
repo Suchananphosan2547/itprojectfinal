@@ -454,7 +454,7 @@ const ViewParticipantsModal = ({ isOpen, onClose, participants }) => {
 
   if (!isOpen) return null;
   return (
-    <div className="modal fixed inset-0 z-50 flex items-center justify-center backdrop-blur-xs">
+    <div className="modal fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-white/60 to-gray-200/50 p-4">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-4xl flex flex-col max-h-[90vh] project-section">
         <div className="flex justify-between items-center p-6 border-b flex-shrink-0">
           <h3 className="text-2xl font-bold text-slate-800">รายชื่อผู้ลงทะเบียน</h3>

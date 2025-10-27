@@ -12,7 +12,7 @@ const NewsCard = ({ news, currentUser, onEdit, onDelete }) => {
   const isPinned = news.news_pin === 'pin';
   const creatorName = (news.firstname && news.lastname) ? `${news.firstname} ${news.lastname}` : news.create_by;
   const formattedDate = new Date(news.create_at).toLocaleString('th-TH', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-  const fileUrl = news.news_file ? `${process.env.NEXT_PUBLIC_API_URL}/api/news-files/${news.news_file}` : null;
+  const fileUrl = news.news_file ? `${process.env.API_BASE_URL}/api/news-files/${news.news_file}` : null;
 
   const canModify = currentUser && (currentUser.role_id === 3 || currentUser.role_id === 2);
 
@@ -379,9 +379,9 @@ export default function NewsClientPage({ disableCrud = false }) {
         setCurrentUser(user);
       }
 
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/news`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
+const response = await axios.get(`/api/news`, { 
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
       setNews(response.data.data || []);
     } catch (err) {
       setError(err.response?.data?.message || err.message || 'Failed to fetch news.');
@@ -401,11 +401,11 @@ export default function NewsClientPage({ disableCrud = false }) {
         Swal.fire('Error', 'Access token not found. Please log in.', 'error');
         return;
       }
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/create-news`, formData, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
+await axios.post('/api/create-news', formData, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`, 
+        },
+      });
       Swal.fire('สำเร็จ', 'เพิ่มข่าวใหม่สำเร็จ', 'success');
       fetchNews();
       setIsAddModalOpen(false);
@@ -428,11 +428,11 @@ export default function NewsClientPage({ disableCrud = false }) {
         return;
       }
 
-      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/news/${newsId}`, formData, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
+await axios.put(`/api/news/${newsId}`, formData, { // เปลี่ยนเป็นเรียก API ภายใน Next.js
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
 
       Swal.fire({
         title: 'บันทึกการแก้ไข',
@@ -480,9 +480,9 @@ export default function NewsClientPage({ disableCrud = false }) {
             return;
           }
 
-          await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/news/${newsId}`, {
-            headers: { Authorization: `Bearer ${accessToken}` },
-          });
+await axios.delete(`/api/news/${newsId}`, { // เปลี่ยนเป็นเรียก API ภายใน Next.js
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
 
           Swal.fire({
             title: 'ลบสำเร็จ',

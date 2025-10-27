@@ -447,6 +447,7 @@ const DocumentsClientPage = () => {
     const [selectedProjectForReport, setSelectedProjectForReport] = useState(null);
 
     const API_HEADERS = useMemo(() => ({ 'Authorization': `Bearer ${Cookies.get('accessToken')}` }), []);
+    const apiBaseUrl = process.env.API_BASE_URL || '';
 
     const fetchProjects = useCallback(async () => {
         setLoading(true);

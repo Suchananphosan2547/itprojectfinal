@@ -14,7 +14,7 @@ export async function PUT(request, { params }) {
       return NextResponse.json({ message: 'Access token not found.' }, { status: 401 });
     }
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/active-fiscal-year/${fiscal_id}`, {
+    const response = await fetch(`${process.env.API_BASE_URL}/active-fiscal-year/${fiscal_id}`, {
       method: 'PUT',
       headers: {
         'Authorization': accessToken,

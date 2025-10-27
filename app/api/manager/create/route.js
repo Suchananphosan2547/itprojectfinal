@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
-const EXTERNAL_API_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+const EXTERNAL_API_URL = process.env.API_BASE_URL;
 
 export async function POST(request) {
     let accessToken = request.headers.get('authorization');
@@ -17,7 +17,7 @@ export async function POST(request) {
     try {
         const body = await request.json();
 
-        const response = await fetch(`${EXTERNAL_API_URL}/create-manager`, {
+        const response = await fetch(`${EXTERNAL_API_URL}/manager`, {
             method: 'POST',
             headers: {
                 'Authorization': accessToken,
