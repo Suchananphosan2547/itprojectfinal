@@ -24,9 +24,11 @@ export default function LayoutWrapper({ children, user, sidebarItems }) {
       } else if (user.lastname) {
         setUserName(user.lastname);
       }
-    } else {
+  } else {
+    setTimeout(() => {
       handleLogout();
-    }
+    }, 300);
+  }
 
     const checkScreenSize = () => {
       setIsSmallScreen(window.innerWidth < 768); // Tailwind's md breakpoint

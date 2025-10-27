@@ -1200,18 +1200,18 @@ export default function ProjectClientPage() {
         title: 'สำเร็จ',
         text: 'โครงการถูกสร้างสำเร็จ',
         icon: 'success',
-        confirmButtonText: 'ตกลง' 
+        confirmButtonText: 'ตกลง'
       });
 
-      fetchProjects(filters, { ...pagination, currentPage: 1 }); 
+      fetchProjects(filters, { ...pagination, currentPage: 1 });
     } catch (err) {
       console.error('Error creating project:', err);
 
       Swal.fire({
-        title: 'เกิดข้อผิดพลาด', 
-        text: err.response?.data?.message || 'ล้มเหลวในการสร้างโครงการ', 
+        title: 'เกิดข้อผิดพลาด',
+        text: err.response?.data?.message || 'ล้มเหลวในการสร้างโครงการ',
         icon: 'error',
-        confirmButtonText: 'ตกลง' 
+        confirmButtonText: 'ตกลง'
       });
 
       throw err;
@@ -1258,18 +1258,18 @@ export default function ProjectClientPage() {
         title: 'สำเร็จ',
         text: 'โครงการถูกแก้ไขเรียบร้อยแล้ว',
         icon: 'success',
-        confirmButtonText: 'ตกลง' 
+        confirmButtonText: 'ตกลง'
       });
 
-      fetchProjects(filters, pagination); 
+      fetchProjects(filters, pagination);
     } catch (err) {
       console.error('Error updating project:', err);
 
       Swal.fire({
-        title: 'เกิดข้อผิดพลาด', 
-        text: err.response?.data?.message || 'ล้มเหลวในการแก้ไขโครงการ', 
+        title: 'เกิดข้อผิดพลาด',
+        text: err.response?.data?.message || 'ล้มเหลวในการแก้ไขโครงการ',
         icon: 'error',
-        confirmButtonText: 'ตกลง' 
+        confirmButtonText: 'ตกลง'
       });
 
       throw err;
@@ -1293,9 +1293,9 @@ export default function ProjectClientPage() {
           if (!accessToken) {
             Swal.fire({
               title: 'เกิดข้อผิดพลาด',
-              text: 'ไม่พบ Access token กรุณาเข้าสู่ระบบใหม่', 
+              text: 'ไม่พบ Access token กรุณาเข้าสู่ระบบใหม่',
               icon: 'error',
-              confirmButtonText: 'ตกลง' 
+              confirmButtonText: 'ตกลง'
             });
             return;
           }
@@ -1307,21 +1307,21 @@ export default function ProjectClientPage() {
           });
 
           Swal.fire({
-            title: 'ลบข้อมูลสำเร็จ', 
-            text: 'โครงการถูกลบเรียบร้อยแล้ว', 
+            title: 'ลบข้อมูลสำเร็จ',
+            text: 'โครงการถูกลบเรียบร้อยแล้ว',
             icon: 'success',
-            confirmButtonText: 'ตกลง' 
+            confirmButtonText: 'ตกลง'
           });
 
-          fetchProjects(filters, { ...pagination, currentPage: 1 }); 
+          fetchProjects(filters, { ...pagination, currentPage: 1 });
         } catch (err) {
           console.error('Error deleting project:', err);
 
           Swal.fire({
-            title: 'เกิดข้อผิดพลาด', 
-            text: err.response?.data?.message || 'ล้มเหลวในการลบโครงการ', 
+            title: 'เกิดข้อผิดพลาด',
+            text: err.response?.data?.message || 'ล้มเหลวในการลบโครงการ',
             icon: 'error',
-            confirmButtonText: 'ตกลง' 
+            confirmButtonText: 'ตกลง'
           });
         }
       }
@@ -1339,16 +1339,16 @@ export default function ProjectClientPage() {
         title: 'สำเร็จ',
         text: 'สถานะโครงการถูกอัปเดตเรียบร้อยแล้ว',
         icon: 'success',
-        confirmButtonText: 'ตกลง' 
+        confirmButtonText: 'ตกลง'
       });
 
-      fetchProjects(filters, pagination); 
+      fetchProjects(filters, pagination);
     } catch (err) {
       Swal.fire({
-        title: 'เกิดข้อผิดพลาด', 
-        text: err.response?.data?.message || 'ล้มเหลวในการอัปเดตสถานะโครงการ', 
+        title: 'เกิดข้อผิดพลาด',
+        text: err.response?.data?.message || 'ล้มเหลวในการอัปเดตสถานะโครงการ',
         icon: 'error',
-        confirmButtonText: 'ตกลง' 
+        confirmButtonText: 'ตกลง'
       });
     }
   };
@@ -1364,16 +1364,16 @@ export default function ProjectClientPage() {
         title: 'สำเร็จ',
         text: 'สถานะการลงทะเบียนถูกอัปเดตเรียบร้อยแล้ว',
         icon: 'success',
-        confirmButtonText: 'ตกลง' 
+        confirmButtonText: 'ตกลง'
       });
 
       fetchProjects(filters, pagination); // Refresh projects to show updated status
     } catch (err) {
       Swal.fire({
-        title: 'เกิดข้อผิดพลาด', 
-        text: err.response?.data?.message || 'ล้มเหลวในการอัปเดตสถานะการลงทะเบียน', 
+        title: 'เกิดข้อผิดพลาด',
+        text: err.response?.data?.message || 'ล้มเหลวในการอัปเดตสถานะการลงทะเบียน',
         icon: 'error',
-        confirmButtonText: 'ตกลง' 
+        confirmButtonText: 'ตกลง'
       });
     }
   };
@@ -1389,8 +1389,8 @@ export default function ProjectClientPage() {
       const accessToken = Cookies.get('accessToken');
       if (!accessToken) {
         Swal.fire({
-          title: 'เกิดข้อผิดพลาด', 
-          text: 'ไม่พบ Access token กรุณาเข้าสู่ระบบใหม่', 
+          title: 'เกิดข้อผิดพลาด',
+          text: 'ไม่พบ Access token กรุณาเข้าสู่ระบบใหม่',
           icon: 'error',
           confirmButtonText: 'ตกลง'
         });
@@ -1409,9 +1409,9 @@ export default function ProjectClientPage() {
 
       Swal.fire({
         title: 'ลงทะเบียนสำเร็จ',
-        text: 'ลงทะเบียนโครงการเรียบร้อยแล้ว', 
+        text: 'ลงทะเบียนโครงการเรียบร้อยแล้ว',
         icon: 'success',
-        confirmButtonText: 'ตกลง' 
+        confirmButtonText: 'ตกลง'
       });
 
       fetchRegisteredProjects(currentUser.std_id); // Refresh registered projects
@@ -1420,10 +1420,10 @@ export default function ProjectClientPage() {
       console.error('Error registering for project:', err);
 
       Swal.fire({
-        title: 'เกิดข้อผิดพลาด', 
-        text: err.response?.data?.message || 'ล้มเหลวในการลงทะเบียน', 
+        title: 'เกิดข้อผิดพลาด',
+        text: err.response?.data?.message || 'ล้มเหลวในการลงทะเบียน',
         icon: 'error',
-        confirmButtonText: 'ตกลง' 
+        confirmButtonText: 'ตกลง'
       });
     }
   };
@@ -1444,10 +1444,10 @@ export default function ProjectClientPage() {
           const accessToken = Cookies.get('accessToken');
           if (!accessToken) {
             Swal.fire({
-              title: 'เกิดข้อผิดพลาด', 
-              text: 'ไม่พบ Access token กรุณาเข้าสู่ระบบใหม่', 
+              title: 'เกิดข้อผิดพลาด',
+              text: 'ไม่พบ Access token กรุณาเข้าสู่ระบบใหม่',
               icon: 'error',
-              confirmButtonText: 'ตกลง' 
+              confirmButtonText: 'ตกลง'
             });
             return;
           }
@@ -1457,10 +1457,10 @@ export default function ProjectClientPage() {
           });
 
           Swal.fire({
-            title: 'ยกเลิกสำเร็จ', 
+            title: 'ยกเลิกสำเร็จ',
             text: 'การลงทะเบียนถูกยกเลิกเรียบร้อยแล้ว',
             icon: 'success',
-            confirmButtonText: 'ตกลง' 
+            confirmButtonText: 'ตกลง'
           });
 
           fetchRegisteredProjects(currentUser.std_id); // Refresh registered projects
@@ -1469,10 +1469,10 @@ export default function ProjectClientPage() {
           console.error('Error unregistering from project:', err);
 
           Swal.fire({
-            title: 'เกิดข้อผิดพลาด', 
-            text: err.response?.data?.message || 'ล้มเหลวในการยกเลิกการลงทะเบียน', 
+            title: 'เกิดข้อผิดพลาด',
+            text: err.response?.data?.message || 'ล้มเหลวในการยกเลิกการลงทะเบียน',
             icon: 'error',
-            confirmButtonText: 'ตกลง' 
+            confirmButtonText: 'ตกลง'
           });
         }
       }

@@ -12,8 +12,7 @@ const NewsCard = ({ news, currentUser, onEdit, onDelete }) => {
   const isPinned = news.news_pin === 'pin';
   const creatorName = (news.firstname && news.lastname) ? `${news.firstname} ${news.lastname}` : news.create_by;
   const formattedDate = new Date(news.create_at).toLocaleString('th-TH', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-  const fileUrl = news.news_file ? `${process.env.API_BASE_URL}/api/news-files/${news.news_file}` : null;
-
+  const fileUrl = news.news_file ? `/api/news-files/${news.news_file}` : null;
   const canModify = currentUser && (currentUser.role_id === 3 || currentUser.role_id === 2);
 
   return (
@@ -21,7 +20,7 @@ const NewsCard = ({ news, currentUser, onEdit, onDelete }) => {
       <div className="p-6">
         <div className="flex justify-between items-start mb-3">
           <h3 className="text-2xl font-bold text-slate-800 flex-grow min-w-0 mr-4">
-            <span className="truncate block">{news.news_title}</span>
+            <span className="break-words">{news.news_title}</span>
           </h3>
           <div className="flex items-center space-x-2 flex-shrink-0">
             {isPinned && (
@@ -159,7 +158,7 @@ const AddNewsModal = ({ isOpen, onClose, onSave }) => {
                 htmlFor="new-file-upload-modern"
                 className="flex items-center justify-center gap-2 bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition duration-150 ease-in-out cursor-pointer flex-shrink-0 w-full sm:w-auto"
               >
-                <FaCloudArrowUp className="h-5 w-5" /> 
+                <FaCloudArrowUp className="h-5 w-5" />
                 เลือกไฟล์
               </label>
 
@@ -280,7 +279,7 @@ const EditNewsModal = ({ isOpen, onClose, onSave, newsItem }) => {
             <div className="mt-1 flex items-center p-3 border border-slate-300 rounded-lg bg-slate-50 justify-between transition duration-200">
               {currentFileName ? (
                 <div className="flex items-center space-x-3 w-full">
-                  <FaFilePdf className="h-6 w-6 text-red-500 flex-shrink-0" /> 
+                  <FaFilePdf className="h-6 w-6 text-red-500 flex-shrink-0" />
                   <span className="text-sm font-medium text-slate-700 truncate">{currentFileName}</span>
                   <button
                     type="button"
@@ -293,7 +292,7 @@ const EditNewsModal = ({ isOpen, onClose, onSave, newsItem }) => {
                 </div>
               ) : (
                 <span className="text-sm text-slate-500 flex items-center space-x-2">
-                  <FaFolderOpen className="h-5 w-5 text-slate-400" /> 
+                  <FaFolderOpen className="h-5 w-5 text-slate-400" />
                   <span>ไม่มีไฟล์แนบ</span>
                 </span>
               )}
@@ -317,7 +316,7 @@ const EditNewsModal = ({ isOpen, onClose, onSave, newsItem }) => {
                 htmlFor="new-file-upload-modern"
                 className="flex items-center justify-center gap-2 bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition duration-150 ease-in-out cursor-pointer flex-shrink-0 w-full sm:w-auto"
               >
-                <FaCloudArrowUp className="h-5 w-5" /> 
+                <FaCloudArrowUp className="h-5 w-5" />
                 เลือกไฟล์
               </label>
 
@@ -379,9 +378,9 @@ export default function NewsClientPage({ disableCrud = false }) {
         setCurrentUser(user);
       }
 
-const response = await axios.get(`/api/news`, { 
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
+      const response = await axios.get(`/api/news`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
       setNews(response.data.data || []);
     } catch (err) {
       setError(err.response?.data?.message || err.message || 'Failed to fetch news.');
@@ -401,11 +400,11 @@ const response = await axios.get(`/api/news`, {
         Swal.fire('Error', 'Access token not found. Please log in.', 'error');
         return;
       }
-await axios.post('/api/create-news', formData, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`, 
-        },
-      });
+      await axios.post('/api/create-news', formData, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
       Swal.fire('สำเร็จ', 'เพิ่มข่าวใหม่สำเร็จ', 'success');
       fetchNews();
       setIsAddModalOpen(false);
@@ -428,11 +427,11 @@ await axios.post('/api/create-news', formData, {
         return;
       }
 
-await axios.put(`/api/news/${newsId}`, formData, { // เปลี่ยนเป็นเรียก API ภายใน Next.js
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
+      await axios.put(`/api/news/${newsId}`, formData, { // เปลี่ยนเป็นเรียก API ภายใน Next.js
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
 
       Swal.fire({
         title: 'บันทึกการแก้ไข',
@@ -480,9 +479,9 @@ await axios.put(`/api/news/${newsId}`, formData, { // เปลี่ยนเ�
             return;
           }
 
-await axios.delete(`/api/news/${newsId}`, { // เปลี่ยนเป็นเรียก API ภายใน Next.js
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
+          await axios.delete(`/api/news/${newsId}`, { // เปลี่ยนเป็นเรียก API ภายใน Next.js
+            headers: { Authorization: `Bearer ${accessToken}` },
+          });
 
           Swal.fire({
             title: 'ลบสำเร็จ',

@@ -131,7 +131,7 @@ const AddUserModal = ({ isOpen, onClose, onSave, currentUser, faculties, roles }
       }
       try {
         const accessToken = Cookies.get('accessToken');
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/major/${facultyId}`, {
+        const response = await axios.get(`${API_BASE_URL}/api/major/${facultyId}`, {
           headers: { Authorization: `Bearer ${accessToken}` },
         });
         const fetchedMajors = response.data.data || [];
@@ -188,8 +188,20 @@ const AddUserModal = ({ isOpen, onClose, onSave, currentUser, faculties, roles }
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const allowedDomains = [
+      'gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com', 'live.com',
+      'icloud.com', 'edu.th', 'ac.th', 'company.com', 'ku.ac.th', 'ku.th' // เพิ่มโดเมนที่อนุญาตได้
+    ];
+
     if (!emailRegex.test(email)) {
       setError('รูปแบบอีเมลไม่ถูกต้อง');
+      return;
+    }
+
+    const domain = email.split('@')[1].toLowerCase();
+    const isValidDomain = allowedDomains.some(allowed => domain.endsWith(allowed));
+    if (!isValidDomain) {
+      setError('กรุณาใช้อีเมลที่ถูกต้อง เช่น Gmail, Outlook, Yahoo หรืออีเมลองค์กร');
       return;
     }
 
@@ -332,7 +344,7 @@ const EditUserModal = ({ isOpen, onClose, onSave, userItem, currentUser, roles, 
       }
       try {
         const accessToken = Cookies.get('accessToken');
-        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/major/${facultyId}`, {
+        const response = await axios.get(`${API_BASE_URL}/api/major/${facultyId}`, {
           headers: { Authorization: `Bearer ${accessToken}` },
         });
         setModalMajors(response.data.data || []);
@@ -365,8 +377,20 @@ const EditUserModal = ({ isOpen, onClose, onSave, userItem, currentUser, roles, 
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const allowedDomains = [
+      'gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com', 'live.com',
+      'icloud.com', 'edu.th', 'ac.th', 'company.com', 'ku.ac.th', 'ku.th' // เพิ่มโดเมนที่อนุญาตได้
+    ];
+
     if (!emailRegex.test(email)) {
       setError('รูปแบบอีเมลไม่ถูกต้อง');
+      return;
+    }
+
+    const domain = email.split('@')[1].toLowerCase();
+    const isValidDomain = allowedDomains.some(allowed => domain.endsWith(allowed));
+    if (!isValidDomain) {
+      setError('กรุณาใช้อีเมลที่ถูกต้อง เช่น Gmail, Outlook, Yahoo หรืออีเมลองค์กร');
       return;
     }
 
@@ -627,6 +651,7 @@ export default function ManageUserClientPage() {
   const [selectedMajor, setSelectedMajor] = useState('');
   const [currentUser, setCurrentUser] = useState(null);
 
+  // ฟังก์ชันเรียกข้อมูล
   const fetchUsersAndInitialData = useCallback(async (page, search, role = '', facultyId = '', majorId = '') => {
     setLoading(true);
     setError(null);
@@ -635,7 +660,6 @@ export default function ManageUserClientPage() {
       if (!accessToken) throw new Error('Access token not found.');
 
       const config = { headers: { Authorization: `Bearer ${accessToken}` } };
-      //const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
 
       const [usersRes, rolesRes, facultiesRes] = await Promise.all([
         axios.get(`/api/users`, { params: { page, search, role, faculty_id: facultyId, major_id: majorId }, ...config }),
@@ -665,7 +689,7 @@ export default function ManageUserClientPage() {
     try {
       const accessToken = Cookies.get('accessToken');
       if (!accessToken) throw new Error('Access token not found.');
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/major/${facultyId}`, {
+      const response = await axios.get(`${API_BASE_URL}/api/major/${facultyId}`, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       setMajors(response.data.data || []);
@@ -700,10 +724,11 @@ export default function ManageUserClientPage() {
     }
   }, [selectedFaculty]);
 
+  // ฟังก์ชันเพิ่มผู้ใช้
   const handleAddUser = async (userData) => {
     try {
       const accessToken = Cookies.get('accessToken');
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/users`, [userData], {
+      await axios.post(`${API_BASE_URL}/api/users`, [userData], {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
 
@@ -727,15 +752,11 @@ export default function ManageUserClientPage() {
     }
   };
 
-  const handleBulkAddUser = async (file) => {
-    // This function can be filled in later
-  };
-
   const handleEditUser = async (username, updatedData) => {
     try {
       const accessToken = Cookies.get('accessToken');
       await axios.put(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/users/${username}`,
+        `${API_BASE_URL}/api/users/${username}`,
         updatedData,
         {
           headers: { Authorization: `Bearer ${accessToken}` },
@@ -767,20 +788,17 @@ export default function ManageUserClientPage() {
     }
   };
 
-
   const handleActiveUser = async (username) => {
     try {
       const accessToken = Cookies.get('accessToken');
       if (!accessToken) throw new Error('Access token not found.');
       const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/active-account/${username}`,
+        `${API_BASE_URL}/api/active-account/${username}`,
         {},
         {
           headers: { Authorization: `Bearer ${accessToken}` },
         }
       );
-
-      const newStatus = response.data.data?.is_active ? 'เปิดใช้งาน' : 'ระงับการใช้งาน';
 
       Swal.fire({
         title: 'สำเร็จ',
@@ -823,7 +841,7 @@ export default function ManageUserClientPage() {
           if (!accessToken) throw new Error('Access token not found.');
 
           await axios.delete(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/users/${username}`,
+            `${API_BASE_URL}/api/users/${username}`,
             {
               headers: { Authorization: `Bearer ${accessToken}` },
             }
@@ -835,6 +853,7 @@ export default function ManageUserClientPage() {
             icon: 'success',
             confirmButtonText: 'ตกลง'
           });
+
           fetchUsersAndInitialData(1, searchTerm, selectedRole, selectedFaculty, selectedMajor);
 
         } catch (err) {
@@ -848,11 +867,19 @@ export default function ManageUserClientPage() {
     });
   };
 
+  // **เรียงรหัสนิสิตจากมากไปน้อย**
+  const sortedUsers = [...users].sort((a, b) => {
+    const aId = a.std_id ? parseInt(a.std_id, 10) : 0;
+    const bId = b.std_id ? parseInt(b.std_id, 10) : 0;
+    return bId - aId;
+  });
+
   return (
     <div className="bg-gray-100 min-h-screen py-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
         <header className="mb-6 px-2 sm:px-0">
           <h1 className="text-2xl font-bold text-gray-800">จัดการสมาชิก</h1>
+          {/* ปุ่มเพิ่มผู้ใช้ */}
           <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 mt-4">
             <button
               onClick={() => setIsAddModalOpen(true)}
@@ -870,20 +897,20 @@ export default function ManageUserClientPage() {
         </header>
 
         <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+          {/* ค้นหา + ฟิลเตอร์ */}
           <div className="flex flex-wrap items-center mb-4 gap-4">
             <div className="relative flex-grow min-w-[200px]">
               <FaMagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
                 placeholder="ค้นหารายชื่อ..."
-                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg transition duration-150 ease-in-out focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 shadow-sm"
+                className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-
+            {/* ตัวกรอง Role / Faculty / Major */}
             {currentUser?.role_id === 3 && (
-
               <div className="flex-shrink-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 w-full sm:w-auto">
                 <select
                   value={selectedRole}
@@ -892,9 +919,7 @@ export default function ManageUserClientPage() {
                 >
                   <option value="">ทั้งหมด (ตำแหน่ง)</option>
                   {roles.map((role) => (
-                    <option key={role.role_id} value={role.role_id}>
-                      {role.role_name}
-                    </option>
+                    <option key={role.role_id} value={role.role_id}>{role.role_name}</option>
                   ))}
                 </select>
                 <select
@@ -907,9 +932,7 @@ export default function ManageUserClientPage() {
                 >
                   <option value="">ทั้งหมด (คณะ)</option>
                   {faculties.map((faculty) => (
-                    <option key={faculty.faculty_id} value={faculty.faculty_id}>
-                      {faculty.faculty_name}
-                    </option>
+                    <option key={faculty.faculty_id} value={faculty.faculty_id}>{faculty.faculty_name}</option>
                   ))}
                 </select>
                 <select
@@ -920,9 +943,7 @@ export default function ManageUserClientPage() {
                 >
                   <option value="">ทั้งหมด (สาขา)</option>
                   {majors.map((major) => (
-                    <option key={major.major_id} value={major.major_id}>
-                      {major.major_name}
-                    </option>
+                    <option key={major.major_id} value={major.major_id}>{major.major_name}</option>
                   ))}
                 </select>
               </div>
@@ -934,29 +955,28 @@ export default function ManageUserClientPage() {
             <p className="text-center p-6">กำลังโหลดข้อมูล...</p>
           ) : error ? (
             <p className="text-center p-6 text-red-500">Error: {error}</p>
-          ) : users.length === 0 ? (
+          ) : sortedUsers.length === 0 ? (
             <div className="text-center p-10 text-gray-500">
               <FaCircleInfo className="mx-auto text-4xl mb-2" />
               <p>ไม่พบข้อมูลสมาชิก</p>
             </div>
           ) : (
             <>
+              {/* Mobile view */}
               <div className="space-y-4 md:hidden">
-                {users.map((user) => (
+                {sortedUsers.map((user) => (
                   <UserCard
                     key={user.username}
                     user={user}
                     currentUser={currentUser}
-                    onEdit={() => {
-                      setSelectedUser(user);
-                      setIsEditModalOpen(true);
-                    }}
+                    onEdit={() => { setSelectedUser(user); setIsEditModalOpen(true); }}
                     onActivate={() => handleActiveUser(user.username)}
                     onDelete={() => handleRemoveUser(user.username)}
                   />
                 ))}
               </div>
 
+              {/* Desktop table */}
               <div className="hidden md:block overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-teal-600">
@@ -985,15 +1005,12 @@ export default function ManageUserClientPage() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {users.map((user) => (
+                    {sortedUsers.map((user) => (
                       <UserTableRow
                         key={user.username}
                         user={user}
                         currentUser={currentUser}
-                        onEdit={() => {
-                          setSelectedUser(user);
-                          setIsEditModalOpen(true);
-                        }}
+                        onEdit={() => { setSelectedUser(user); setIsEditModalOpen(true); }}
                         onActivate={() => handleActiveUser(user.username)}
                         onDelete={() => handleRemoveUser(user.username)}
                       />
@@ -1054,7 +1071,7 @@ export default function ManageUserClientPage() {
         <BulkAddUserModal
           isOpen={isBulkAddModalOpen}
           onClose={() => setIsBulkAddModalOpen(false)}
-          onSave={handleBulkAddUser}
+          onSave={() => { }}
         />
       </div>
     </div>

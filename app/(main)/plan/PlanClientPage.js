@@ -122,7 +122,7 @@ export default function PlanClientPage() {
         title: 'เกิดข้อผิดพลาด',
         text: err.response?.data?.message || 'ล้มเหลวในการแก้ไขแผนงาน',
         icon: 'error',
-        confirmButtonText: 'ตกลง' 
+        confirmButtonText: 'ตกลง'
       });
 
       throw err;
@@ -135,8 +135,8 @@ export default function PlanClientPage() {
       text: "คุณต้องการปิดใช้งานแผนงานนี้หรือไม่?",
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#d33', 
-      cancelButtonColor: '#3085d6', 
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
       confirmButtonText: 'ยืนยัน',
       cancelButtonText: 'ยกเลิก'
     }).then(async (result) => {
@@ -149,7 +149,7 @@ export default function PlanClientPage() {
             title: 'สำเร็จ',
             text: 'แผนงานถูกปิดใช้งานแล้ว',
             icon: 'success',
-            confirmButtonText: 'ตกลง' 
+            confirmButtonText: 'ตกลง'
           });
 
           fetchPlans();
@@ -159,7 +159,7 @@ export default function PlanClientPage() {
             title: 'เกิดข้อผิดพลาด',
             text: err.response?.data?.message || 'ล้มเหลวในการลบแผนงาน',
             icon: 'error',
-            confirmButtonText: 'ตกลง' 
+            confirmButtonText: 'ตกลง'
           });
         }
       }
@@ -389,8 +389,8 @@ export default function PlanClientPage() {
                           <div className="flex justify-center">
                             <span
                               className={`inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full ${item.plan_status === "active"
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-gray-100 text-gray-600"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-gray-100 text-gray-600"
                                 }`}
                             >
                               {item.plan_status === "active" ? "เปิดใช้งาน" : "ปิดใช้งาน"}

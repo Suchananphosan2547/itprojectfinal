@@ -532,7 +532,7 @@ const DocumentsClientPage = () => {
                 title: 'สำเร็จ',
                 text: 'เอกสารโครงการถูกบันทึกแล้ว',
                 icon: 'success',
-                confirmButtonText: 'ตกลง', 
+                confirmButtonText: 'ตกลง',
             });
 
             setIsReportModalOpen(false);
@@ -543,7 +543,7 @@ const DocumentsClientPage = () => {
                 title: 'ผิดพลาด',
                 text: err.response?.data?.message || 'ไม่สามารถบันทึกข้อมูลได้',
                 icon: 'error',
-                confirmButtonText: 'ตกลง', 
+                confirmButtonText: 'ตกลง',
             });
         }
     };

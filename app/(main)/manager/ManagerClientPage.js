@@ -47,7 +47,7 @@ const validateManagerData = (data) => {
         return 'รหัสไปรษณีย์ไม่ถูกต้อง';
     }
 
-    return null; 
+    return null;
 };
 
 // --- Manager Card Component (for mobile view) ---
@@ -155,7 +155,7 @@ const ManagerFormFields = ({ managerData, setManagerData, isEditMode = false, ma
         setSelectedDistrictId(districtId);
     };
 
-const handleChange = (e) => {
+    const handleChange = (e) => {
         const { name, value } = e.target;
         setManagerData(prev => ({ ...prev, [name]: value }));
     };
@@ -164,11 +164,11 @@ const handleChange = (e) => {
         <div className="space-y-4">
             <div>
                 <label className="block text-sm font-medium text-slate-700">ตำแหน่ง (ยศ) <span className="text-red-500">*</span></label>
-                <select 
-                    name="manager_rank_id" 
-                    value={managerData.manager_rank_id || ''} 
-                    onChange={handleChange} 
-                    className="mt-1 block w-full border-slate-300 rounded-md shadow-sm p-2" 
+                <select
+                    name="manager_rank_id"
+                    value={managerData.manager_rank_id || ''}
+                    onChange={handleChange}
+                    className="mt-1 block w-full border-slate-300 rounded-md shadow-sm p-2"
                     required
                 >
                     <option value="">เลือกตำแหน่ง</option>
@@ -325,21 +325,21 @@ const AddManagerModal = ({ isOpen, onClose, onAdd, currentUser, faculties, major
 // --- Edit Manager Modal Component ---
 const EditManagerModal = ({ isOpen, onClose, onUpdate, managerItem, managerRanks }) => {
     const [managerData, setManagerData] = useState({});
-    const [error, setError] = useState(''); 
+    const [error, setError] = useState('');
     useEffect(() => {
         setManagerData(managerItem || {});
-        setError(''); 
+        setError('');
     }, [managerItem]);
 
     if (!isOpen || !managerItem) return null;
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError(''); 
+        setError('');
 
         const validationError = validateManagerData(managerData);
         if (validationError) {
-            setError(validationError); 
+            setError(validationError);
             return;
         }
 
@@ -359,7 +359,7 @@ const EditManagerModal = ({ isOpen, onClose, onUpdate, managerItem, managerRanks
                     <button onClick={onClose} className="text-slate-400 hover:text-slate-700 text-2xl">&times;</button>
                 </div>
                 <form id="editManagerForm" className="space-y-4 p-6 overflow-y-auto" onSubmit={handleSubmit}>
-                    <ManagerFormFields managerData={managerData} setManagerData={setManagerData} isEditMode={true} managerRanks={managerRanks}/>
+                    <ManagerFormFields managerData={managerData} setManagerData={setManagerData} isEditMode={true} managerRanks={managerRanks} />
                     <div><label className="block text-sm font-medium text-slate-700">คณะ</label><div className="mt-1 block w-full border-slate-200 rounded-md bg-slate-100 p-2">{managerItem?.faculty_name || '-'}</div></div>
                     <div><label className="block text-sm font-medium text-slate-700">สาขา</label><div className="mt-1 block w-full border-slate-200 rounded-md bg-slate-100 p-2">{managerItem?.major_name || '-'}</div></div>
                     {error && <div className="text-red-600 text-sm p-3 bg-red-50 rounded-lg">{error}</div>}
@@ -397,20 +397,20 @@ export default function ManagerClientPage() {
             const config = { headers: { Authorization: `Bearer ${accessToken}` } };
             //const apiBaseUrl = process.env.API_BASE_URL;
 
-            
 
-// 1. Fetch managers, faculties, AND manager ranks
+
+            // 1. Fetch managers, faculties, AND manager ranks
             const [managersRes, facultiesRes, ranksRes] = await Promise.all([ // 💡 เพิ่ม ranksRes
                 axios.get(`/api/manager`, config),
                 axios.get(`/api/faculty`, config),
                 axios.get(`/api/manager-rank`, config)
             ]);
-            
+
             const fetchedManagers = managersRes.data.data || [];
             const fetchedFaculties = facultiesRes.data.data || [];
             // 💡 ตั้งค่า Manager Ranks
-            const fetchedRanks = ranksRes.data.data || []; 
-            
+            const fetchedRanks = ranksRes.data.data || [];
+
             setFaculties(fetchedFaculties);
             setManagerRanks(fetchedRanks); // 💡 ตั้งค่า State
 
@@ -472,11 +472,23 @@ export default function ManagerClientPage() {
             const accessToken = Cookies.get('accessToken');
             const config = { headers: { Authorization: `Bearer ${accessToken}` } };
             const response = await axios.post(`/api/manager/create`, dataToSend, config);
-            Swal.fire({ icon: 'success', title: 'สำเร็จ', text: response.data.message });
+
+            Swal.fire({
+                icon: 'success',
+                title: 'สำเร็จ',
+                text: 'เพิ่มอาจารย์ประจำสาขาสำเร็จ',
+                confirmButtonText: 'ตกลง',
+            });
+
             setIsAddModalOpen(false);
             fetchData();
         } catch (err) {
-            Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด!', text: err.response?.data?.message || err.message });
+            Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด!',
+                text: err.response?.data?.message || err.message,
+                confirmButtonText: 'ตกลง',
+            });
         }
     };
 
@@ -485,11 +497,23 @@ export default function ManagerClientPage() {
             const accessToken = Cookies.get('accessToken');
             const config = { headers: { Authorization: `Bearer ${accessToken}` } };
             const response = await axios.put(`/api/manager/${managerId}`, managerData, config);
-            Swal.fire({ icon: 'success', title: 'สำเร็จ', text: response.data.message });
+
+            Swal.fire({
+                icon: 'success',
+                title: 'สำเร็จ',
+                text: 'บันทึกการแก้ไขเรียบร้อยแล้ว',
+                confirmButtonText: 'ตกลง'
+            });
+
             setIsEditModalOpen(false);
             fetchData();
         } catch (err) {
-            Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด!', text: err.response?.data?.message || err.message });
+            Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด!',
+                text: err.response?.data?.message || err.message,
+                confirmButtonText: 'ตกลง'
+            });
         }
     };
 
@@ -509,10 +533,21 @@ export default function ManagerClientPage() {
                     const accessToken = Cookies.get('accessToken');
                     const config = { headers: { Authorization: `Bearer ${accessToken}` } };
                     await axios.delete(`/api/manager/${managerId}`, config);
-                    Swal.fire({ icon: 'success', title: 'ลบสำเร็จ', text: 'ข้อมูลถูกลบเรียบร้อยแล้ว' });
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'สำเร็จ',
+                        text: 'อาจารย์ประจำสาขาถูกลบเรียบร้อยแล้ว',
+                        confirmButtonText: 'ตกลง'
+                    });
                     fetchData();
                 } catch (err) {
-                    Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด!', text: err.response?.data?.message || err.message });
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาด!',
+                        text: err.response?.data?.message || err.message,
+                        confirmButtonText: 'ตกลง'
+                    });
                 }
             }
         });

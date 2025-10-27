@@ -424,50 +424,50 @@ const AdminManageSurvey = ({ assessment, onBack, onQuestionSaved }) => {
         }
     };
 
- const handleDeleteQuestion = (questionId) => {
-    // 💡 ข้อควรระวัง: ตรวจสอบว่า questionId ไม่เป็นค่าว่างก่อนเริ่มกระบวนการลบ
-    if (!questionId) {
-        Swal.fire('Error', 'Question ID is missing (Frontend Error)', 'error');
-        return;
-    }
-
-    Swal.fire({
-        title: 'ยืนยันการลบข้อมูล',
-        text: 'คุณต้องการลบหัวข้อประเมินนี้ใช่หรือไม่?',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'ตกลง',
-        cancelButtonText: 'ยกเลิก'
-    }).then(async (result) => {
-        if (result.isConfirmed) {
-            try {
-                const accessToken = Cookies.get('accessToken');
-                if (!accessToken) {
-                    Swal.fire('Error', 'ไม่พบโทเค็นการเข้าถึง กรุณาเข้าสู่ระบบ', 'error');
-                    return;
-                }
-
-                // การเรียก API ที่ใช้ questionId ที่ได้รับมา
-                const response = await axios.delete(`/api/question-complacence/delete-question/${questionId}`, {
-                    headers: { Authorization: `Bearer ${accessToken}` }
-                });
-
-                if (response.status === 200) {
-                    const updatedQuestions = questions.filter(q => q.questions_id !== questionId);
-                    setQuestions(updatedQuestions);
-                    Swal.fire('สำเร็จ', 'ลบหัวข้อประเมินสำเร็จ', 'success');
-                } else {
-                    Swal.fire('Error', response.data.message || 'Failed to delete question.', 'error');
-                }
-            } catch (error) {
-                console.error("Error deleting question:", error);
-                Swal.fire('Error', error.response?.data?.message || 'Failed to delete question.', 'error');
-            }
+    const handleDeleteQuestion = (questionId) => {
+        // 💡 ข้อควรระวัง: ตรวจสอบว่า questionId ไม่เป็นค่าว่างก่อนเริ่มกระบวนการลบ
+        if (!questionId) {
+            Swal.fire('Error', 'Question ID is missing (Frontend Error)', 'error');
+            return;
         }
-    });
-};
+
+        Swal.fire({
+            title: 'ยืนยันการลบข้อมูล',
+            text: 'คุณต้องการลบหัวข้อประเมินนี้ใช่หรือไม่?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'ตกลง',
+            cancelButtonText: 'ยกเลิก'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const accessToken = Cookies.get('accessToken');
+                    if (!accessToken) {
+                        Swal.fire('Error', 'ไม่พบโทเค็นการเข้าถึง กรุณาเข้าสู่ระบบ', 'error');
+                        return;
+                    }
+
+                    // การเรียก API ที่ใช้ questionId ที่ได้รับมา
+                    const response = await axios.delete(`/api/question-complacence/delete-question/${questionId}`, {
+                        headers: { Authorization: `Bearer ${accessToken}` }
+                    });
+
+                    if (response.status === 200) {
+                        const updatedQuestions = questions.filter(q => q.questions_id !== questionId);
+                        setQuestions(updatedQuestions);
+                        Swal.fire('สำเร็จ', 'ลบหัวข้อประเมินสำเร็จ', 'success');
+                    } else {
+                        Swal.fire('Error', response.data.message || 'Failed to delete question.', 'error');
+                    }
+                } catch (error) {
+                    console.error("Error deleting question:", error);
+                    Swal.fire('Error', error.response?.data?.message || 'Failed to delete question.', 'error');
+                }
+            }
+        });
+    };
 
     const openEditModal = (question) => {
         setSelectedQuestion(question);

@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
 import { Cell } from 'recharts';
 import { FaExclamationTriangle, FaSearch, FaFileExcel, FaTimesCircle } from 'react-icons/fa';
-import {Line,Bar,CartesianGrid,XAxis,YAxis,Tooltip,Legend,ResponsiveContainer,ComposedChart,} from 'recharts';
+import { Line, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, ComposedChart, } from 'recharts';
 import Cookies from 'js-cookie';
 import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
@@ -94,7 +94,7 @@ const DashboardClientPage = () => {
         const COMMON_FONT = { name: 'TH Sarabun New', size: 14 };
 
         try {
-            
+
             const params = new URLSearchParams({
                 search: filters.search,
                 fiscal_id: filters.fiscal_id,
@@ -111,7 +111,7 @@ const DashboardClientPage = () => {
                 return;
             }
 
-            
+
             const workbook = new ExcelJS.Workbook();
             const worksheet = workbook.addWorksheet('รายงานงบประมาณ');
             worksheet.columns = [
@@ -178,7 +178,7 @@ const DashboardClientPage = () => {
         }
     };
 
-    
+
     useEffect(() => {
         const accessToken = Cookies.get('accessToken');
         if (!accessToken) {
@@ -189,13 +189,13 @@ const DashboardClientPage = () => {
         fetchInitialData();
     }, [fetchInitialData]);
 
-    
+
     useEffect(() => {
-        
+
         if (!initialLoading && !initialFiltersSet) {
             setFilters(prev => ({
                 ...prev,
-                
+
                 fiscal_id: defaultFiscalId,
                 plan_id: defaultPlanId
             }));
@@ -204,16 +204,16 @@ const DashboardClientPage = () => {
     }, [initialLoading, defaultFiscalId, defaultPlanId, setFilters, initialFiltersSet]);
 
 
-    
+
     useEffect(() => {
         if (initialFiltersSet) {
             fetchDashboardData();
         }
     }, [fetchDashboardData, initialFiltersSet]);
 
-    
+
     useEffect(() => {
-        setSearchTerm(filters.search); 
+        setSearchTerm(filters.search);
     }, [filters.search]);
 
     useEffect(() => {
@@ -225,7 +225,7 @@ const DashboardClientPage = () => {
         return () => { clearTimeout(handler); };
     }, [searchTerm]);
 
-    
+
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
         if (name === 'search') {
@@ -236,12 +236,12 @@ const DashboardClientPage = () => {
         }
     };
 
-    
+
     const handleClearFilters = () => {
         setFilters({
             search: '',
-            fiscal_id: '', 
-            plan_id: '', 
+            fiscal_id: '',
+            plan_id: '',
             program_type: ''
         });
         setSearchTerm('');
@@ -253,7 +253,7 @@ const DashboardClientPage = () => {
         return new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(value);
     };
 
-    
+
     const chartData = useMemo(() => projects.map(project => ({
         name: project.project_title,
         'งบประมาณที่ได้รับจัดสรร': project.allocated_budget || 0,
@@ -273,15 +273,15 @@ const DashboardClientPage = () => {
         <div className="min-h-screen p-4 sm:p-8 bg-gray-50 font-sans">
             <div className="max-w-7xl mx-auto">
 
-                
+
                 <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center md:text-left">
                     โครงการและงบประมาณที่ใช้
                 </h1>
 
-                
+
                 <div className="bg-white rounded-lg shadow-md p-6 mb-6">
 
-                    
+
                     <div className="mb-4 md:mb-5">
                         <label className="block text-sm font-medium text-gray-700 mb-1">ค้นหาโครงการ</label>
                         <div className="relative">
@@ -291,34 +291,34 @@ const DashboardClientPage = () => {
                                 placeholder="พิมพ์ชื่อโครงการ..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                
+
                                 className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg transition duration-150 ease-in-out focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 shadow-sm"
                             />
-                            
+
                             {searchTerm && (
                                 <button
                                     onClick={() => setSearchTerm('')}
                                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 transition duration-150"
                                 >
-                                    
-                                    
+
+
                                     &#x2715;
                                 </button>
                             )}
                         </div>
                     </div>
 
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-4">
 
-                        
+
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">ปีงบประมาณ</label>
                             <select
                                 name="fiscal_id"
                                 value={filters.fiscal_id}
                                 onChange={handleFilterChange}
-                                
+
                                 className="w-full px-3 py-2.5 border border-gray-300 rounded-lg shadow-sm transition duration-150 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600"
                             >
                                 <option value="">ทั้งหมด</option>
@@ -330,14 +330,14 @@ const DashboardClientPage = () => {
                             </select>
                         </div>
 
-                        
+
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">แผนงาน</label>
                             <select
                                 name="plan_id"
                                 value={filters.plan_id}
                                 onChange={handleFilterChange}
-                                
+
                                 className="w-full px-3 py-2.5 border border-gray-300 rounded-lg shadow-sm transition duration-150 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600"
                             >
                                 <option value="">ทั้งหมด</option>
@@ -347,14 +347,14 @@ const DashboardClientPage = () => {
                             </select>
                         </div>
 
-                        
+
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">ภาค</label>
                             <select
                                 name="program_type"
                                 value={filters.program_type}
                                 onChange={handleFilterChange}
-                                
+
                                 className="w-full px-3 py-2.5 border border-gray-300 rounded-lg shadow-sm transition duration-150 focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600"
                             >
                                 <option value="">ทั้งหมด</option>
@@ -364,7 +364,7 @@ const DashboardClientPage = () => {
                         </div>
                     </div>
 
-                    
+
                     <div className="flex flex-col-reverse sm:flex-row justify-end items-stretch sm:items-center mt-5 gap-3 pt-4 border-t border-gray-100">
                         <button
                             onClick={handleClearFilters}
@@ -385,7 +385,7 @@ const DashboardClientPage = () => {
                     </div>
                 </div>
 
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div className="bg-white rounded-lg shadow-md p-6 text-center">
                         <p className="text-sm font-medium text-gray-500">จำนวนโครงการทั้งหมด</p>
@@ -397,7 +397,7 @@ const DashboardClientPage = () => {
                     </div>
                 </div>
 
-                
+
                 <div className="bg-white rounded-lg shadow-md p-6">
                     <h2 className="text-lg md:text-xl font-semibold text-gray-800 mb-4 text-center md:text-left">
                         กราฟแสดงงบประมาณโครงการ
@@ -415,16 +415,16 @@ const DashboardClientPage = () => {
 
                                     <XAxis
                                         dataKey="name"
-                                        
+
                                         angle={-30}
                                         textAnchor="end"
                                         interval={0}
-                                        
+
                                         height={window.innerWidth < 640 ? 50 : 80}
-                                        
+
                                         tick={{
                                             fontSize: window.innerWidth < 640 ? 8 : 10,
-                                            
+
                                             fill: '#555'
                                         }}
                                     />
@@ -436,7 +436,7 @@ const DashboardClientPage = () => {
                                             value: 'งบประมาณ (บาท)',
                                             angle: -90,
                                             position: 'insideLeft',
-                                            
+
                                             dx: window.innerWidth < 640 ? -10 : -35,
                                             style: { fill: '#555', fontSize: 10, textAnchor: 'middle' },
                                         }}

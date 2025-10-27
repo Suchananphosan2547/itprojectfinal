@@ -315,9 +315,9 @@ const MyProjectClientPage = () => {
       }
 
       if (!user) {
-          setError('ไม่พบข้อมูลผู้ใช้ กรุณาเข้าสู่ระบบ');
-          setLoading(false);
-          return;
+        setError('ไม่พบข้อมูลผู้ใช้ กรุณาเข้าสู่ระบบ');
+        setLoading(false);
+        return;
       }
 
       // Check if the user is a student (role_id === 1) before fetching
@@ -360,53 +360,53 @@ const MyProjectClientPage = () => {
   }, [currentUser]);
 
   // Function to handle unregistering from a project (for students)
-const handleUnregisterProject = useCallback(async (projectId) => {
+  const handleUnregisterProject = useCallback(async (projectId) => {
     Swal.fire({
-        title: 'ยืนยันการยกเลิก?',
-        text: "คุณต้องการยกเลิกการลงทะเบียนโครงการนี้ใช่หรือไม่?",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'ยืนยัน',
-        cancelButtonText: 'ยกเลิก'
+      title: 'ยืนยันการยกเลิก?',
+      text: "คุณต้องการยกเลิกการลงทะเบียนโครงการนี้ใช่หรือไม่?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'ยืนยัน',
+      cancelButtonText: 'ยกเลิก'
     }).then(async (result) => {
-        if (result.isConfirmed) {
-            try {
-                const accessToken = Cookies.get('accessToken');
-                if (!accessToken) {
-                    Swal.fire({
-                        title: 'เกิดข้อผิดพลาด',
-                        text: 'Access token not found. Please log in.',
-                        icon: 'error',
-                        confirmButtonText: 'ตกลง' 
-                    });
-                    return;
-                }
-                
-                const config = { headers: { Authorization: `Bearer ${accessToken}` } };
-                const response = await axios.delete(`/api/registration/${projectId}`, config); 
+      if (result.isConfirmed) {
+        try {
+          const accessToken = Cookies.get('accessToken');
+          if (!accessToken) {
+            Swal.fire({
+              title: 'เกิดข้อผิดพลาด',
+              text: 'Access token not found. Please log in.',
+              icon: 'error',
+              confirmButtonText: 'ตกลง'
+            });
+            return;
+          }
 
-                Swal.fire({
-                    title: 'ยกเลิกสำเร็จ', 
-                    text: response.data?.message || 'การลงทะเบียนถูกยกเลิกเรียบร้อยแล้ว', 
-                    icon: 'success',
-                    confirmButtonText: 'ตกลง' 
-                });
-                
-                fetchMyProjects(); // Refresh the list of projects
-            } catch (err) {
-                console.error('API Error:', err);
-                Swal.fire({
-                    title: 'เกิดข้อผิดพลาด',
-                    text: err.response?.data?.message || 'เกิดข้อผิดพลาดในการยกเลิกการลงทะเบียน',
-                    icon: 'error',
-                    confirmButtonText: 'ตกลง' 
-                });
-            }
+          const config = { headers: { Authorization: `Bearer ${accessToken}` } };
+          const response = await axios.delete(`/api/registration/${projectId}`, config);
+
+          Swal.fire({
+            title: 'ยกเลิกสำเร็จ',
+            text: response.data?.message || 'การลงทะเบียนถูกยกเลิกเรียบร้อยแล้ว',
+            icon: 'success',
+            confirmButtonText: 'ตกลง'
+          });
+
+          fetchMyProjects(); // Refresh the list of projects
+        } catch (err) {
+          console.error('API Error:', err);
+          Swal.fire({
+            title: 'เกิดข้อผิดพลาด',
+            text: err.response?.data?.message || 'เกิดข้อผิดพลาดในการยกเลิกการลงทะเบียน',
+            icon: 'error',
+            confirmButtonText: 'ตกลง'
+          });
         }
+      }
     });
-}, [fetchMyProjects]); 
+  }, [fetchMyProjects]);
 
 
   // useEffect hook to run the fetch function when the component mounts

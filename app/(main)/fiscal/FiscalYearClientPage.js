@@ -1,6 +1,6 @@
 'use client';
 
-import { FaPlus, FaSearchengin, FaPenToSquare, FaTrash, FaChevronLeft, FaChevronRight, FaCheck, FaMagnifyingGlass, FaCircleInfo, FaToggleOff, FaCircleCheck, FaTimesCircle,FaToggleOn,FaCircleXmark,FaXmark } from 'react-icons/fa6';
+import { FaPlus, FaSearchengin, FaPenToSquare, FaTrash, FaChevronLeft, FaChevronRight, FaCheck, FaMagnifyingGlass, FaCircleInfo, FaToggleOff, FaCircleCheck, FaTimesCircle, FaToggleOn, FaCircleXmark, FaXmark } from 'react-icons/fa6';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
@@ -54,7 +54,7 @@ export default function FiscalYearClientPage() {
 
             Swal.fire({
                 title: 'สำเร็จ',
-                text: 'เพิ่มปีงบประมาณสำเร็จ', 
+                text: 'เพิ่มปีงบประมาณสำเร็จ',
                 icon: 'success',
                 confirmButtonText: 'ตกลง'
             });
@@ -64,10 +64,10 @@ export default function FiscalYearClientPage() {
             console.error('Error adding fiscal year:', err);
 
             Swal.fire({
-                title: 'เกิดข้อผิดพลาด', 
-                text: err.response?.data?.message || 'ล้มเหลวในการเพิ่มปีงบประมาณ', 
+                title: 'เกิดข้อผิดพลาด',
+                text: err.response?.data?.message || 'ล้มเหลวในการเพิ่มปีงบประมาณ',
                 icon: 'error',
-                confirmButtonText: 'ตกลง' 
+                confirmButtonText: 'ตกลง'
             });
 
             throw err;
@@ -136,7 +136,7 @@ export default function FiscalYearClientPage() {
             text: "คุณต้องการปิดใช้งานปีงบประมาณนี้หรือไม่?",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#d33', 
+            confirmButtonColor: '#d33',
             cancelButtonColor: '#3085d6',
             confirmButtonText: 'ยืนยัน',
             cancelButtonText: 'ยกเลิก'
