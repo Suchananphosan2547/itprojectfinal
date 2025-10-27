@@ -1088,32 +1088,60 @@ export default function ProjectClientPage() {
     }
   }, [API_HEADERS, pagination.currentPage, pagination.limit, filters]);
 
-  const fetchInitialData = useCallback(async () => {
+const fetchInitialData = useCallback(async () => {
+  try {
+    const userStr = sessionStorage.getItem('user');
+    if (!userStr) throw new Error("ไม่พบข้อมูลผู้ใช้");
+    const user = JSON.parse(userStr);
+    setCurrentUser(user);
+
+    // ทำแยก request เพื่อจับ error ได้ชัดเจน
+    let managersData = [];
+    let fiscalData = [];
+    let planData = [];
+
     try {
-      const userStr = sessionStorage.getItem('user');
-      if (!userStr) throw new Error("ไม่พบข้อมูลผู้ใช้");
-      const user = JSON.parse(userStr);
-      setCurrentUser(user);
+      const managersRes = await axios.get('/api/manager', { headers: API_HEADERS });
+      managersData = managersRes.data?.data || [];
+    } catch (err) {
+      console.error('Error fetching managers:', err);
+    }
 
-      const [managersRes, fiscalRes, planRes] = await Promise.all([
-        axios.get('/api/manager', { headers: API_HEADERS }),
-        axios.get('/api/fiscal-year', { headers: API_HEADERS }),
-        axios.get('/api/plan', { headers: API_HEADERS })
-      ]);
+    try {
+      const fiscalRes = await axios.get('/api/fiscal-year', { headers: API_HEADERS });
+      fiscalData = fiscalRes.data?.data || [];
+    } catch (err) {
+      console.error('Error fetching fiscal years:', err);
+      setError(`Error fetching fiscal years: ${err.response?.data?.message || err.message}`);
+    }
 
-      setManagers(managersRes.data?.data || []);
-      setFiscalYears(fiscalRes.data?.data || []);
-      setPlans(planRes.data?.data || []);
+    try {
+      const planRes = await axios.get('/api/plan', { headers: API_HEADERS });
+      planData = planRes.data?.data || [];
+    } catch (err) {
+      console.error('Error fetching plans:', err);
+      setError(`Error fetching plans: ${err.response?.data?.message || err.message}`);
+    }
 
-      if (user.role_id === 1) {
+    setManagers(managersData);
+    setFiscalYears(fiscalData);
+    setPlans(planData);
+
+    if (user.role_id === 1) {
+      try {
         const registeredRes = await axios.get('/api/registrations/student', { headers: API_HEADERS });
         setRegisteredProjects(new Set(registeredRes.data?.data.map(r => r.project_id) || []));
+      } catch (err) {
+        console.error('Error fetching registered projects:', err);
       }
-    } catch (err) {
-      console.error('Fetch initial data error:', err);
-      setError(err.response?.data?.message || 'เกิดข้อผิดพลาดในการดึงข้อมูลเริ่มต้น');
     }
-  }, [API_HEADERS]);
+
+  } catch (err) {
+    console.error('Fetch initial data error:', err);
+    setError(err.message || 'เกิดข้อผิดพลาดในการดึงข้อมูลเริ่มต้น');
+  }
+}, [API_HEADERS]);
+
 
 
   useEffect(() => { fetchInitialData(); }, [fetchInitialData]);

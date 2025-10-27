@@ -1,226 +1,194 @@
 import { NextResponse } from 'next/server';
 
-// Define role-based permissions
-// Map role_id to an array of allowed paths.
-// Adjust these paths and role_ids according to your application's requirements.
+// ============================
+// 🔐 กำหนดสิทธิ์ของแต่ละ role
+// ============================
 const rolePermissions = {
-  1: ['/home', '/api/news', '/api/sidebar' , '/project' , '/myproject' , '/complacence'],
-  2: ['/home', '/news', '/manageuser', '/manager', '/api/news', '/api/manager', '/api/faculty', '/api/major', '/api/users', '/api/sidebar' , '/project' , '/complacence' , '/dashboard' , '/documents'],
-  3: ['/manageuser', '/plan', '/fiscal', '/api/users', '/api/roles', '/api/faculty', '/api/major', '/api/fiscal-year', '/api/plan', '/api/sidebar' , '/adminhome' , '/adminproject'],
+  1: ['/home', '/api/home','/news', '/sidebar', '/project', '/myproject', '/complacence','/api/sidebar', '/api/fiscal-year', '/api/plan', '/api/registrations/student', 'api/complacence', '/dashboard', '/documents','/api/manager', '/api/faculty', '/api/major', '/api/users', '/api/roles', '/api/fiscal-year', '/api/plan', '/api/sidebar','api/myproject'],
+  2: ['/home', '/news', '/manageuser', '/manager', '/news', '/api/manager', '/api/faculty', '/api/major', '/api/users', '/api/sidebar', '/project', '/complacence', '/dashboard', '/documents','/api/sidebar','/api/fiscal-year', '/api/plan','/api/users','api/complacence'],
+  3: ['/manageuser', '/plan', '/fiscal', '/api/users', '/api/roles', '/api/faculty', '/api/major', '/api/fiscal-year', '/api/plan', '/api/sidebar'],
 };
 
-// Rate limiting store (in production, use Redis or similar)
+// ============================
+// ⚙️ Rate Limiting
+// ============================
 const rateLimitStore = new Map();
-const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
-const RATE_LIMIT_MAX_REQUESTS = 1000; // max requests per window
+const RATE_LIMIT_WINDOW = 60 * 1000;
+const RATE_LIMIT_MAX_REQUESTS = 1000;
 
-// Security functions
 function checkRateLimit(ip) {
   const now = Date.now();
   const windowStart = now - RATE_LIMIT_WINDOW;
-  
-  if (!rateLimitStore.has(ip)) {
-    rateLimitStore.set(ip, []);
-  }
-  
-  const requests = rateLimitStore.get(ip);
-  const validRequests = requests.filter(timestamp => timestamp > windowStart);
-  
-  if (validRequests.length >= RATE_LIMIT_MAX_REQUESTS) {
-    return false; // Rate limit exceeded
-  }
-  
+  const requests = rateLimitStore.get(ip) || [];
+  const validRequests = requests.filter((t) => t > windowStart);
+  if (validRequests.length >= RATE_LIMIT_MAX_REQUESTS) return false;
   validRequests.push(now);
   rateLimitStore.set(ip, validRequests);
-  return true; // Request allowed
+  return true;
 }
 
 function getClientIP(request) {
   const forwarded = request.headers.get('x-forwarded-for');
   const realIP = request.headers.get('x-real-ip');
   const cfConnectingIP = request.headers.get('cf-connecting-ip');
-  
   return forwarded?.split(',')[0] || realIP || cfConnectingIP || 'unknown';
 }
 
+// ============================
+// 🧠 Security Headers
+// ============================
 function addSecurityHeaders(response) {
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-XSS-Protection', '1; mode=block');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
-  
   return response;
 }
 
+// ============================
+// 🧩 Safe Fetch (กัน timeout)
+// ============================
+async function safeFetch(url, options = {}, timeoutMs = 5000) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { ...options, signal: controller.signal });
+    clearTimeout(timeout);
+    return res;
+  } catch (err) {
+    console.error(`❌ Fetch failed: ${url}`, err.message);
+    return null;
+  }
+}
+
+// ============================
+// 🧱 API Request Validation
+// ============================
 function validateApiRequest(request) {
   const { pathname } = request.nextUrl;
-  
-  // Skip validation for certain API endpoints
+
   if (pathname.startsWith('/api/auth/verify') || pathname.startsWith('/api/login')) {
     return { allowed: true };
   }
 
-  // Rate limiting
   const clientIP = getClientIP(request);
   if (!checkRateLimit(clientIP)) {
     return {
       allowed: false,
-      response: NextResponse.json(
-        { message: 'Too many requests. Please try again later.' },
-        { status: 429 }
-      )
+      response: NextResponse.json({ message: 'Too many requests. Please try again later.' }, { status: 429 }),
     };
   }
 
-  // Check referer and origin for API requests
   if (pathname.startsWith('/api/')) {
     const referer = request.headers.get('referer');
     const origin = request.headers.get('origin');
     const userAgent = request.headers.get('user-agent');
 
-    // Define allowed domains
     const allowedDomains = [
       'http://localhost:1237',
       'https://localhost:1237',
+      'http://127.0.0.1:1237',
       'http://pro.anasaki.live',
       'https://pro.anasaki.live',
-      'http://127.0.0.1:1237', 
     ];
 
-    // Check if request is from allowed domain
-    // Allow requests without referer for browser requests (common for direct API calls)
-    const isAllowedOrigin = !referer || !origin || allowedDomains.some(domain => 
-      (referer && referer.startsWith(domain)) || 
-      (origin && allowedDomains.includes(origin))
-    );
+    const isAllowedOrigin =
+      !referer ||
+      !origin ||
+      allowedDomains.some((d) => (referer && referer.startsWith(d)) || (origin && allowedDomains.includes(origin)));
 
-    // Check for suspicious user agents
-    const suspiciousUserAgents = [
-      'curl', 'wget', 'python', 'postman', 'insomnia', 'thunder client'
-    ];
-    
-    const isSuspiciousUserAgent = userAgent && 
-      suspiciousUserAgents.some(agent => 
-        userAgent.toLowerCase().includes(agent.toLowerCase())
-      ) && !userAgent.toLowerCase().includes('mozilla');
+    const suspiciousUserAgents = ['curl', 'wget', 'python', 'postman', 'insomnia', 'thunder client'];
+    const isSuspicious = userAgent && suspiciousUserAgents.some((a) => userAgent.toLowerCase().includes(a)) && !userAgent.toLowerCase().includes('mozilla');
 
-    // Block requests from suspicious sources
-    if (!isAllowedOrigin || isSuspiciousUserAgent) {
-      console.warn(`Blocked API request from: ${referer || origin}, User-Agent: ${userAgent}`);
+    if (!isAllowedOrigin || isSuspicious) {
+      console.warn(`⚠️ Blocked API: ${referer || origin}, UA: ${userAgent}`);
       return {
         allowed: false,
-        response: NextResponse.json(
-          { 
-            message: 'Access denied. This API can only be accessed from authorized domains.',
-            error: 'FORBIDDEN'
-          }, 
-          { status: 403 }
-        )
+        response: NextResponse.json({ message: 'Access denied. Unauthorized domain or client.' }, { status: 403 }),
       };
     }
   }
-
   return { allowed: true };
 }
 
+// ============================
+// 🚀 Middleware หลัก
+// ============================
 export async function middleware(request) {
   const token = request.cookies.get('accessToken')?.value;
   const loginUrl = new URL('/', request.url);
   const currentPath = request.nextUrl.pathname;
 
-  // Allow access to login page, reset password pages, and API routes without token verification
-  if (currentPath === '/' || currentPath.startsWith('/api') || currentPath.startsWith('/resetpassword')) {
-    // Validate API requests for security
-    if (currentPath.startsWith('/api/')) {
-      const validation = validateApiRequest(request);
-      if (!validation.allowed) {
-        return validation.response;
-      }
-    }
+  // อนุญาตให้เข้าหน้า login, resetpassword, api ได้โดยไม่ต้องตรวจ token
+  if (currentPath === '/' || currentPath.startsWith('/resetpassword') || currentPath.startsWith('/api')) {
+    const validation = validateApiRequest(request);
+    if (!validation.allowed) return validation.response;
     return NextResponse.next();
   }
 
-  if (!token) {
-    return NextResponse.redirect(loginUrl);
-  }
+  // ไม่มี token → redirect ไปหน้า login
+  if (!token) return NextResponse.redirect(loginUrl);
 
-  // Directly use the backend API for verification
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   if (!API_BASE_URL) {
-    console.error("FATAL: NEXT_PUBLIC_API_BASE_URL environment variable is not set.");
+    console.error('❌ NEXT_PUBLIC_API_BASE_URL is not set.');
     return NextResponse.redirect(loginUrl);
   }
 
   const verifyApiUrl = `${API_BASE_URL}/auth/verify`;
-    const sidebarApiUrl = `${API_BASE_URL}/sidebar`; // Define sidebar URL here
+  const sidebarApiUrl = `${API_BASE_URL}/sidebar`;
 
   try {
-    // Fetch user verification and sidebar data concurrently for improved performance
-    const [verifyResponse, sidebarResponse] = await Promise.all([
-      fetch(verifyApiUrl, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      }),
-      fetch(sidebarApiUrl, { // Fetch sidebar concurrently
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
+    // ✅ เรียก verify และ sidebar พร้อมกัน
+    const [verifyRes, sidebarRes] = await Promise.all([
+      safeFetch(verifyApiUrl, { headers: { Authorization: `Bearer ${token}` } }),
+      safeFetch(sidebarApiUrl, { headers: { Authorization: `Bearer ${token}` } }),
     ]);
 
-    // Handle verifyResponse first
-    if (!verifyResponse.ok) {
-      const errorBody = await verifyResponse.text();
-      console.error(`Token verification failed with status: ${verifyResponse.status}`);
-      console.error(`Backend response: ${errorBody}`);
+    // ตรวจสอบ token หมดอายุ
+    if (!verifyRes || verifyRes.status === 401) {
+      console.warn('🔒 Token expired or verify failed');
       return NextResponse.redirect(loginUrl);
     }
 
-    const { user } = await verifyResponse.json();
-    const userRoleId = user.role_id;
+    const verifyData = verifyRes.ok ? await verifyRes.json() : { user: null };
+    const user = verifyData?.user;
+    const roleId = user?.role_id;
 
-    const allowedPaths = rolePermissions[userRoleId];
+    // ตรวจ role-based access
+    const allowedPaths = rolePermissions[roleId];
     if (!allowedPaths || !allowedPaths.includes(currentPath)) {
-      console.warn(`User with role_id ${userRoleId} attempted to access unauthorized path: ${currentPath}`);
+      console.warn(`🚫 Unauthorized access (role_id ${roleId}) to ${currentPath}`);
       return NextResponse.redirect(loginUrl);
     }
 
-    // Handle sidebarResponse after successful verification and authorization check
-
-    // Handle sidebarResponse after successful verification and authorization check
-    if (!sidebarResponse.ok) {
-        console.error(`Failed to fetch sidebar data. Status: ${sidebarResponse.status}`);
-        // Proceed without sidebar data, or redirect to login
-        return NextResponse.redirect(loginUrl);
+    // ✅ Sidebar — ถ้า fetch ไม่ได้ให้ fallback
+    let sidebarData = [];
+    if (sidebarRes && sidebarRes.ok) {
+      const sidebarJson = await sidebarRes.json().catch(() => ({}));
+      sidebarData = sidebarJson?.data || [];
+    } else {
+      console.warn(`⚠️ Sidebar fetch failed (${sidebarRes?.status || 'timeout'}) — using empty sidebar`);
     }
 
-    const sidebarData = await sidebarResponse.json();
-
+    // 🔒 Encode user + sidebar
     const requestHeaders = new Headers(request.headers);
-    const encodedUser = Buffer.from(JSON.stringify(user)).toString('base64');
-    const encodedSidebar = Buffer.from(JSON.stringify(sidebarData.data)).toString('base64');
+    requestHeaders.set('x-user-data', Buffer.from(JSON.stringify(user || {})).toString('base64'));
+    requestHeaders.set('x-sidebar-data', Buffer.from(JSON.stringify(sidebarData)).toString('base64'));
 
-    requestHeaders.set('x-user-data', encodedUser);
-    requestHeaders.set('x-sidebar-data', encodedSidebar);
-
-    const nextResponse = NextResponse.next({
-      request: {
-        headers: requestHeaders,
-      },
-    });
-
-    return addSecurityHeaders(nextResponse);
-
+    const response = NextResponse.next({ request: { headers: requestHeaders } });
+    return addSecurityHeaders(response);
   } catch (error) {
-    console.error("Middleware could not connect to the backend API:", error);
-    return NextResponse.redirect(loginUrl);
+    console.error('💥 Middleware error:', error.message);
+    // ❗ไม่ redirect ถ้า backend ล่ม — ป้องกันเด้ง login
+    return NextResponse.next();
   }
 }
 
-// ส่วนของ matcher ยังคงเดิม
+// ============================
+// 🧭 Matcher
+// ============================
 export const config = {
   matcher: [
     '/',

@@ -46,6 +46,8 @@ const UserCard = ({ user, currentUser, onEdit, onActivate, onDelete }) => {
 
 // --- User Table Row Component (for desktop view) ---
 
+
+
 const UserTableRow = ({ user, currentUser, onEdit, onActivate, onDelete }) => {
   const canManage = (currentUser?.role_id === 3 || currentUser?.program_type === user.program_type);
 

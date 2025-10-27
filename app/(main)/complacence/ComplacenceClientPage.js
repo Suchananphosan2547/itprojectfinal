@@ -884,18 +884,18 @@ export default function ComplacenceClientPage() {
         try {
             if (user.role_id === 1) { // Student
                 resetAdminState();
-                const [assessmentsResponse] = await Promise.all([
-                    axios.get(`/api/complacence?page=${page}`, {
-                        headers: { Authorization: `Bearer ${accessToken}` }
-                    }),
-                ]);
+                const assessmentsResponse = await axios.get('/api/complacence', {
+                    headers: { Authorization: `Bearer ${accessToken}` },
+                    params: { page }
+                });
                 setStudentProjects(assessmentsResponse.data.data);
                 setPagination(assessmentsResponse.data.pagination);
             } else if (user.role_id === 2 || user.role_id === 3) { // Admin/Staff
                 resetStudentState();
                 const [assessmentsResponse, projectsResponse] = await Promise.all([
-                    axios.get(`/api/complacence?page=${page}`, {
-                        headers: { Authorization: `Bearer ${accessToken}` }
+                    axios.get('/api/complacence', {
+                        headers: { Authorization: `Bearer ${accessToken}` },
+                        params: { page }
                     }),
                     axios.get('/api/project-complacence', {
                         headers: { Authorization: `Bearer ${accessToken}` }
@@ -906,12 +906,12 @@ export default function ComplacenceClientPage() {
                 setAllProjects(projectsResponse.data.data);
             }
         } catch (err) {
+            console.error('Fetch data error:', err);
             setError('Failed to fetch data.');
         } finally {
             setLoading(false);
         }
     };
-
     useEffect(() => {
         fetchData(1);
     }, []);
