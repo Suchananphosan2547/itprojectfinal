@@ -5,15 +5,19 @@ import { useParams, useRouter } from 'next/navigation';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import Link from 'next/link';
+import Image from 'next/image'; // **เพิ่ม Image component**
 
 export default function VerifyOtpPage() {
   const router = useRouter();
   const params = useParams();
-  const username = params.username;
+  const username = params.username; // หรือค่า b6521651171 ในภาพ
 
   const [otp, setOtp] = useState('');
   const [otpExpiresAt, setOtpExpiresAt] = useState(null);
   const [timeLeft, setTimeLeft] = useState(0);
+
+  // URL โลโก้ KU (ใช้ตัวเดียวกับหน้า Request OTP)
+  const KU_LOGO_URL = "https://my.ku.th/myku/img/KU_Logo_PNG.png";
 
   useEffect(() => {
     if (!username) {
@@ -25,7 +29,9 @@ export default function VerifyOtpPage() {
       setOtpExpiresAt(new Date(storedOtpExpiresAt));
     } else {
       // If no OTP expiry is found, redirect back to request OTP
-      router.push('/resetpassword/request-otp');
+      // ให้แจ้งเตือนก่อนย้อนกลับ
+       Swal.fire('ข้อผิดพลาด', 'ไม่พบข้อมูลการขอ OTP กรุณาลองอีกครั้ง', 'error');
+       router.push('/resetpassword/request-otp');
     }
   }, [username, router]);
 
@@ -40,7 +46,8 @@ export default function VerifyOtpPage() {
         setTimeLeft(secondsLeft);
         if (secondsLeft === 0) {
           clearInterval(timer);
-          Swal.fire('Error', 'OTP has expired. Please request a new one.', 'error');
+          // ข้อความแจ้งเตือนภาษาไทย
+          Swal.fire('ข้อผิดพลาด', 'รหัส OTP หมดอายุแล้ว กรุณาร้องขอใหม่', 'error');
           router.push('/resetpassword/request-otp');
         }
       }, 1000);
@@ -51,6 +58,7 @@ export default function VerifyOtpPage() {
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
+    // รูปแบบ 04:44
     return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
@@ -58,31 +66,54 @@ export default function VerifyOtpPage() {
     e.preventDefault();
     try {
       const response = await axios.post('/api/verify-otp', { username, otp });
-      Swal.fire('สำเร็จ', response.data.message, 'success');
+      // ข้อความแจ้งเตือนภาษาไทย
+      Swal.fire('สำเร็จ', response.data.message, 'success'); 
       sessionStorage.setItem('resetToken', response.data.resetToken);
       router.push(`/resetpassword/reset-password/${username}`);
     } catch (error) {
       console.error('Error verifying OTP:', error);
-      Swal.fire('Error', error.response?.data?.message || 'Failed to verify OTP. Please try again.', 'error');
+      // ข้อความแจ้งเตือนภาษาไทย
+      Swal.fire('ข้อผิดพลาด', error.response?.data?.message || 'ไม่สามารถยืนยัน OTP ได้ กรุณาลองอีกครั้ง', 'error');
     }
   };
 
   if (!username) {
-    return null; // Or a loading spinner
+    return null; 
   }
 
   return (
-    <main className="bg-slate-100 flex items-center justify-center min-h-screen font-sans px-4">
-      <div className="bg-white p-8 sm:p-10 rounded-xl shadow-lg w-full max-w-md px-6 ">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900">Verify OTP</h2>
-          <p className="mt-2 text-sm text-gray-500">
-            OTP sent to {username}. It expires in {formatTime(timeLeft)}.
+    <main className="bg-white flex items-center justify-center min-h-screen font-sans px-4">
+      <div className="bg-white p-8 sm:p-10 w-full max-w-md mx-auto">
+        <div className="text-center mb-8">
+          
+          {/* ส่วนแสดงโลโก้ KU */}
+          <div className="flex flex-col items-center mb-10">
+            <Image
+              className='mx-auto'
+              src={KU_LOGO_URL}
+              alt="Kasetsart University Logo" 
+              width={120} 
+              height={120} 
+            />
+          </div>
+          
+          {/* ข้อความหลัก */}
+          <h2 className="text-lg font-normal text-gray-700 mt-4">ยืนยัน OTP</h2>
+<p className="mt-2 text-sm text-gray-700">
+             {/* **แก้ไข:** ใช้ <br /> เพื่อบังคับขึ้นบรรทัดใหม่ตามภาพ */}
+             รหัส OTP ถูกส่งไปยัง {username} <br /> 
+             จะหมดอายุในอีก {formatTime(timeLeft)} นาที
           </p>
         </div>
+        
         <form onSubmit={handleVerifyOtp} className="mt-8 space-y-6">
           <div>
-            <label htmlFor="otp" className="block text-sm font-medium text-gray-700">OTP</label>
+            <label 
+              htmlFor="otp" 
+              className="block text-sm font-medium text-gray-600 mb-1" // ปรับ label ตามภาพ
+            >
+              รหัส OTP
+            </label>
             <input
               id="otp"
               name="otp"
@@ -90,19 +121,22 @@ export default function VerifyOtpPage() {
               required
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150 hover:border-gray-400"
+              // ปรับสไตล์ input ให้ตรงกับภาพ
+              className="w-full px-2 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500" 
             />
           </div>
           <button
             type="submit"
-            className="w-full py-3 px-4 rounded-md text-sm font-semibold text-white bg-green-600 transition duration-300 hover:bg-green-700 hover:shadow-xl focus:ring-2 focus:ring-green-500"
+            // ปรับสไตล์ปุ่มให้ตรงกับภาพ (สีเขียว, font-medium, py-3)
+            className="w-full py-3 px-4 rounded-md text-sm font-medium text-white bg-green-600 transition duration-300 hover:bg-green-700 focus:ring-2 focus:ring-green-500"
           >
-            Verify OTP
+            ยืนยัน OTP
           </button>
         </form>
+        
         <div className="mt-6 text-center">
-          <Link href="/" className="text-sm font-medium text-blue-600 hover:text-blue-500 active:text-blue-800">
-            ← Back to Login
+          <Link href="/" className="text-sm font-normal text-blue-500 hover:text-blue-400">
+            &larr; กลับไปหน้าเข้าสู่ระบบ
           </Link>
         </div>
       </div>

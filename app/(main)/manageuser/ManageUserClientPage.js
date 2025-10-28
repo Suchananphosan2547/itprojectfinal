@@ -133,7 +133,7 @@ const AddUserModal = ({ isOpen, onClose, onSave, currentUser, faculties, roles }
       }
       try {
         const accessToken = Cookies.get('accessToken');
-        const response = await axios.get(`${API_BASE_URL}/api/major/${facultyId}`, {
+        const response = await axios.get(`/api/major/${facultyId}`, {
           headers: { Authorization: `Bearer ${accessToken}` },
         });
         const fetchedMajors = response.data.data || [];
@@ -346,7 +346,7 @@ const EditUserModal = ({ isOpen, onClose, onSave, userItem, currentUser, roles, 
       }
       try {
         const accessToken = Cookies.get('accessToken');
-        const response = await axios.get(`${API_BASE_URL}/api/major/${facultyId}`, {
+        const response = await axios.get(`/api/major/${facultyId}`, {
           headers: { Authorization: `Bearer ${accessToken}` },
         });
         setModalMajors(response.data.data || []);
@@ -437,94 +437,48 @@ const EditUserModal = ({ isOpen, onClose, onSave, userItem, currentUser, roles, 
   if (!isOpen) return null;
 
   return (
-
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-50/70 backdrop-blur-md p-4">
-
       <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl flex flex-col max-h-[90vh]">
-
         <div className="flex justify-between items-center p-6 border-b flex-shrink-0">
-
           <h3 className="text-xl font-semibold">แก้ไขข้อมูลสมาชิก</h3>
-
           <button onClick={handleClose} className="text-slate-400 hover:text-slate-700 text-2xl">&times;</button>
-
         </div>
-
         <form id="editUserForm" onSubmit={handleSubmit} className="space-y-4 p-6 overflow-y-auto">
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
             <div><label className="block text-sm font-medium text-slate-700">รหัสนิสิต</label><input type="text" className="mt-1 block w-full border-slate-300 rounded-md shadow-sm p-2 bg-slate-100" value={userItem?.std_id || '-'} readOnly /></div>
-
             <div><label htmlFor="edit_prefix" className="block text-sm font-medium text-slate-700">คำนำหน้า</label><select id="edit_prefix" name="prefix" className="mt-1 block w-full border-slate-300 rounded-md shadow-sm p-2" value={prefix} onChange={(e) => setPrefix(e.target.value)}><option value="">เลือกคำนำหน้า</option><option value="นาย">นาย</option><option value="นางสาว">นางสาว</option><option value="นาง">นาง</option></select></div>
-
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
             <div><label htmlFor="edit_firstname" className="block text-sm font-medium text-slate-700">ชื่อจริง</label><input type="text" id="edit_firstname" name="firstname" className="mt-1 block w-full border-slate-300 rounded-md shadow-sm p-2" value={firstname} onChange={(e) => setFirstname(e.target.value)} /></div>
-
             <div><label htmlFor="edit_lastname" className="block text-sm font-medium text-slate-700">นามสกุล</label><input type="text" id="edit_lastname" name="lastname" className="mt-1 block w-full border-slate-300 rounded-md shadow-sm p-2" value={lastname} onChange={(e) => setLastname(e.target.value)} /></div>
-
           </div>
-
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
             <div><label htmlFor="edit_email" className="block text-sm font-medium text-slate-700">อีเมล</label><input type="email" id="edit_email" name="email" className="mt-1 block w-full border-slate-300 rounded-md shadow-sm p-2" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
-
             <div><label htmlFor="edit_phone" className="block text-sm font-medium text-slate-700">เบอร์โทรศัพท์</label><input type="text" id="edit_phone" name="phone" className="mt-1 block w-full border-slate-300 rounded-md shadow-sm p-2" value={phone} onChange={(e) => setPhone(e.target.value)} /></div>
-
           </div>
-
           {currentUser?.role_id === 3 ? (
-
             <>
-
               <div><label htmlFor="edit_role_id" className="block text-sm font-medium text-slate-700">ตำแหน่ง (Role)</label><select id="edit_role_id" name="role_id" className="mt-1 block w-full border-slate-300 rounded-md shadow-sm p-2" value={roleId} onChange={(e) => setRoleId(e.target.value)} required>{roles.map(role => (<option key={role.role_id} value={role.role_id}>{role.role_name}</option>))}</select></div>
-
               <div><label htmlFor="edit_faculty_id" className="block text-sm font-medium text-slate-700">คณะ</label><select id="edit_faculty_id" name="faculty_id" className="mt-1 block w-full border-slate-300 rounded-md shadow-sm p-2" value={facultyId} onChange={(e) => { setFacultyId(e.target.value); setMajorId(''); }} required><option value="">เลือกคณะ</option>{faculties.map(faculty => (<option key={faculty.faculty_id} value={faculty.faculty_id}>{faculty.faculty_name}</option>))}</select></div>
-
               <div><label htmlFor="edit_major_id" className="block text-sm font-medium text-slate-700">สาขา</label><select id="edit_major_id" name="major_id" className="mt-1 block w-full border-slate-300 rounded-md shadow-sm p-2" value={majorId} onChange={(e) => setMajorId(e.target.value)} required disabled={!facultyId}><option value="">เลือกสาขา</option>{modalMajors.map(major => (<option key={major.major_id} value={major.major_id}>{major.major_name}</option>))}</select></div>
-
             </>
-
           ) : (
-
             <>
-
               <div><label className="block text-sm font-medium text-slate-700">ตำแหน่ง</label><div className="mt-1 block w-full border-slate-200 rounded-md bg-slate-100 p-2">{userItem?.role_name || '-'}</div></div>
-
               <div><label className="block text-sm font-medium text-slate-700">คณะ</label><div className="mt-1 block w-full border-slate-200 rounded-md bg-slate-100 p-2">{userItem?.faculty_name || '-'}</div></div>
-
               <div><label className="block text-sm font-medium text-slate-700">สาขา</label><div className="mt-1 block w-full border-slate-200 rounded-md bg-slate-100 p-2">{userItem?.major_name || '-'}</div></div>
-
             </>
-
           )}
-
-
-
           <div><label className="block text-sm font-medium text-slate-700">ประเภทโครงการ</label><div className="mt-1 block w-full border-slate-200 rounded-md bg-slate-100 p-2">{userItem?.program_type || '-'}</div></div>
-
           {error && <div className="text-red-600 text-sm p-3 bg-red-50 rounded-lg">{error}</div>}
-
         </form>
-
         <div className="flex justify-end p-6 border-t mt-auto flex-shrink-0">
-
           <button type="button" onClick={handleClose} className="bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold py-2 px-4 rounded-lg mr-3">ยกเลิก</button>
-
           <button type="submit" form="editUserForm" className="bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg">บันทึก</button>
-
         </div>
-
       </div>
-
     </div>
-
   );
-
 };
 
 // ... (BulkAddUserModal remains the same) ...
@@ -567,6 +521,7 @@ const BulkAddUserModal = ({ isOpen, onClose, onSave }) => {
       setError(err.message || 'Failed to upload users.');
     }
   };
+
 
   if (!isOpen) return null;
 
@@ -663,8 +618,20 @@ export default function ManageUserClientPage() {
 
       const config = { headers: { Authorization: `Bearer ${accessToken}` } };
 
+      const params = {
+        page,
+        search,
+        role,
+        faculty_id: facultyId,
+        major_id: majorId,
+        // บอก API ให้เรียงตาม std_id จากมากไปน้อย
+        sort_by: 'std_id',
+        sort_order: 'desc',
+      };
+
       const [usersRes, rolesRes, facultiesRes] = await Promise.all([
-        axios.get(`/api/users`, { params: { page, search, role, faculty_id: facultyId, major_id: majorId }, ...config }),
+        // ใช้ตัวแปร params ที่มี sorting
+        axios.get(`/api/users`, { params, ...config }),
         axios.get(`/api/roles`, config),
         axios.get(`/api/faculty`, config),
       ]);
@@ -691,7 +658,7 @@ export default function ManageUserClientPage() {
     try {
       const accessToken = Cookies.get('accessToken');
       if (!accessToken) throw new Error('Access token not found.');
-      const response = await axios.get(`${API_BASE_URL}/api/major/${facultyId}`, {
+      const response = await axios.get(`/api/major/${facultyId}`, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       setMajors(response.data.data || []);
@@ -730,7 +697,7 @@ export default function ManageUserClientPage() {
   const handleAddUser = async (userData) => {
     try {
       const accessToken = Cookies.get('accessToken');
-      await axios.post(`${API_BASE_URL}/api/users`, [userData], {
+      await axios.post(`/api/users`, [userData], {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
 
@@ -754,11 +721,88 @@ export default function ManageUserClientPage() {
     }
   };
 
+const handleBulkAddUser = async (file) => {
+    try {
+      const accessToken = Cookies.get('accessToken');
+      if (!accessToken) throw new Error('Access token not found');
+
+      // Read Excel file
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data, { type: 'array' });
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
+      const json = XLSX.utils.sheet_to_json(worksheet);
+
+      if (json.length === 0) {
+        throw new Error("Excel file is empty or has incorrect format.");
+      }
+
+      const usersToCreate = json.map(row => ({
+        username: row.username?.toString() || '',
+        std_id: row.std_id?.toString() || '',
+        prefix: row.prefix || '',
+        firstname: row.firstname || '',
+        lastname: row.lastname || '',
+        email: row.email || '',
+        phone: row.phone?.toString().padStart(10, '0') || '',
+        program_type: row.program_type || '',
+        role_id: 1, // Student role
+        faculty_id: currentUser?.role_id === 2 || currentUser?.role_id === 3
+          ? currentUser.faculty_id
+          : 0, 
+        major_id: currentUser?.role_id === 2 || currentUser?.role_id === 3
+          ? currentUser.major_id
+          : 0, 
+      }));
+
+      // เรียก API
+      const response = await axios.post('/api/users', usersToCreate, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      console.log('Full API Response:', response);
+
+      // ถ้า API ตอบกลับด้วย Success Status (2xx) จะเข้าสู่ส่วนนี้ 
+      // และถือว่าสำเร็จ (แม้ว่า backend จะส่ง 200/201 พร้อมข้อความ partial success)
+      Swal.fire('สำเร็จ', response.data.message || 'สร้างบัญชีผู้ใช้สำเร็จ', 'success');
+      fetchUsersAndInitialData(1, searchTerm, selectedRole, selectedFaculty, selectedMajor); 
+    } 
+    // ส่วนนี้จะทำงานเมื่อ axios.post ได้รับ Error Status Code (4xx, 5xx) หรือเกิด Network/File Error
+    catch (err) { 
+      console.error('Error bulk adding users:', err);
+
+      // 1. ตรวจสอบ NotReadableError (ปัญหาการอ่านไฟล์)
+      if (err instanceof DOMException && err.name === 'NotReadableError') {
+        Swal.fire(
+            'เกิดข้อผิดพลาดในการอ่านไฟล์', 
+            'ไม่สามารถอ่านไฟล์ Excel ที่เลือกได้ กรุณาลองเลือกใหม่อีกครั้ง', 
+            'error'
+        );
+        throw err;
+      }
+
+      // ดึงข้อความ error จาก response (ถ้ามี) หรือใช้ข้อความ error ทั่วไป
+      const errorMessage = err.response?.data?.message || err.message || 'ไม่สามารถเพิ่มผู้ใช้เป็นกลุ่มได้';
+
+      // 2. จัดการ Partial Success (ข้อผิดพลาด 400 แต่มีข้อความ "สำเร็จ")
+      if (errorMessage.includes('สำเร็จ')) {
+          // กรณี Partial Success: เปลี่ยนเป็น Warning icon 
+          Swal.fire('ข้อควรระวัง', errorMessage, 'warning'); 
+          // โหลดข้อมูลใหม่เพื่อให้ผู้ใช้เห็นบัญชีที่สร้างสำเร็จแล้ว
+          fetchUsersAndInitialData(1, searchTerm, selectedRole, selectedFaculty, selectedMajor);
+      } else {
+          // กรณี Error ทั่วไป (เช่น ข้อมูลไม่ถูกต้อง, 400, 500)
+          Swal.fire('เกิดข้อผิดพลาด', errorMessage, 'error');
+      }
+        
+      throw err; 
+    }
+  };
+
   const handleEditUser = async (username, updatedData) => {
     try {
       const accessToken = Cookies.get('accessToken');
       await axios.put(
-        `${API_BASE_URL}/api/users/${username}`,
+        `api/users/${username}`,
         updatedData,
         {
           headers: { Authorization: `Bearer ${accessToken}` },
@@ -795,7 +839,7 @@ export default function ManageUserClientPage() {
       const accessToken = Cookies.get('accessToken');
       if (!accessToken) throw new Error('Access token not found.');
       const response = await axios.put(
-        `${API_BASE_URL}/api/active-account/${username}`,
+        `/api/active-account/${username}`,
         {},
         {
           headers: { Authorization: `Bearer ${accessToken}` },
@@ -843,7 +887,7 @@ export default function ManageUserClientPage() {
           if (!accessToken) throw new Error('Access token not found.');
 
           await axios.delete(
-            `${API_BASE_URL}/api/users/${username}`,
+            `/api/users/${username}`,
             {
               headers: { Authorization: `Bearer ${accessToken}` },
             }
@@ -868,6 +912,7 @@ export default function ManageUserClientPage() {
       }
     });
   };
+
 
   // **เรียงรหัสนิสิตจากมากไปน้อย**
   const sortedUsers = [...users].sort((a, b) => {
@@ -1073,7 +1118,7 @@ export default function ManageUserClientPage() {
         <BulkAddUserModal
           isOpen={isBulkAddModalOpen}
           onClose={() => setIsBulkAddModalOpen(false)}
-          onSave={() => { }}
+          onSave={handleBulkAddUser}
         />
       </div>
     </div>

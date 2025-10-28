@@ -428,21 +428,21 @@ export default function FiscalYearClientPage() {
 
                     {!loading && !error && totalPages > 1 && (
                         <div className="flex justify-between items-center pt-4 mt-4 border-t border-gray-200">
-                            <span className="text-sm text-gray-700">Page {currentPage} of {totalPages}</span>
+                            <span className="text-sm text-gray-700">หน้า {currentPage} จาก {totalPages}</span>
                             <div className="inline-flex mt-2 xs:mt-0">
                                 <button
                                     onClick={() => setCurrentPage(currentPage - 1)}
                                     disabled={currentPage === 1}
                                     className="px-3 h-8 text-sm text-white bg-gray-800 rounded-l hover:bg-gray-900 disabled:bg-gray-400"
                                 >
-                                    Prev
+                                    ก่อนหน้า
                                 </button>
                                 <button
                                     onClick={() => setCurrentPage(currentPage + 1)}
                                     disabled={currentPage === totalPages}
                                     className="px-3 h-8 text-sm text-white bg-gray-800 rounded-r hover:bg-gray-900 disabled:bg-gray-400 ml-1"
                                 >
-                                    Next
+                                    ถัดไป
                                 </button>
                             </div>
                         </div>

@@ -1,17 +1,11 @@
 import { NextResponse } from 'next/server';
 
-// ============================
-// 🔐 กำหนดสิทธิ์ของแต่ละ role
-// ============================
 const rolePermissions = {
   1: ['/home', '/api/home','/news', '/sidebar', '/project', '/myproject', '/complacence','/api/sidebar', '/api/fiscal-year', '/api/plan', '/api/registrations/student', 'api/complacence', '/dashboard', '/documents','/api/manager', '/api/faculty', '/api/major', '/api/users', '/api/roles', '/api/fiscal-year', '/api/plan', '/api/sidebar','api/myproject'],
   2: ['/home', '/news', '/manageuser', '/manager', '/news', '/api/manager', '/api/faculty', '/api/major', '/api/users', '/api/sidebar', '/project', '/complacence', '/dashboard', '/documents','/api/sidebar','/api/fiscal-year', '/api/plan','/api/users','api/complacence'],
   3: ['/manageuser', '/plan', '/fiscal', '/api/users', '/api/roles', '/api/faculty', '/api/major', '/api/fiscal-year', '/api/plan', '/api/sidebar'],
 };
 
-// ============================
-// ⚙️ Rate Limiting
-// ============================
 const rateLimitStore = new Map();
 const RATE_LIMIT_WINDOW = 60 * 1000;
 const RATE_LIMIT_MAX_REQUESTS = 1000;
@@ -34,9 +28,6 @@ function getClientIP(request) {
   return forwarded?.split(',')[0] || realIP || cfConnectingIP || 'unknown';
 }
 
-// ============================
-// 🧠 Security Headers
-// ============================
 function addSecurityHeaders(response) {
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('X-Frame-Options', 'DENY');
@@ -46,9 +37,7 @@ function addSecurityHeaders(response) {
   return response;
 }
 
-// ============================
-// 🧩 Safe Fetch (กัน timeout)
-// ============================
+
 async function safeFetch(url, options = {}, timeoutMs = 5000) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
@@ -57,14 +46,11 @@ async function safeFetch(url, options = {}, timeoutMs = 5000) {
     clearTimeout(timeout);
     return res;
   } catch (err) {
-    console.error(`❌ Fetch failed: ${url}`, err.message);
+    console.error(`Fetch failed: ${url}`, err.message);
     return null;
   }
 }
 
-// ============================
-// 🧱 API Request Validation
-// ============================
 function validateApiRequest(request) {
   const { pathname } = request.nextUrl;
 
@@ -102,7 +88,7 @@ function validateApiRequest(request) {
     const isSuspicious = userAgent && suspiciousUserAgents.some((a) => userAgent.toLowerCase().includes(a)) && !userAgent.toLowerCase().includes('mozilla');
 
     if (!isAllowedOrigin || isSuspicious) {
-      console.warn(`⚠️ Blocked API: ${referer || origin}, UA: ${userAgent}`);
+      console.warn(`Blocked API: ${referer || origin}, UA: ${userAgent}`);
       return {
         allowed: false,
         response: NextResponse.json({ message: 'Access denied. Unauthorized domain or client.' }, { status: 403 }),
@@ -112,9 +98,6 @@ function validateApiRequest(request) {
   return { allowed: true };
 }
 
-// ============================
-// 🚀 Middleware หลัก
-// ============================
 export async function middleware(request) {
   const token = request.cookies.get('accessToken')?.value;
   const loginUrl = new URL('/', request.url);
@@ -132,7 +115,7 @@ export async function middleware(request) {
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
   if (!API_BASE_URL) {
-    console.error('❌ NEXT_PUBLIC_API_BASE_URL is not set.');
+    console.error('NEXT_PUBLIC_API_BASE_URL is not set.');
     return NextResponse.redirect(loginUrl);
   }
 
@@ -140,13 +123,11 @@ export async function middleware(request) {
   const sidebarApiUrl = `${API_BASE_URL}/sidebar`;
 
   try {
-    // ✅ เรียก verify และ sidebar พร้อมกัน
     const [verifyRes, sidebarRes] = await Promise.all([
       safeFetch(verifyApiUrl, { headers: { Authorization: `Bearer ${token}` } }),
       safeFetch(sidebarApiUrl, { headers: { Authorization: `Bearer ${token}` } }),
     ]);
 
-    // ตรวจสอบ token หมดอายุ
     if (!verifyRes || verifyRes.status === 401) {
       console.warn('🔒 Token expired or verify failed');
       return NextResponse.redirect(loginUrl);
@@ -156,23 +137,20 @@ export async function middleware(request) {
     const user = verifyData?.user;
     const roleId = user?.role_id;
 
-    // ตรวจ role-based access
     const allowedPaths = rolePermissions[roleId];
     if (!allowedPaths || !allowedPaths.includes(currentPath)) {
-      console.warn(`🚫 Unauthorized access (role_id ${roleId}) to ${currentPath}`);
+      console.warn(`Unauthorized access (role_id ${roleId}) to ${currentPath}`);
       return NextResponse.redirect(loginUrl);
     }
 
-    // ✅ Sidebar — ถ้า fetch ไม่ได้ให้ fallback
     let sidebarData = [];
     if (sidebarRes && sidebarRes.ok) {
       const sidebarJson = await sidebarRes.json().catch(() => ({}));
       sidebarData = sidebarJson?.data || [];
     } else {
-      console.warn(`⚠️ Sidebar fetch failed (${sidebarRes?.status || 'timeout'}) — using empty sidebar`);
+      console.warn(`Sidebar fetch failed (${sidebarRes?.status || 'timeout'}) — using empty sidebar`);
     }
 
-    // 🔒 Encode user + sidebar
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set('x-user-data', Buffer.from(JSON.stringify(user || {})).toString('base64'));
     requestHeaders.set('x-sidebar-data', Buffer.from(JSON.stringify(sidebarData)).toString('base64'));
@@ -180,15 +158,11 @@ export async function middleware(request) {
     const response = NextResponse.next({ request: { headers: requestHeaders } });
     return addSecurityHeaders(response);
   } catch (error) {
-    console.error('💥 Middleware error:', error.message);
-    // ❗ไม่ redirect ถ้า backend ล่ม — ป้องกันเด้ง login
+    console.error('Middleware error:', error.message);
     return NextResponse.next();
   }
 }
 
-// ============================
-// 🧭 Matcher
-// ============================
 export const config = {
   matcher: [
     '/',
