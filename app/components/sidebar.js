@@ -45,8 +45,8 @@ const getIconForName = (name = "") => {
   const lower = name.toLowerCase();
   const iconClass = "w-5 h-5 flex-shrink-0 text-white";
 
-  if (lower.includes("แผนงาน") || lower.includes("plan"))
-    return <FaClipboardList className={iconClass} />; // ใช้ FaClipboardList สำหรับ แผนงาน
+  if (lower.includes("เเผนงาน") || lower.includes("plan"))
+    return <FaClipboardList  className={iconClass} />; 
 
   if (lower.includes("แบบประเมินโครงการ") || lower.includes("complacence"))
     return <FaFilePen className={iconClass} />;
