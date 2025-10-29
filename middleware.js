@@ -6,12 +6,6 @@ const rolePermissions = {
   3: ['/manageuser', '/plan', '/fiscal', '/api/users', '/api/roles', '/api/faculty', '/api/major', '/api/fiscal-year', '/api/plan', '/api/sidebar', '/api/manager', ],
 };
 
-// 💡 1. กำหนด Landing Page สำหรับแต่ละ Role
-const roleLandingPages = {
-    1: '/news', 
-    2: '/news',
-    3: '/manageuser', // Role 3 ต้องไปที่ /manageuser
-};
 
 const rateLimitStore = new Map();
 const RATE_LIMIT_WINDOW = 60 * 1000;
@@ -151,7 +145,6 @@ export async function middleware(request) {
     const verifyData = verifyRes.ok ? await verifyRes.json() : { user: null };
     const user = verifyData?.user;
     const roleId = user?.role_id;
-    const landingPath = roleLandingPages[roleId]; // ดึง Landing Path มาใช้
 
     // 💡 2. ตรวจสอบและ Redirect ไปหน้าเริ่มต้นเมื่อผู้ใช้เข้าถึง Path '/' (หน้า Login)
     if (currentPath === '/') {

@@ -360,6 +360,7 @@ export default function NewsClientPage({ disableCrud = false }) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedNews, setSelectedNews] = useState(null);
+  const [userLoaded, setUserLoaded] = useState(false);
 
   const fetchNews = async () => {
     setLoading(true);
@@ -377,6 +378,8 @@ export default function NewsClientPage({ disableCrud = false }) {
         const user = JSON.parse(userData);
         setCurrentUser(user);
       }
+
+      setUserLoaded(true);
 
       const response = await axios.get(`/api/news`, {
         headers: { Authorization: `Bearer ${accessToken}` },

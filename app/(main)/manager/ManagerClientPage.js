@@ -93,9 +93,9 @@ const ManagerFormFields = ({ managerData, setManagerData, isEditMode = false, ma
         const fetchAddressData = async () => {
             try {
                 const [provRes, prefRes, distRes] = await Promise.all([
-                    axios.get(`/api/latest/province.json`),
-                    axios.get(`/api/latest/district.json`),
-                    axios.get(`/api/latest/sub_district.json`)
+                    axios.get(`${API_BASE_URL}/api/latest/province.json`),
+                    axios.get(`${API_BASE_URL}/api/latest/district.json`),
+                    axios.get(`${API_BASE_URL}/api/latest/sub_district.json`)
                 ]);
                 setProvinces(provRes.data);
                 setAllPrefectures(prefRes.data);
