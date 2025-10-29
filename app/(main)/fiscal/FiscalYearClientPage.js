@@ -29,7 +29,7 @@ export default function FiscalYearClientPage() {
             }
             const config = { headers: { Authorization: `Bearer ${accessToken}` } };
             const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
-            const response = await axios.get(`${apiBaseUrl}/api/fiscal-year`, { params: { page }, ...config });
+            const response = await axios.get(`/api/fiscal-year`, { params: { page }, ...config });
             setFiscalYears(response.data.data || []);
             setCurrentPage(response.data.pagination.currentPage);
             setTotalPages(response.data.pagination.totalPages);
@@ -50,7 +50,7 @@ export default function FiscalYearClientPage() {
             const accessToken = Cookies.get('accessToken');
             const config = { headers: { Authorization: `Bearer ${accessToken}` } };
             const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
-            const response = await axios.post(`${apiBaseUrl}/api/fiscal-year/create`, { fiscal_name: fiscalName }, config);
+            const response = await axios.post(`/api/fiscal-year/create`, { fiscal_name: fiscalName }, config);
 
             Swal.fire({
                 title: 'สำเร็จ',
@@ -79,7 +79,7 @@ export default function FiscalYearClientPage() {
             const accessToken = Cookies.get('accessToken');
             const config = { headers: { Authorization: `Bearer ${accessToken}` } };
             const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
-            const response = await axios.put(`${apiBaseUrl}/api/fiscal-year/${fiscalId}`, { fiscal_name: newFiscalName }, config);
+            const response = await axios.put(`/api/fiscal-year/${fiscalId}`, { fiscal_name: newFiscalName }, config);
 
             Swal.fire({
                 title: 'สำเร็จ',
@@ -108,7 +108,7 @@ export default function FiscalYearClientPage() {
             const accessToken = Cookies.get('accessToken');
             const config = { headers: { Authorization: `Bearer ${accessToken}` } };
             const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
-            const response = await axios.put(`${apiBaseUrl}/api/active-fiscal-year/${fiscalId}`, {}, config);
+            const response = await axios.put(`/api/active-fiscal-year/${fiscalId}`, {}, config);
 
             Swal.fire({
                 title: 'สำเร็จ',
@@ -146,7 +146,7 @@ export default function FiscalYearClientPage() {
                     const accessToken = Cookies.get('accessToken');
                     const config = { headers: { Authorization: `Bearer ${accessToken}` } };
                     const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL;
-                    const response = await axios.delete(`${apiBaseUrl}/api/fiscal-year/${fiscalId}`, config);
+                    const response = await axios.delete(`/api/fiscal-year/${fiscalId}`, config);
 
                     Swal.fire({
                         title: 'สำเร็จ',

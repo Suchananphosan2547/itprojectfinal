@@ -73,13 +73,14 @@ export default function ResetPasswordPage() {
           
           {/* ส่วนแสดงโลโก้ KU */}
           <div className="flex flex-col items-center mb-10">
-            <Image
-              className='mx-auto'
-              src={KU_LOGO_URL}
-              alt="Kasetsart University Logo" 
-              width={120} 
-              height={120} 
-            />
+          <img
+            className='mx-auto'
+            aria-hidden
+            src="/images/KU_Logo_PNG.png"
+            alt="KU icon"
+            width={120}
+            height={150}
+          />
           </div>
           
           <h2 className="text-lg font-normal text-gray-700 mt-4">รีเซ็ตรหัสผ่าน</h2>

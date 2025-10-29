@@ -106,10 +106,10 @@ export default function Home() {
 
           <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-8 z-10"> 
             <h2 className="text-5xl font-extrabold text-center drop-shadow-lg ">
-              Information Technology
+              Kasetsart University
             </h2>
             <p className="mt-4 text-xl text-center font-light drop-shadow-md max-w-md">
-              สาขาเทคโนโลยีสารสนเทศ เราเชื่อในศักยภาพของทุกคนและพร้อมที่จะสร้างสิ่งมหัศจรรย์ไปด้วยกัน
+              มหาวิทยาลัยเกษตรศาสตร์ สร้างสรรค์ศาสตร์แห่งแผ่นดินสู่สากลเพื่อพัฒนาประเทศอย่างยั่งยืน
             </p>
           </div>
 
@@ -145,10 +145,10 @@ export default function Home() {
       {/* Right side: Login Form */}
       <div className="w-full md:w-4/10 flex flex-col items-center justify-center flex-grow p-0 p-4">
         <div className="w-full max-w-sm bg-white/0 p-0 shadow-none">
-          <Image
+          <img
             className='mx-auto'
             aria-hidden
-            src="https://my.ku.th/myku/img/KU_Logo_PNG.png"
+            src="/images/KU_Logo_PNG.png"
             alt="KU icon"
             width={120}
             height={150}

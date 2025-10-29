@@ -60,16 +60,17 @@ export default function RequestOtpPage() {
 
           {/* ส่วนแสดงโลโก้ KU โดยใช้ Next/Image และ URL */}
           <div className="flex flex-col items-center mb-4">
-            <Image
-              className='mx-auto'
-              src={KU_LOGO_URL}
-              alt="Kasetsart University Logo"
-              width={120} // ปรับขนาดตามภาพหน้าจอที่ดูสมมาตร
-              height={120}
-            />
+          <img
+            className='mx-auto'
+            aria-hidden
+            src="/images/KU_Logo_PNG.png"
+            alt="KU icon"
+            width={120}
+            height={150}
+          />
           </div>
 
-          <h2 className="text-xl font-normal text-gray-900 mt-8">ลืมรหัสผ่าน</h2>
+          <h2 className="text-lg font-normal text-gray-900 mt-8">ลืมรหัสผ่าน</h2>
           <p className="mt-2 text-sm text-gray-500">
             กรุณากรอกชื่อผู้ใช้เพื่อรับรหัส OTP สำหรับรีเซ็ตรหัสผ่าน
           </p>

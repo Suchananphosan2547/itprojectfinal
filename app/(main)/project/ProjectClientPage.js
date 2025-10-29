@@ -214,10 +214,6 @@ const ProjectDetailsModal = ({ isOpen, onClose, projectItem, onViewRegistrations
                   <p>{projectItem.fiscal_year || '-'}</p>
                 </div>
                 <div>
-                  <p className="font-semibold">จำนวนกลุ่มเป้าหมาย:</p>
-                  <p>{projectItem.group_count ? `${projectItem.group_count} คน` : '-'}</p>
-                </div>
-                <div>
                   <p className="font-semibold">เปอร์เซ็นต์ที่คาดว่าจะเข้าร่วม:</p>
                   <p>{projectItem.expected_participant_percentage ? `${projectItem.expected_participant_percentage} %` : '-'}</p>
                 </div>
@@ -711,10 +707,6 @@ const AddProjectModal = ({ isOpen, onClose, onSave, currentUser, managers, fisca
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">จำนวนกลุ่มเป้าหมาย</label>
-                <input type="number" value={groupCount} onChange={(e) => setGroupCount(e.target.value)} className="w-full border-slate-300 rounded-md shadow-sm p-2" />
-              </div>
-              <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">เปอร์เซ็นต์ที่คาดว่าจะเข้าร่วม</label>
                 <div className="relative">
                   <input type="number" value={expectedParticipantPercentage} onChange={(e) => setExpectedParticipantPercentage(e.target.value)} className="w-full border-slate-300 rounded-md shadow-sm p-2 pr-10" />
@@ -945,10 +937,6 @@ const EditProjectModal = ({ isOpen, onClose, onSave, projectItem, managers, fisc
                     </option>
                   ))}
                 </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">จำนวนกลุ่มเป้าหมาย</label>
-                <input type="number" value={groupCount} onChange={(e) => setGroupCount(e.target.value)} className="w-full border-slate-300 rounded-md shadow-sm p-2" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">เปอร์เซ็นต์ที่คาดว่าจะเข้าร่วม</label>

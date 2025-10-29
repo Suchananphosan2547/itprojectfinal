@@ -88,13 +88,14 @@ export default function VerifyOtpPage() {
           
           {/* ส่วนแสดงโลโก้ KU */}
           <div className="flex flex-col items-center mb-10">
-            <Image
-              className='mx-auto'
-              src={KU_LOGO_URL}
-              alt="Kasetsart University Logo" 
-              width={120} 
-              height={120} 
-            />
+          <img
+            className='mx-auto'
+            aria-hidden
+            src="/images/KU_Logo_PNG.png"
+            alt="KU icon"
+            width={120}
+            height={150}
+          />
           </div>
           
           {/* ข้อความหลัก */}

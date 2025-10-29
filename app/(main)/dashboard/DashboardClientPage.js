@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
 import { Cell } from 'recharts';
 import { FaExclamationTriangle, FaSearch, FaFileExcel, FaTimesCircle } from 'react-icons/fa';
-import { Line, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, ComposedChart, } from 'recharts';
+import { Line, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, ComposedChart, BarChart } from 'recharts';
 import Cookies from 'js-cookie';
 import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
@@ -24,7 +24,6 @@ const DashboardClientPage = () => {
     const [initialFiltersSet, setInitialFiltersSet] = useState(false);
 
     const API_HEADERS = useMemo(() => ({ 'Authorization': `Bearer ${Cookies.get('accessToken')}` }), []);
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || '';
 
     const defaultFiscalId = '';
     const defaultPlanId = '';
@@ -44,7 +43,7 @@ const DashboardClientPage = () => {
                 program_type: filters.program_type,
             });
 
-            const response = await axios.get(`${apiBaseUrl}/api/dashboard?${params.toString()}`, { headers: API_HEADERS });
+            const response = await axios.get(`/api/dashboard?${params.toString()}`, { headers: API_HEADERS });
 
             const projectsData = response.data?.data?.projects || [];
             setProjects(projectsData);
@@ -67,13 +66,13 @@ const DashboardClientPage = () => {
         } finally {
             setDataLoading(false);
         }
-    }, [API_HEADERS, pagination.currentPage, pagination.limit, filters, initialFiltersSet, apiBaseUrl]);
+    }, [API_HEADERS, pagination.currentPage, pagination.limit, filters, initialFiltersSet]);
 
     const fetchInitialData = useCallback(async () => {
         try {
             const [fiscalRes, planRes] = await Promise.all([
-                axios.get(`${apiBaseUrl}/api/fiscal-year`, { headers: API_HEADERS }),
-                axios.get(`${apiBaseUrl}/api/plan`, { headers: API_HEADERS })
+                axios.get(`/api/fiscal-year`, { headers: API_HEADERS }),
+                axios.get(`/api/plan`, { headers: API_HEADERS })
             ]);
 
             setFiscalYears(fiscalRes.data?.data || []);
@@ -85,7 +84,7 @@ const DashboardClientPage = () => {
         } finally {
             setInitialLoading(false);
         }
-    }, [API_HEADERS, apiBaseUrl]);
+    }, [API_HEADERS]);
 
     const handleExport = async () => {
         setIsExporting(true);
@@ -94,7 +93,6 @@ const DashboardClientPage = () => {
         const COMMON_FONT = { name: 'TH Sarabun New', size: 14 };
 
         try {
-
             const params = new URLSearchParams({
                 search: filters.search,
                 fiscal_id: filters.fiscal_id,
@@ -103,7 +101,7 @@ const DashboardClientPage = () => {
                 limit: 99999,
             });
 
-            const response = await axios.get(`${apiBaseUrl}/api/dashboard?${params.toString()}`, { headers: API_HEADERS });
+            const response = await axios.get(`/api/dashboard?${params.toString()}`, { headers: API_HEADERS });
             const projectsToExport = response.data?.data?.projects || [];
 
             if (projectsToExport.length === 0) {
@@ -253,6 +251,13 @@ const DashboardClientPage = () => {
         return new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(value);
     };
 
+const truncateLabel = (label, maxLength = 25) => {
+        if (!label) return '';
+        if (label.length <= maxLength) {
+            return label;
+        }
+        return label.substring(0, maxLength) + '...';
+    };
 
     const chartData = useMemo(() => projects.map(project => ({
         name: project.project_title,
@@ -400,35 +405,28 @@ const DashboardClientPage = () => {
 
                 <div className="bg-white rounded-lg shadow-md p-6">
                     <h2 className="text-lg md:text-xl font-semibold text-gray-800 mb-4 text-center md:text-left">
-                        กราฟแสดงงบประมาณโครงการ
+                        กราฟแสดงงบประมาณโครงการ (Bar Chart)
                     </h2>
                     {dataLoading ? (
                         <div className="w-full h-[400px] flex items-center justify-center text-gray-500">กำลังโหลดกราฟ...</div>
                     ) : chartData.length > 0 ? (
                         <div className="w-full h-[400px]">
                             <ResponsiveContainer width="100%" height="100%">
-                                <ComposedChart
+                                <BarChart
                                     data={chartData}
-                                    margin={{ top: 50, right: 10, left: 10, bottom: 40 }}
+                                    margin={{ top: 20, right: 10, left: 10, bottom: 80 }}
                                 >
                                     <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-
-                                    <XAxis
-                                        dataKey="name"
-
-                                        angle={-30}
-                                        textAnchor="end"
-                                        interval={0}
-
-                                        height={window.innerWidth < 640 ? 50 : 80}
-
-                                        tick={{
-                                            fontSize: window.innerWidth < 640 ? 8 : 10,
-
-                                            fill: '#555'
-                                        }}
-                                    />
-
+<XAxis
+                                    dataKey="name"
+                                    angle={-30}
+                                    textAnchor="end"
+                                    interval={0}
+                                    height={window.innerWidth < 640 ? 50 : 80}
+                                    tick={{ fontSize: window.innerWidth < 640 ? 8 : 10, fill: '#555' }}
+                                    // 🚀 เพิ่ม tickFormatter เข้ามาตรงนี้
+                                    tickFormatter={(name) => truncateLabel(name, window.innerWidth < 640 ? 15 : 25)}
+                                />
                                     <YAxis
                                         tickFormatter={(v) => new Intl.NumberFormat('th-TH').format(v)}
                                         tick={{ fontSize: 11 }}
@@ -436,12 +434,10 @@ const DashboardClientPage = () => {
                                             value: 'งบประมาณ (บาท)',
                                             angle: -90,
                                             position: 'insideLeft',
-
                                             dx: window.innerWidth < 640 ? -10 : -35,
                                             style: { fill: '#555', fontSize: 10, textAnchor: 'middle' },
                                         }}
                                     />
-
                                     <Tooltip
                                         formatter={(v, name) => [formatCurrency(v), name]}
                                         contentStyle={{
@@ -450,35 +446,24 @@ const DashboardClientPage = () => {
                                             border: '1px solid #ddd',
                                         }}
                                     />
-
                                     <Legend
                                         verticalAlign="top"
                                         align="center"
-                                        wrapperStyle={{
-                                            top: 0,
-                                            marginBottom: 20,
-                                            fontSize: 13
-                                        }}
+                                        wrapperStyle={{ top: 0, marginBottom: 20, fontSize: 13 }}
                                         iconType="circle"
                                     />
 
-                                    <Bar dataKey="งบประมาณที่จ่ายจริง" barSize={20} radius={[5, 5, 0, 0]}>
+                                    <Bar dataKey="งบประมาณที่จ่ายจริง" barSize={25} radius={[5, 5, 0, 0]}>
                                         {chartData.map((entry, index) => (
                                             <Cell
                                                 key={`cell-${index}`}
-                                                fill={entry.program_type === 'ปกติ' ? '#3B82F6' : '#10B981'}
+                                                fill={entry.program_type === 'ปกติ' ? '#6366F1' : '#EC4899'}
                                             />
                                         ))}
                                     </Bar>
 
-                                    <Line
-                                        type="monotone"
-                                        dataKey="งบประมาณที่ได้รับจัดสรร"
-                                        stroke="#EF4444"
-                                        dot={false}
-                                        strokeWidth={3}
-                                    />
-                                </ComposedChart>
+                                    <Bar dataKey="งบประมาณที่ได้รับจัดสรร" barSize={25} radius={[5, 5, 0, 0]} fill="#6B7280" />
+                                </BarChart>
                             </ResponsiveContainer>
                         </div>
                     ) : (
@@ -487,6 +472,7 @@ const DashboardClientPage = () => {
                         </div>
                     )}
                 </div>
+
             </div>
         </div>
     );
